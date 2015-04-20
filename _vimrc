@@ -16,3 +16,7 @@ if has("gui_running")
   " Maximize gvim window (for an alternative on Windows, see simalt below).
   set lines=55 columns=100
 endif
+
+" remember buffer
+set hidden
+:hi Normal guibg=Grey95
