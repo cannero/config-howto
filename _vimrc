@@ -8,5 +8,11 @@ set expandtab
 set shiftwidth=2
 set softtabstop=2
 set autoindent
+set backspace=2
+set ignorecase
 
-
+if has("gui_running")
+  " GUI is running or is about to start.
+  " Maximize gvim window (for an alternative on Windows, see simalt below).
+  set lines=55 columns=100
+endif
