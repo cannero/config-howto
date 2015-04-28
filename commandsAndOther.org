@@ -1,0 +1,380 @@
+* SQL
+** queries
+- multicolumn search 
+  select * from leadsets where (leadset, prodversion) in (select leadset, prodversion from orders where uniqnr = 172858)
+- subselect with EXISTS
+  select distinct(leadset) from leadset_attributes a1 where workstep = 5 and not exists (select 1 from leadset_attributes a2 where a2.Leadset = a1.Leadset and a2.ProdVersion = a1.ProdVersion and a2.Workstep = a1.Workstep and a2.Attribute = 2)
+** glossary
+ - DML data manupilation language
+ - DDL data defintion language
+** MySQL
+run it in linux with /usr/sbin/rcmysql 
+{start|stop|status|reload|restart|try-restart|force-reload}
+or /etc/inti.d/mysql
+
+| description       | command                                                      |
+|-------------------+--------------------------------------------------------------|
+| get all variables | SHOW VARIABLES (LIKE ...), of interest is e.g. character_set |
+| time interval     | NOW() - INTERVAL 2 HOUR SECOND DAY etc.                      |
+| create user       | CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'mypass';    |
+| use binary collate for case sensitive string comparison | select * from orders where leadset LIKE 's%' COLLATE utf8_bin                                                             |
+
+
+
+*** InnoDB
+- create index allows concurrent DML, see http://dev.mysql.com/doc/refman/5.6/en/innodb-create-index-overview.html
+- MySQL will not use indexes if you query the wrong data type
+
+** mysqldump
+- export schema:
+  mysqldump.exe -u diituser -p8932500 -h 142.120.60.114 -P 3306 -B diko --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r diko.sql
+
+* Debugging
+** WinDbg
+- http://blogs.msdn.com/b/tess/archive/2008/02/04/net-debugging-demos-information-and-setup-instructions.aspx
+- http://blogs.msdn.com/b/johan/archive/2007/01/11/how-to-install-windbg-and-get-your-first-memory-dump.aspx
+*** General
+  - all commands starting with . are from windbg
+  - commands starting with ! are from some loaded extension
+*** Installation
+  - included in Debugging Tools for Windows
+*** Setup
+  - copy sos.dll from C:\Windows\Microsoft.NET\Framework\ to windbg folder for .Net debugging
+  - load it with .load sos
+  - Create a folder where you want to cache all the symbol files. For example: "C:\Symbols"
+  - Start windbg and open the dialogue to configure the symbol path by clicking File -> Symbol File Path
+    srv*c:\symbols\public*http://msdl.microsoft.com/download/symbols
+*** Commands
+  | command | description         |
+  |---------+---------------------|
+  | .load   | load extension      |
+  | ~ (id)s | switch to thread id |
+  |  !threads | all threads         |
+
+* svn
+** command line
+*** Commands
+  | command             | description                        |
+  |---------------------+------------------------------------|
+  | svn diff -r... path | diff to revision ... in local copy |
+
+  
+* Windows
+** DOS
+*** compare files
+comp: use with /N, else only filesize diff
+
+*** registry
+regsvr: register file in the windows registry, with /u unset key   
+*** telnet
+telnet client, call open $<$server$>$ to open a client, export DISPLAY IP:0
+*** ftp
+ftp client, login with ftp\_(IP), start with ftp $<$IP$>$, quit with bye, change to dir, bin, prompt, mget *;
+*** cmd
+  - start shell with C:$\backslash$WINDOWS$\backslash$system32$\backslash$cmd.exe /C "start" for multiple windows
+  - start parameters: /V:ON: deactivate delayed resolving of variables, resolve them with !var!
+*** nbtstat
+find hostname from ip address: nbtstat -a
+*** nslookup
+    get all hosts from ip: nslookup ip
+*** cacls
+set access for file: cacls <file> /G <user:mode>, e.g. cacls dummy.txt /G Everyone:F; revert with /R
+*** findstr
+search for text in files with /S in subdirectories
+** Excel
+Hyperlinks relativ setzen mit Datei -> Eigenschaften -> Zusammenfassung: Hyperlink
+** Visual Studio
+edit autoexp.dat for expanding and not stepping into in debugger
+c:/Programme/Microsoft Visual Studio/Common/MSDev98/Bin/
+
+TUString =<StringRep->Str,s>
+
+[ExecutionControl] 
+TUString::*=NoStepInto
+CView::GetDocument=NoStepInto
+
+c:/Programme/Microsoft Visual Studio 9.0/Common7/Packages/Debugger/
+
+Makefile export:
+wrong format for custom build of dll, use .$\backslash$LPPars not .LPPars\\
+add path for DJGPP binaries
+
+*** Visual Studio 2008
+**** how to run it with the 6.0 compiler
+C++ settings : 		
+linker setttings: 	
+delete the reference to the vcprojects default port vcproj file
+project right click tool build order -> deselect manifest
+options -> max number of project builds: 1
+comman
+**** Visual Studio “Find” results in “No files were found to look in.
+     Find stopped progress
+     the workaround (as many of you noted) is to press Ctrl+Scroll Lock, Ctrl+Break, or the Break key alone
+*** Visual Studio 6.0
+**** shortcuts
+
+- LineCut, LineOpenBelow, 
+- CharLeft, CharRight, LineEnd, LineStart, LineUp, LineDown
+- FindBackwardDialog, Find, FindInFiles
+
+**** Profiling
+switch profiling on in Settings: Linker: enable profiling\\%
+start profiling in the menu Build: Profil\\%
+merge pbt and pbo files with prep /m $<name>$\\%
+create file with plist /t $<name>$
+
+**** Visual SourceSafe
+     - disable with HKEY_CURRENT_USER\Software\Microsoft\DevStudio\6.0\Source Control\Disabled
+** remote desktop
+- local drives are mapped to //tsclient
+- for copy + paste enable all fields in local resources, and restart rdpclip.exe
+- speed up connection with 15bit, background turned off
+** Win
+   - disable task manager
+     HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+     "Shell"="%ExePath%"
+   - start cmd box as administrator
+     runas /noprofile /user:mymachine\administrator cmd
+     or with domain  /user:mydomain\admin
+   - disable task manager
+     Key: Software\Microsoft\Windows\CurrentVersion\Policies\System
+     Name: DisableTaskMgr
+     Type: REG_DWORD
+     Value: 1=Enablethis key, that is DISABLE TaskManager
+   - set group policy with gpedit.msc
+   - edit registry of other user
+     mark HKEY_USERS, File -> Load Hive
+     load file ntuser.dat from user folder
+     unload after edit
+   - run PerfMon for performance monitoring
+   - add items to send to senden an menu in documents and settings:user:sendto
+   - Wireshark can't actually capture local packets on windows XP due to the nature of the windows TCP stack. When packets are sent and received on the same machine they don't seem to cross the network boundary that wireshark monitors.
+
+    However there is a way around this, you can route the local traffic out via your network gateway (router) by setting up a (temporary) static route on your windows XP machine.
+
+    Say your XP IP address is 192.168.0.2 and your gateway (router) address is 192.168.0.1 you could run the following command from windows XP command line to force all local traffic out and back across the network boundary, so wireshark could then track the data (note that wireshark will report packets twice in this scenario, once when they leave your pc and once when they return).
+
+    route add 192.168.0.2 mask 255.255.255.255 192.168.0.1 metric 1
+
+** Gadgets
+*** basics
+    - default gadgets are in C:\Program Files\Windows Sidebar\Gadgets
+      copy one and rename folder and gadget.xml name
+      zip and rename to .gadget
+      install: did not work
+    - folder %UserProfile%\AppData\Local\Microsoft\Windows Sidebar\Gadgets
+** Visual Basic
+   escape " with "", for a linebreak use \_
+** .NET
+PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow Foundation are not selectable; this seems to be the same reason why the resume layout after the EndInit of the PerformanceCounter fails 
+
+** Services
+- start and control services with the \textbf{sc} command
+- start net
+  install a .Net service with installutil
+  install: sc create CAO-COPLSapSebastian binPath= "C:\usr\schwarzhuber\COPL\bin\sap_gw.exe /ServiceName=CAO-COPLSapSebastian /gwFile=\"C:\usr\schwarzhuber\COPL\config\SAP_GW\SapGateway.xml\""
+  change: sc config binPath= ...
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+** IIS
+
+   -logfiles c:/inetpub/logs, set in IIS configuration, enable logging in Programs and Features -> turn Features on/off
+
+
+* Thunderbird
+** new mail
+- switch text/html in new mail with create + shift
+
+
+* Ruby
+** ruby style
+- callbacks
+  def do_stuff(a,b,c)
+    sum=a+b+c
+    yield sum #<- can be checked with block_given?
+  end
+
+  #call with:
+  do_stuff(a,b,c){|status_code| puts "did #{a}, ... #{status_code}"}
+** Rails
+speed up webrick without ReverseDNSLookup
+
+
+* VMWare
+** disable beep: To turn it off for only one session, do the following:
+
+   1. Click Start
+   2. Click Run
+   3. In the run box type
+      net stop beep
+
+To turn off the beep permanently, do the following:
+
+1. Click Start
+   2. Click Run
+   3. In the run box type
+      sc config beep start= disabled (please note the space after the = !!)
+
+To change the status of the beep again, type any of the following in the run box:
+
+    * sc config beep start= boot (for loading device driver by the boot loader)
+    * sc config beep start= system (for loading device driver by the kernel initialization)
+    * sc config beep start= auto (for starting service automatically at startup. Even when no one logs on)
+    * sc config beep start= demand (for starting service manually (default, when no start parameter is specified))
+    * sc config beep start= disabled (completely disables the service)
+    * sc config beep start= delayed-auto (for starting service after other “auto” services are started)
+
+** To disable ThinPrint on a View client, change the values of these registry keys as indicated:
+
+    HKEY_CURRENT_USER Software VMware, Inc. VMware VDM Client RDP Settings RedirectPrinters = false
+    HKLM SOFTWARE thinPrint TPAutoConnect ConnectToClient = DISABLED 
+
+Notes:
+
+    If the keys do not exist, create them with values of type STRING.
+    You may have to reboot the client for the changes to take effect.
+    This method disables ThinPrint on the client side only. The View Desktop can use ThinPrint to print when you connect to it from a different client computer. 
+
+Additional Information
+You may also disable ThinPrint within the virtual desktop by disabling the TP AutoConnect Service and TP VC Gateway Service.
+
+To disable ThinPrint within the virtual desktop:
+
+    Log in to the virtual machine.
+    Open the Services console.
+    Right-click the TP AutoConnect service.
+    Click Properties.
+    Under Service status, click Stop.
+    Click the Startup type and click Disabled.
+    Click OK.
+    Repeat steps 1-7 for the TP VC Gateway service.
+    Close the Services console. 
+** Host USB device connection disabled
+Try right clicking on one of the USB hubs and looking at the driver details. If usbfilter.sys is listed then open HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{36FC9E60-C465-11CF-8056-444553540000} and delete the UpperFilter, usbfilter pair. 
+restart some times after change
+* C#
+** folders
+*** exe.config files
+- XP: C:\Dokumente und Einstellungen\sebastian\Lokale Einstellungen\Anwendungsdaten\DiIT\
+- Win7: C:\Users\schwarzhuber\AppData\Local\DiIT
+* emacs
+** customize and start files
+   - site-start.el is loaded first, cancel with $--$no-site-file
+
+** format
+*** C++ Code
+   - the C Label Minimum Indentation has to be set to 4 (with override style settings):
+   (c-syntactic-indentation t) this will read the format from c-offsets-alist
+   if no indentation is done, set it manually with C-c C-o
+*** encoding
+    change encoding of buffer with C-x RET f coding RET
+*** carriage return
+    (setq inhibit-eol-conversion t), otherwise windows file has only ^J in text mode
+    https://lists.gnu.org/archive/html/help-gnu-emacs/2005-12/msg00548.html
+** fonts
+   - show all faces with M-x list-faces-display $\rightarrow$ customize\\
+   font family is fndry and fmly from xfontsel
+
+   my options:'(default ((t (:stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :family "misc-fixed"))))
+
+** misc commands
+*** search for control characters
+    C-q C-(control char), ^@ with C-Space, ^? with Backspace
+*** environment variables
+    (getenv "DS\_LOC") (setenv "DS\_LOC" "FTN")
+*** set encoding
+    C-x C-m f
+*** remove complete line
+    flush-line (opposite of keep-line)
+
+*** replace in files
+    M-x find-name-dired: you will be prompted for a root directory and a filename pattern.
+    Press t to "toggle mark" for all files found.
+    Press Q for "Query-Replace in Files...": you will be prompted for query/substitution regexps.
+
+** Visual Studio in emacs
+*** format
+    for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
+    Format is set in list
+
+** elisp
+   - you cannot execute buffer functions in scratch
+   - CAR and CDR (could-er) are the two slots of a cons cell (an ordered pair) which refer to some lisp objects
+   - numbers in a keymap represent decimal values of ascii control characters:\\%
+
+   Dec. Code & Character
+   9 & Tab 
+   13 & carriage return 
+   17 & C-q
+   24 & C-# XXX: 
+   27 & Esc
+
+** SQL Mode
+in windows add the bin directory for mysql to the exec-path
+
+** CSharp Mode
+
+   when used in Linux some warning pops up because of uninitalize varible flymake:
+   change is-flymake-loaded with check fboundp to boundp
+
+** Windows
+   Here's a Windows tip that I find invaluable for tools such as editors. Rather than associating Emacs with the particular file types you want to edit with it (because you may want to associate another application with them), add Emacs to your SendTo menu.
+
+   - Open the folder where you installed Emacs and navigate to the bin directory.
+   - Select runemacs.exe, click mouse-button-2 and select Create Shortcut. The new shortcut appears, highlighted.
+   - Click mouse-button-2 again and select Cut (you're going to move it).
+   - Move to the Start button and click mouse-button-2 to open the menu.
+   - Select Explore, which should open Windows Explorer to the Start Menu folder.
+    In the navigation pane, select the SendTo folder (usually just above the Start Menu folder) to open it.
+    Within the SendTo folder, click mouse-button-2 and select Paste to insert the runemacs.exe shortcut.
+    Rename the shortcut, if you like.
+
+** modes
+*** major modes
+    - hex with hexl-mode
+      or hexl-find-file instead of find-file
+*** minor-modes
+    -which-function-mode: display the current function name
+** org mode
+*** export only visible area
+    C-c C-e C-v
+* Linux
+** commands
+- back quote command substitution: runs one command on the other, like ll `find . -print`. Could also be \$(cmd)
+
+- list commands: run command1 \&\& then command2, if command1 returns 0, can also be used with ||, ; (sequentially), \& (asynchron)
+
+- brace expansion: cmd {1,2,$\ldots$} every option in the braces separated by a comma gets extend and the cmd is run with the whole string (cp filename{,.bak})
+
+- font show all fonts with xfontsel
+
+- info show online help with 'info'
+
+- find find . -follow -name "*.cfg" -exec grep -inHl 'mtbl' {} \; i: case insensitive, l: name of input file, H: filename, n: line number
+
+- proc use 'proc show ZWN\_{}nprd' to start an agent in its directory or 'proc start YUL\_que'
+
+- mounting use mount for list of mounted devices, mounting table under /etc/fstab
+
+- ifconfig is in /sbin/, lists all ip addresses; (ipconfig)
+
+- xev show key commands
+
+- prompt display variable set through PS1
+- setxkbmap set the keyboard mapping to de, us etc. (see next item)
+- loadkeys load keys globally from lib, e.g. us -> us.map.gz, use showkeys to show them, only with access to /dev/console (see above item)
+- basename/dirname chop path strings to names
+
+- concatenate files to one
+  cat file* >> toFile
+  find . -type f -name '*.txt' -exec cat {} + >> output.file : + starts only one process
+
+- append newline to end of file
+  perl -0777 -i.original -pe 's/END;\n\$\$/END;\n\$\$\n/igs' Update*
+
+** window managers
+- old ones mwn, twn
+
+- fvwm descendant from twn
+
+- icewm also a lightweight wm with profiles
