@@ -57,6 +57,10 @@
 (require 'uniquify)
  ;replace y-e-s by y
 (fset 'yes-or-no-p 'y-or-n-p)
+;open pdf files in fundamental mode
+(setq auto-mode-alist
+      (append '(("\\.pdf$" . whitespace-mode))
+              auto-mode-alist))
 
 ;;-------------------------------------------
 ;; set default height
