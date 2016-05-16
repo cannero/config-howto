@@ -72,7 +72,8 @@
 (setq initial-frame-alist '(
                             (top . 10)
                             (left . 10)
-))
+                            ))
+(set-background-color "grey97")
 
 (when (window-system)
   (tool-bar-mode -1))
@@ -158,7 +159,8 @@ void "clName"::Dump( CDumpContext& dc ) const
   (setq-default c-basic-offset 4
 				tab-width 4
 				indent-tabs-mode nil)
-  )
+  (c-set-offset 'substatement-open 0))
+
 (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
 
 ;;
@@ -287,6 +289,21 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;;for VirtualBox makefiles
 (add-to-list 'auto-mode-alist '("\\.kmk\\'" . makefile-mode))
 
+;;xml mode folding
+(require 'sgml-mode)
+(require 'nxml-mode)
+(add-to-list  'hs-special-modes-alist
+             '(nxml-mode
+               "<!--\\|<[^/>]*[^/]>"
+               "-->\\|</[^/>]*[^/]>"
+
+               "<!--"
+               sgml-skip-tag-forward
+               nil))
+
+(add-hook 'nxml-mode-hook 'hs-minor-mode)
+(define-key nxml-mode-map (kbd "C-c h") 'hs-toggle-hiding)
+
 ;;snippets
 (require 'yasnippet)
 (yas-global-mode 1)
@@ -308,6 +325,64 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+;; does not work with skewer-html-mode
+;;(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+
+;; skewer does only work with sgml
+;;(add-hook 'web-mode-hook 'skewer-html-mode)
+(add-hook 'web-mode-hook 'company-mode)
+
+;; sgml mode
+(add-hook 'sgml-mode-hook 'skewer-html-mode)
+
+(eval-after-load "hideshow"
+  '(add-to-list 'hs-special-modes-alist
+                 `(ruby-mode
+                   ,(rx (or "def" "class" "module" "{" "[")) ; Block start
+                   ,(rx (or "}" "]" "end"))                  ; Block end
+                   ,(rx (or "#" "=begin"))                   ; Comment start
+                   ruby-forward-sexp nil)))
+
+(add-hook 'ruby-mode-hook #'hs-minor-mode)
+
+;; rust
+;;also the environment variable RUST_SRC_PATH has to be set
+(setq racer-rust-src-path "d:/progra/rust/rust/src/")
+(require 'company-racer)
+(with-eval-after-load 'company
+  (add-to-list 'company-backends 'company-racer))
+
+(add-hook 'rust-mode-hook #'racer-mode)
+(add-hook 'racer-mode-hook #'eldoc-mode)
+
+(add-hook 'racer-mode-hook #'company-mode)
+(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+(setq company-tooltip-align-annotations t)
+
+;; javascript
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(setq ac-js2-evaluate-calls t)
+(add-hook 'js2-mode-hook 'ac-js2-mode)
+(add-hook 'js2-mode-hook 'skewer-mode)
+(add-hook 'js2-mode-hook 'company-mode)
+
+;; set default coding system to utf-8
+;; from https://www.masteringemacs.org/article/working-coding-systems-unicode-emacs
+;; to run a function with a different coding system use
+;; M-x universal-coding-system-argument
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+;; backwards compatibility as default-buffer-file-coding-system
+;; is deprecated in 23.2.
+(if (boundp 'buffer-file-coding-system)
+    (setq-default buffer-file-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8))
+
+;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -316,11 +391,19 @@ void "clName"::Dump( CDumpContext& dc ) const
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
    ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
+ '(c-default-style
+   (quote
+    ((java-mode . "java")
+     (awk-mode . "awk")
+     (other . "java"))))
  '(custom-enabled-themes (quote (adwaita)))
  '(ecb-options-version "2.40")
  '(ido-default-buffer-method (quote selected-window))
  '(indent-tabs-mode nil)
  '(initial-buffer-choice t)
+ '(package-selected-packages
+   (quote
+    (ac-js2 company-racer racer yasnippet web-mode scss-mode rust-mode ecb csharp-mode color-theme coffee-mode)))
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

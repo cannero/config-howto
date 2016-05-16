@@ -51,6 +51,42 @@ or /etc/inti.d/mysql
   | ~ (id)s | switch to thread id |
   |  !threads | all threads         |
 
+*** Resources
+https://blogs.msdn.microsoft.com/amb/2011/05/12/do-not-collect-32bit-process-dumps-with-64bit-task-manager/
+ProcDump  https://technet.microsoft.com/en-us/sysinternals/dd996900.aspx
+** GDB
+*** init file
+    [[file:.gdbinit]
+*** commands
+- -args
+ invoke program with arguments, specified with -
+- break
+ set breakpoint
+- bt
+ backtrace the calling stack
+- c
+ continue program
+- n
+ next line
+- p
+ print and/or set variable
+- run
+ run the program
+- s, u
+ step in, out
+*** breakpoints
+   - show with info break
+   - disable <number>
+*** pause process
+   - Ctrl-C, in emacs Ctrl-C, Ctrl-C
+     windows gui needs workaround in mingw console http://www.mingw.org/wiki/Workaround_for_GDB_Ctrl_C_Interrupt
+*** print
+   - p Function()
+*** control
+   - next next line in function
+   - step next source code line
+   - finish end of current function
+
 * svn
 ** command line
 *** Commands
@@ -58,7 +94,16 @@ or /etc/inti.d/mysql
   |---------------------+------------------------------------|
   | svn diff -r... path | diff to revision ... in local copy |
 
+*** diff for patch
+- get diff from svn with diff -r rev1:rev2
+  or diff -c rev
+
+- emacs replace regex
+  \(.*\)(revision 13286)^M -> \1(revision 13286)
+  maybe the file has to be opened with (setq inhibit-eol-conversion t)
   
+- run patch with
+  patch -p0 < patchfile
 * Windows
 ** DOS
 *** compare files
@@ -81,6 +126,10 @@ find hostname from ip address: nbtstat -a
 set access for file: cacls <file> /G <user:mode>, e.g. cacls dummy.txt /G Everyone:F; revert with /R
 *** findstr
 search for text in files with /S in subdirectories
+*** net
+    - show connections with net use
+    - remove with net use /delete h:
+    - connect with net use H: \\aphrodite\home * /USER:schwarzhuber
 ** Excel
 Hyperlinks relativ setzen mit Datei -> Eigenschaften -> Zusammenfassung: Hyperlink
 ** Visual Studio
@@ -98,6 +147,13 @@ c:/Programme/Microsoft Visual Studio 9.0/Common7/Packages/Debugger/
 Makefile export:
 wrong format for custom build of dll, use .$\backslash$LPPars not .LPPars\\
 add path for DJGPP binaries
+
+*** search not working
+
+  No matching text found to look in. 
+  Find was stopped in progress.
+  
+  Press ctrl + break
 
 *** Visual Studio 2008
 **** how to run it with the 6.0 compiler
@@ -125,10 +181,32 @@ create file with plist /t $<name>$
 
 **** Visual SourceSafe
      - disable with HKEY_CURRENT_USER\Software\Microsoft\DevStudio\6.0\Source Control\Disabled
+*** emacs keybinding > 2008
+   
+
+    Download the Emacs emulation extension.
+
+    Rename it from EmacsEmulations.vsix to EmacsEmulations.zip and unzip into a folder.
+
+    Edit the <VisualStudio Version="10.0"> value on the extensions.vsixmanifest file (XML):
+
+    <SupportedProducts>
+        <VisualStudio Version="11.0">
+        <Edition>Pro</Edition>
+        </VisualStudio>
+    </SupportedProducts>
+
+    Note: Visual Studio 2013 works by setting Version="12.0". And VS Express can be used by setting <Edition>Express_All</Edition>
+          Visual Studio 2015 "14.0"
+    Zip the content inside the folder back up and rename it back to EmacsEmulations.vsix.
+    Install the extension as the user who needs the bindings and not as administrator.
+    Manually copy the Emacs.vsk file from the unzipped content of the extension to the Common7\IDE folder in the Visual Studio program directory (for which you will need elevated permissions).
+
 ** remote desktop
 - local drives are mapped to //tsclient
 - for copy + paste enable all fields in local resources, and restart rdpclip.exe
 - speed up connection with 15bit, background turned off
+- back to fullscreen: ctrl alt break
 ** Win
    - disable task manager
      HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
@@ -179,14 +257,17 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
 ** IIS
 
    -logfiles c:/inetpub/logs, set in IIS configuration, enable logging in Programs and Features -> turn Features on/off
-
+** disable telemetry data gathering
+   http://superuser.com/questions/972501/how-to-stop-microsoft-from-gathering-telemetry-data-from-windows-7-8-and-8-1
 
 * Thunderbird
 ** new mail
 - switch text/html in new mail with create + shift
 
+** virtual folder
+   search for keywords -> create as virtual folder
 
-* Ruby
+* ruby
 ** ruby style
 - callbacks
   def do_stuff(a,b,c)
@@ -196,10 +277,90 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
 
   #call with:
   do_stuff(a,b,c){|status_code| puts "did #{a}, ... #{status_code}"}
-** Rails
+** basic
+- find method
+  <instance>.method(<:method_name>).source_location
+*** rspec
+    - run with rspec path/to/file.rb
+
+** rails
 speed up webrick without ReverseDNSLookup
+*** basic
+**** main layout
+   <%= javascript_include_tag "application", "data-turbolinks-track" => true %>
+   will produce an error, solution:
+
+   http://stackoverflow.com/questions/12520456/execjsruntimeerror-on-windows-trying-to-follow-rubytutorial
+
+My friend was attempting a Rails tutorial on Win 8 RTM a few months ago and ran into this error. Not sure if this issue exists in Windows 7 as well, but this may help.
+
+Options:
+
+1) Removing //= require_tree . / Ignoring the issue - As ColinR stated above, this line should not be causing an issue in the first place. There is an actual problem with ExecJS working properly with the JavaScript runtime on your system and removing this line is just ignoring that fact.
+
+2) Installing Node.js / Running away - Many people seem to just end up installing Node.js and using that instead of the JavaScript runtime already on their system. While that is a valid option, it also requires additional software and only avoids the original issue, which is that ExecJS is not working properly with the JavaScript runtime already on your system. If the existing JavaScript runtime on your system is supposed to work, why not make it work instead of installing more software? According to the ExecJS creator, the runtime already built into Windows is in fact supported...
+
+    ExecJS lets you run JavaScript code from Ruby. It automatically picks the best runtime available to evaluate your JavaScript program, then returns the result to you as a Ruby object.
+
+    ExecJS supports these runtimes:
+
+        therubyracer - Google V8 embedded within Ruby
+        therubyrhino - Mozilla Rhino embedded within JRuby
+        Node.js
+        Apple JavaScriptCore - Included with Mac OS X
+        Microsoft Windows Script Host (JScript)
+
+    (from github.com/sstephenson/execjs#execjs )
+
+3) Actually fixing the issue / Learning - Use the knowledge of options 1 and 2 to search for other solutions. I can't tell you how many webpages I closed upon seeing options 1 or 2 was the accepted solution before actually finding information about the root issue we were having. The only reason we kept looking was that we couldn't believe the Rails team would (1) insert a line of code in every scaffold generated project that caused an issue, or (2) require that we install additional software just to run that default line of code. And so we eventually arrived at a fix for our root issue (your miles may vary).
+
+The Fix that worked for us: On the system having issues, find ExecJS's runtimes.rb file. It looks like this. Make a copy of the found file for backup. Open the original runtimes.rb for editing. Find the section that starts with the line JScript = ExternalRuntime.new(. In that section, on the line containing :command => "cscript //E:jscript //Nologo //U", - remove the //U only. Then on the line containing :encoding => 'UTF-16LE' # CScript with //U returns UTF-16LE - change UTF-16LE to UTF-8 . Save the changes to the file. This section of the file should now read:
+
+JScript = ExternalRuntime.new(
+    :name        => "JScript",
+    :command     => "cscript //E:jscript //Nologo",
+    :runner_path => ExecJS.root + "/support/jscript_runner.js",
+    :encoding    => 'UTF-8' # CScript with //U returns UTF-16LE
+)
+
+Next, stop then restart your Rails server and refresh the page in your browser that produced the original error. Hopefully the page loads without error now. Here's the ExecJS issue thread where we originally posted our results: https://github.com/sstephenson/execjs/issues/81#issuecomment-9892952
+
+If this did not fix the issue, you can always overwrite the modified runtimes.rb with the backup copy you (hopefully) made and everything will be back to square one. In that case, consider option 3 and keep searching. Let us know what eventually works for you.. unless it's removing the require_tree or installing node.js, there's plenty of that going around already. :)
 
 
+*** running old rails
+**** problem with bluecloth 2.2.0
+
+
+     Run gem install bluecloth -v '2.2.0' if you haven't already
+
+     Apply this patch on bluecloth.h file, on my machine it is located in
+
+     H:\Ruby193\lib\ruby\gems\1.9.1\gems\bluecloth-2.2.0\ext\bluecloth.h
+
+     Go to bluecloth 2.2.0 directory, for example
+
+     H:\Ruby193\lib\ruby\gems\1.9.1\gems\bluecloth-2.2.0
+
+     Run rake gem (this may require to install some additional gems).
+
+     Then you should see .gem file created in
+
+     H:\Ruby193\lib\ruby\gems\1.9.1\gems\bluecloth-2.2.0\pkg\bluecloth-2.2.0.gem
+
+     Open this directory and install the patched gem:
+
+     gem install bluecloth-2.2.0.gem --platform=ruby
+
+     => will not work, but gem install works after that
+**** problem with libv8
+    used by therubyracer
+    NOT: gem install libv8 -v '3.16.14.1' -- --with-system-v8
+    take it out with: 
+    gem 'therubyracer', "~>0.11", :platform => :ruby
+    :platform :ruby will install only on unix
+**** wrong version of rake
+     use bundle exec rake
 * VMWare
 ** disable beep: To turn it off for only one session, do the following:
 
@@ -257,10 +418,59 @@ restart some times after change
 *** exe.config files
 - XP: C:\Dokumente und Einstellungen\sebastian\Lokale Einstellungen\Anwendungsdaten\DiIT\
 - Win7: C:\Users\schwarzhuber\AppData\Local\DiIT
-* emacs
-** customize and start files
-   - site-start.el is loaded first, cancel with $--$no-site-file
+** NUnit
+*** basisc
+    - console runner
+      run with nunit-console.exe dllToTest
+      creates result file in directory
+** Uri Escaping
+   pairs Uri.EscapeDataString and HttpUtility.UrlEncode,
+   Uri.EscapeUriString and HttpUtility.UrlPathEncode
 
+   Uri better, uses uppercase hex encoding
+   see also http://blog.lunatech.com/2009/02/03/what-every-web-developer-must-know-about-url-encoding
+* emacs
+64 bit build at http://sourceforge.net/projects/emacsbinw64/
+** customize and start files
+   - site-start.el is loaded first, cancel with --no-site-file
+
+** build emacs
+*** old verision
+**** tools
+    - mingw32: gcc, make (rename from mingw32-make)
+    - GnuWin Packages: CoreUtils, FindUtils, libxpm (with src)
+**** prebuild
+    - copy simx.h to include dir
+**** configure
+    - configure.bat --with-gcc --cflags -ID:/tools/GnuWin32/include/ --without-png --without-jpeg --without-tiff --without-gif
+**** make
+*** new version
+**** git repo
+     - git clone git://git.savannah.gnu.org/emacs.git emacs
+**** tools
+     - mingw32: developer toolkit 
+     - add the fstab file in the msys etc directory, http://www.mingw.org/wiki/Getting_Started#toc2
+     - remove msys-texinfo and use the one from http://sourceforge.net/projects/ezwinports/files/
+     - pckconfig from http://www.gtk.org/download/win32.php
+**** prebuild
+     - run ./autogen.sh
+       then dos2unix configure.ac
+       the again ./autogen.sh
+**** build
+     - release: CFLAGS='-O2' ../emacs/configure --prefix=/d/progra/c/emacsrelease
+** modes
+*** artist mode
+    for drawing asccii art
+*** org mode
+**** ditaa
+     - activate babel with ditaa
+     - download ditaa.jar and install java jre to run
+*** *Messages*
+    set size of buffer with (setq message-log-max 5000)
+*** hex with hexl-mode
+     or hexl-find-file instead of find-file
+*** which-function-mode
+    display the current function name
 ** format
 *** C++ Code
    - the C Label Minimum Indentation has to be set to 4 (with override style settings):
@@ -272,12 +482,27 @@ restart some times after change
     (setq inhibit-eol-conversion t), otherwise windows file has only ^J in text mode
     https://lists.gnu.org/archive/html/help-gnu-emacs/2005-12/msg00548.html
 ** fonts
-   - show all faces with M-x list-faces-display $\rightarrow$ customize\\
+   - show all faces with M-x list-faces-display -> customize
    font family is fndry and fmly from xfontsel
 
    my options:'(default ((t (:stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :family "misc-fixed"))))
+** Windows
+   Here's a Windows tip that I find invaluable for tools such as editors. Rather than associating Emacs with the particular file types you want to edit with it (because you may want to associate another application with them), add Emacs to your SendTo menu.
+
+   - Open the folder where you installed Emacs and navigate to the bin directory.
+   - Select runemacs.exe, click mouse-button-2 and select Create Shortcut. The new shortcut appears, highlighted.
+   - Click mouse-button-2 again and select Cut (you're going to move it).
+   - Move to the Start button and click mouse-button-2 to open the menu.
+   - Select Explore, which should open Windows Explorer to the Start Menu folder.
+    In the navigation pane, select the SendTo folder (usually just above the Start Menu folder) to open it.
+    Within the SendTo folder, click mouse-button-2 and select Paste to insert the runemacs.exe shortcut.
+    Rename the shortcut, if you like.
 
 ** misc commands
+*** file layout
+    show regex in new buffer
+    M-x occur
+
 *** search for control characters
     C-q C-(control char), ^@ with C-Space, ^? with Backspace
 *** environment variables
@@ -291,6 +516,10 @@ restart some times after change
     M-x find-name-dired: you will be prompted for a root directory and a filename pattern.
     Press t to "toggle mark" for all files found.
     Press Q for "Query-Replace in Files...": you will be prompted for query/substitution regexps.
+*** execute shell command
+(shell-command-to-string "hostname")
+*** get char info
+    describe-char for character at point
 
 ** Visual Studio in emacs
 *** format
@@ -316,6 +545,11 @@ in windows add the bin directory for mysql to the exec-path
 
    when used in Linux some warning pops up because of uninitalize varible flymake:
    change is-flymake-loaded with check fboundp to boundp
+   
+   newer version of csharp-mode:
+   (let ((is-flymake-enabled
+   (and (boundp 'flymake-mode)
+   flymake-mode)))
 
 ** Windows
    Here's a Windows tip that I find invaluable for tools such as editors. Rather than associating Emacs with the particular file types you want to edit with it (because you may want to associate another application with them), add Emacs to your SendTo menu.
@@ -329,15 +563,18 @@ in windows add the bin directory for mysql to the exec-path
     Within the SendTo folder, click mouse-button-2 and select Paste to insert the runemacs.exe shortcut.
     Rename the shortcut, if you like.
 
-** modes
-*** major modes
-    - hex with hexl-mode
-      or hexl-find-file instead of find-file
-*** minor-modes
-    -which-function-mode: display the current function name
 ** org mode
 *** export only visible area
     C-c C-e C-v
+*** odt export
+    - export #+OPTIONS: H:10 num:t for template file, save as ott, use with #+ODT_STYLES_FILE: "D:/usr/schwarzhuber/projects/mine/example.ott"
+    - set font in template under options, writer, default font only for this document
+    - filename can be set with #+PROPERTY: EXPORT_FILE_NAME 2015_06_11_Neue_Funktionen_2, only if export subtree is used, C-s, change of property has to be activated with C-c C-c
+*** misc
+    - export table to csv with Tbl -> Export to File
+    - file link
+      file:<path to file> with two [ and two ]
+
 * Linux
 ** commands
 - back quote command substitution: runs one command on the other, like ll `find . -print`. Could also be \$(cmd)
@@ -371,6 +608,16 @@ in windows add the bin directory for mysql to the exec-path
 
 - append newline to end of file
   perl -0777 -i.original -pe 's/END;\n\$\$/END;\n\$\$\n/igs' Update*
+- show ip
+  ip addr show
+- telnet
+  telnet <ip> <port>
+- show blocked ports
+  sudo /sbin/iptables -L -n
+- show listening ports
+  sudo netstat -tulpn
+- diff two folders
+  diff -ru src/ /f/restlib/src/
 
 ** window managers
 - old ones mwn, twn
@@ -378,3 +625,247 @@ in windows add the bin directory for mysql to the exec-path
 - fvwm descendant from twn
 
 - icewm also a lightweight wm with profiles
+* Vagrant
+** config file
+   - add local box with file:///C:/Users/...
+   - port forwarding with config.vm.network :forwarded_port, guest: 3000, host: 3000 
+* cygwin
+** turn off beep
+   home directory .inputrc
+   set bell-style none
+* mono
+** build
+   - csproj files with xbuild /p:Configuration=Debug x.csproj
+** csproj
+   - ToolsVersion sets framework
+   - Bootstrapper entries are dependencies for click once setups 
+* Tags
+** setup
+   run find . -name "*.cs" -exec "D:\tools\emacs24.3\bin\etags.exe" -a {} ;
+   creates a TAGS file
+** use
+   visit-tags-table for TAGS file to use
+   search tags with M-., C-u M-., C-u - M-.
+
+* vi
+** commands
+   - unset an option with set no<option>
+   - show whitespace: set list
+   - set background color hi: Normal guibg=Grey90
+** colorscheme
+   save it in .vim/colors
+   add it in .vimrc with colorscheme <name>
+** bell
+   set it to visual bell
+   set noeb vb t_vb=
+
+* git
+** basics
+   - .gitignore for files which should not be shown in untracked files
+** commands
+   - add: add files, redo if changed, -A adds all files
+   - commit: commit -m 'message', -a for all unstaged changes
+   - diff
+     cached shows diff with staged files
+     <commit> <commit> for difference between two commits
+   - log
+     show last i commits with -n i
+   - add to last commit
+     git commit --amend --no-edit
+     no-edit flag re-uses the last commit message
+   - rename case insensitive folders
+     git mv foldername tempname && git mv tempname folderName
+
+* powershell
+** commands
+   - Load a dll
+     Add-Type -Path .$\backslash$DiIT.Misc.dll
+   - get methods + members: [int] | Get-Member
+   - call static methods with [int]::MaxValue
+   - pipe to fl (Format-List) to get all properties
+   - call method: $i = 30, $i.GetHashCode()
+   - create a class
+     $a = New-Object DiIT.Misc.LeadsetPV("sfasdf/122/3")
+   - parameter switch
+     set it with colon -parameter:$true
+   - open registry key remotely
+     $Reg = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', "coplds1")
+     $RegKey= $Reg.OpenSubKey("SOFTWARE\DiIT\copl\Database")
+*** format files output
+    get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
+* Redmine
+  webrick has problems with reverse dns lookup, turn it off
+** svn integration
+   - enable SCM in Administration -> Repositories
+   - enable WS for repository management
+     use Web Service to udpate svn log on every commit
+   - set the repository for every project
+   - run ruby /path_to_redmine/redmine/script/rails runner "Repository.fetch_changesets" -e production
+     to get the complete log the first time
+     first call svn from the command line to set the svn user and password
+   - set post-commit hook
+* LibreOffice
+** convert to pdf
+   *LibreOffice should not run*
+   in Windows only - not --
+   soffice.exe -convert-to pdf Neue_Funktionen.odt -headless
+   
+** calc
+*** sort/filter
+    Data->Filter->AutoFilter
+** impress
+*** master
+right click -> edit master
+*** defaults
+F11 (styles and formatting): image and presentation styles
+-> right click edit styles
+* Office
+** VBA
+- 
+** Excel
+*** settings
+- set colon ; as delimiter for csv: Control Panel -> Region and Language -> Additional Settings
+*** commands
+- open vba editor: Alt+F11
+*** Formulas
+- references
+  relativ: A1
+  absolut: $A$1
+  partial: $A1, A$1
+- included in range, count
+=ZÄHLENWENN($A$1:$A$110;E186)
+
+* Gimp
+  Create Transparent Background: Add Alpha Channel in Layers, select Select By Color Tool, click background, delete it
+* msbuild
+** structure
+   a Project has different PropertyGroup, ItemGroup and Target elements
+*** simple one
+    <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+    <AssemblyName>MoqTests</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+    <Compile Include="Tests.cs"/>
+    </ItemGroup>
+    <Target Name="Build">
+    <Csc Sources="@(Compile)" OutputAssembly="$(AssemblyName).exe"/>
+    </Target>
+    </Project>
+*** extended
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    where targets are defined
+** references
+   - http://msdn.microsoft.com/en-us/library/dd393574%28v=vs.100%29.aspx
+   - http://msdn.microsoft.com/en-us/library/dd576348%28v=vs.100%29.aspx
+   - Target Files: WindowsInstallationPath\Microsoft.NET\Framework\<version>\
+* common
+** start bios win8
+   shift-click restart: advanced boot options
+* GnuWin32
+  - run download.bat
+  - run install <directory>
+
+* OOP
+** Basics and Principles
+- Encapsulate what varies
+- Favor composition over inheritance: has-a is better than is-a; changeable during runtime
+- Program to an interface not an implementation: model behavior in new abstract class, reusable and modifyable
+- Strive for loosely coupled designs: objects can interact, but have very little knowledge of each other
+- Open Closed Principle: Classes should be closed for modification but open for extension
+- Dependency Inversion Principle: Depend upon abstraction and not upon concrete classes
+- Principle of least knowledge (Only talk to your immediate friends): only invoke methods that belong to the object itself, to objects passed in as parameter, to any objects the method creates or instantiates (no methods on objects that were returned from calling other methods) and to any components of the object (has-a)
+- Hollywood Principle: Don't call us, we call you
+- Single Responsibility: a class should have only one reason to change
+** Patterns
+- Strategy
+ defines a family of algorithms, encapsulates each one, and makes them interchangeable; algorithm can be modified independently from clients
+
+- Observer
+ defines a one-to-many dependency between objects; all dependents are notified and udated automatically (push or pull by dependent)
+
+- Decorator
+ a decorator attaches additional responsibilities to an object (the component) dynamically; the component can be used on its own or wrapped by a decorator; the decorator has-a component and implements the same interface as the component and adds new behavoirs
+
+- Factory
+ a factory method handles object creation and encapsulates it in a subclass; the subclass decides which object to create; the method is only a interface in the base class, which can create a family of related or dependent products (abstract factory) or a single one
+
+- Singleton
+ only one object is instanciated and a global point of access is provided
+
+- Command
+ this pattern encapsulates a request as an object, thereby letting you parametrize other objects with different requests, queue or log requests, and support undoable operations
+
+- Adapter
+ converts the interface of a class into another one the clients expect
+
+- Facade
+ provides a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use
+
+- Template Method
+ defines the steps of an algorithm (skeleton) and allows subclasses to provide the implementation for one or more steps
+
+- Iterator
+ an iterator provides a way to access elements of an aggregate object sequentially without exposing its underlying representation
+
+- Composite
+ compose objects into tree structures to represent part-whole hierachies. Composite lets clients treat individual objects and composition of objects uniformly
+
+- State
+ allows an object to alter its behavior when its internal state changes. The object will appear to change its class
+
+- Proxy
+ provides a surrogate or placeholder for another object to control access to it
+
+- Bridge
+ decouples an implementation from the interface, abstraction and implementation can be extended independently
+
+- Builder
+ encapsulate the way a complex object is constructed and allows objects to be constructed in multistep
+
+- Chain of Responsibility
+ decouples the sender and receiver of the request
+
+- Flyweight
+ one instance of a class can be used to provide many virtual instances
+
+- Mediator
+ centralize complex communications and control between related objects
+
+- Memento
+ return an object to one of its previous states by keeping the saved state external from the key object
+
+- Prototype
+ hide the complexities of making new instances of a given class from the client
+
+- Visitor
+ add capabilities to a composite of objects if encapsulation is not important
+
+
+* Android
+** gradle
+*** version does not match for project
+in the gradle/wrapper folder set the version in gradle-wrapper.properties,
+then run gradlew.bat.
+Gradle has to be synchronized after that in Android Studio
+** debugging
+*** adb shell
+in the sdk folder, platform tools start 'adb shell'
+*** evaluate command
+in the Debug window key evaluate expression
+** change visual style
+   get zip from http://android-holo-colors.com/ with the style and copy it in res folder
+   combine styles.xml and themes_apptheme.xml, only one style with name="AppTheme"
+   parent should be compatible with sdk version
+** avd
+if the sdcard is just a link to somewhere: Tools -> Android ->
+avd Manager set sdcard to enabled and maybe change disk size
+* Javascript
+** JsTestDriver
+   startup: java -jar JsTestDriver-1.3.5.jar --port 42442
+   configuration file: JsTestDriver.conf
+   load:
+   - src/Main.js
+   test:
+   - src-test/*.js
+

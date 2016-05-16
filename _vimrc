@@ -14,7 +14,8 @@ set ignorecase
 if has("gui_running")
   " GUI is running or is about to start.
   " Maximize gvim window (for an alternative on Windows, see simalt below).
-  set lines=55 columns=100
+  set lines=45 columns=95
+  set guicursor+=a:blinkon0
 endif
 
 " remember buffer
