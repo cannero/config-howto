@@ -608,6 +608,10 @@ Value data: 0
 
 *** pretty print xml
 in sgml mode select region and run sgml-pretty-print
+*** insert text at beginning of line
+string-insert-rectangle. Set the mark (C-<SPC>) at the beginning of the first line you want to prefix, move the cursor to last line to be prefixed, and type M-x string-insert-rectangle <RET>
+*** turn off lockfiles
+do not create files #.<filename>: (setq create-lockfiles nil)
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -707,6 +711,8 @@ in windows add the bin directory for mysql to the exec-path
   diff -ru src/ /f/restlib/src/
 - ssh
   use 'ssh 142.120.61.41 -l root' to connect with root
+- remove directory
+  rm -r mydir, -rf to force
 ** window managers
 - old ones mwn, twn
 
@@ -754,10 +760,15 @@ in windows add the bin directory for mysql to the exec-path
    - add: add files, redo if changed, -A adds all files
    - commit: commit -m 'message', -a for all unstaged changes
    - diff
-     cached shows diff with staged files
+     -cached shows diff with staged files
      <commit> <commit> for difference between two commits
+     compare to master: git diff origin/master -- [local-path]
    - log
      show last i commits with -n i
+     short overview with files: --stat
+     patch output of last two commits: -p -2
+     log graph: --graph --decorate --pretty=oneline --abbrev-commit
+     Only show commits adding or removing code matching the string: -S string
    - add to last commit
      git commit --amend --no-edit
      no-edit flag re-uses the last commit message
@@ -765,7 +776,26 @@ in windows add the bin directory for mysql to the exec-path
      git mv foldername tempname && git mv tempname folderName
    - create mbox file from commits, first commit not included
      git format-patch --stdout 7c46acb1..c8ee6573 > 01.3_15.3.patch
-
+   - To get an inclusive list of commits, just list the two references separated by a space. Your first reference should reference the previous commit with a tilda ~ and then be excluded which is denoted with a leading circumflex ^
+     git rev-list --reverse ^<tag1>~ <tag2>
+   - To list all files in a commit
+     git diff-tree --no-commit-id --name-only -r bd61ad98
+     --name-status instead for action
+   
+   - To revert single file before commit
+     git checkout c5f567~1 -- file1/to/restore file2/to/restore
+   - show log graph
+     git log 
+** checkout only subdirectory
+*** sparse checkout
+- git init
+- git remote add -f origin https://github.com/googlesamples/android-architecture
+- git config core.sparseCheckout true
+- echo "BasicRxJavaSample/" >> .git/info/sparse-checkout
+- git pull origin master
+*** filter
+git clone --filter
+has to be supported by the server, still in work?
 * powershell
 ** commands
    - Load a dll
@@ -1035,6 +1065,15 @@ test
 $set, $push
 https://docs.mongodb.com/manual/reference/operator/update/
 * rust
+** how to use nightly
+see https://github.com/rust-lang-nursery/rustup.rs#working-with-nightly-rust,
+the installed versions can be shown with <rustup toolchain list>, to add or set one
+for the current directory <rustup override add/set nightly>
+** set linker
+https://github.com/rust-lang/rust/issues/37543
+download llvm and set the linker in the .cargo/config file
+[target.x86_64-pc-windows-msvc]
+linker = "lld-link.exe"
 ** misc
 - RUST_BACKTRACE=1 cargo run
 - run example with cargo run --example <name>
@@ -1042,3 +1081,23 @@ https://docs.mongodb.com/manual/reference/operator/update/
 ** coordinate system
 no transform in layer http://www.inkscapeforum.com/viewtopic.php?f=16&t=12352&p=46140#p46140
 new file -> delete layer -> create new one
+* Go Golang
+** godoc
+run it on local package godoc -goroot="." <package name>, 
+the source files have to be in a folder src/packack name
+** profiling
+create profile run with:
+go test -v --bench . --benchmem -cpuprofile cpu.out
+memory profiling is also possible
+The output can be checked with
+go tool pprof testbin.test cpu.out
+e.g. top10, pdf
+see https://blog.golang.org/profiling-go-programs
+* epub & calibre
+** remove drm from epubs:
+(from https://apprenticealf.wordpress.com/2012/09/10/calibre-plugins-the-simplest-option-for-removing-most-ebook-drm/,
+https://www.techradar.com/news/software/how-to-remove-ebook-drm-with-calibre-1291960)
+
+download plugin for calibre https://github.com/apprenticeharper/DeDRM_tools/releases/tag/v6.6.1
+
+add in calibre under preferences -> plugins

@@ -7,7 +7,9 @@ set ruler showcmd showmode
 set expandtab
 set shiftwidth=2
 set softtabstop=2
-set autoindent
+" set autoindent
+" for javascript
+set cindent
 set backspace=2
 set ignorecase
 
@@ -16,6 +18,8 @@ if has("gui_running")
   " Maximize gvim window (for an alternative on Windows, see simalt below).
   set lines=45 columns=95
   set guicursor+=a:blinkon0
+  " line numbers
+  set nu
 endif
 
 " remember buffer

@@ -3,6 +3,7 @@
 
 ;;; UNCOMMENT THIS TO DEBUG TROUBLE GETTING EMACS UP AND RUNNING.
 ;;; (setq debug-on-error t)
+;;; start without this file '--no-init-file'
 
 ;; ----------------------------------------
 ;; shortcuts
@@ -12,13 +13,14 @@
 
 ;;(global-set-key  "\C-w" 'backward-kill-word)
 ;; ----------------------------------------
-(setq exec-path (append exec-path '("D:/tools/mingw/msys/1.0/bin" "D:/tools/mingw/bin" "D:/tools/GnuWin32/bin")))
-(setenv "PATH" (concat (expand-file-name "D:/tools/mingw/msys/1.0/bin") path-separator (expand-file-name "D:/tools/mingw/bin") path-separator (expand-file-name "D:/tools/GnuWin32/bin") path-separator (getenv "PATH")))
+(setq exec-path (append exec-path '("D:/tools/mingw/msys/1.0/bin" "D:/tools/mingw/bin" "D:/tools/GnuWin32/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37")))
+(setenv "PATH" (concat (expand-file-name "D:/tools/mingw/msys/1.0/bin") path-separator (expand-file-name "D:/tools/mingw/bin") path-separator (expand-file-name "D:/tools/GnuWin32/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37") path-separator (getenv "PATH")))
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 ;;load path
 (add-to-list 'load-path "D:/tools/emacsInc")
+(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
 
 ;; columns
 (column-number-mode 1)
@@ -64,18 +66,25 @@
 
 ;;-------------------------------------------
 ;; set default height
-(setq default-frame-alist ' (
-			     (user-size . t)
-			     (height . 50)
-                             (width . 85)
-			     ))
+(if (<= 1200 (display-pixel-height))
+    (setq default-frame-alist ' (
+                                 (user-size . t)
+                                 (height . 58)
+                                 (width . 85)
+                                 ))
+  (setq default-frame-alist ' (
+                               (user-size . t)
+                               (height . 52)
+                               (width . 85)
+                               )))
+
 (setq initial-frame-alist '(
-                            (top . 10)
-                            (left . 10)
+                            (top . 5)
+                            (left . 5)
                             ))
 (set-background-color "grey97")
 
-(when (window-system)
+(when (display-graphic-p)
   (tool-bar-mode -1))
 ;; ============================================================
 ;; prompt before closing
@@ -88,7 +97,7 @@
         (save-buffers-kill-emacs))
     (message "Canceled exit")))
  
-(when window-system 
+(when (display-graphic-p)
   (global-set-key (kbd "C-x C-c") 'ask-before-closing))
 
 ;;==================================================
@@ -151,6 +160,7 @@ void "clName"::Dump( CDumpContext& dc ) const
   )
 ;;===================================================
 ;;C# mode
+(require 'cc-mode)
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist
       (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
@@ -168,9 +178,12 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;; org-mode
 (require 'org-install)
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-(add-hook 'org-mode-hook 'turn-on-font-lock) ; not needed when global-font-lock-mode is on
+(add-hook 'org-mode-hook
+	  (lambda()
+		  'turn-on-font-lock ; not needed when global-font-lock-mode is on
+		  (define-key org-mode-map "\M-q" 'toggle-truncate-lines)))
 (global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
+;;(global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
 
 (setq org-log-done t) ;set timestamps
@@ -307,6 +320,7 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;;snippets
 (require 'yasnippet)
 (yas-global-mode 1)
+(require 'html5-snippets)
 
 ;;global for source-code browsing
 ;(add-to-list 'load-path "D:/tools/global/share/gtags")
@@ -326,13 +340,16 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
 ;; does not work with skewer-html-mode
 ;;(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+(setq web-mode-content-types-alist
+  '(("jsx" . "\\.js[x]?\\'")))
 
 ;; skewer does only work with sgml
 ;;(add-hook 'web-mode-hook 'skewer-html-mode)
 (add-hook 'web-mode-hook 'company-mode)
-
+(setq company-dabbrev-downcase nil)
 ;; sgml mode
 (add-hook 'sgml-mode-hook 'skewer-html-mode)
 
@@ -352,20 +369,51 @@ void "clName"::Dump( CDumpContext& dc ) const
 (require 'company-racer)
 (with-eval-after-load 'company
   (add-to-list 'company-backends 'company-racer))
+(defun my-rust-mode-hook ()
+  (racer-mode)
+  (cargo-minor-mode)
+  (set (make-local-variable 'compile-command)
+       (concat "rustc "
+               (shell-quote-argument buffer-file-name))))
 
-(add-hook 'rust-mode-hook #'racer-mode)
+(add-hook 'rust-mode-hook #'my-rust-mode-hook)
+
 (add-hook 'racer-mode-hook #'eldoc-mode)
-
 (add-hook 'racer-mode-hook #'company-mode)
+
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 (setq company-tooltip-align-annotations t)
 
 ;; javascript
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (setq ac-js2-evaluate-calls t)
 (add-hook 'js2-mode-hook 'ac-js2-mode)
 (add-hook 'js2-mode-hook 'skewer-mode)
 (add-hook 'js2-mode-hook 'company-mode)
+
+;; lua
+(add-hook 'lua-mode-hook 'company-mode)
+
+;; elixir
+(add-hook 'elixir-mode-hook 'company-mode)
+(add-hook 'elixir-mode-hook 'alchemist-mode)
+
+;; python
+(add-hook 'python-mode-hook 'company-mode)
+
+;; java
+(add-hook 'java-mode-hook 'company-mode)
+
+;; go
+(defun my-go-mode-hook ()
+  (company-mode)
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "go build -v && go test -v && go vet"))
+  )
+(add-hook 'go-mode-hook 'my-go-mode-hook)
+;;(add-hook 'go-mode-hook 'company-mode)
 
 ;; set default coding system to utf-8
 ;; from https://www.masteringemacs.org/article/working-coding-systems-unicode-emacs
@@ -384,6 +432,16 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
+;;ediff
+(defun ediff-copy-both-to-C ()
+  (interactive)
+  (ediff-copy-diff ediff-current-difference nil 'C nil
+                   (concat
+                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+(defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -396,14 +454,19 @@ void "clName"::Dump( CDumpContext& dc ) const
     ((java-mode . "java")
      (awk-mode . "awk")
      (other . "java"))))
+ '(column-number-mode t)
+ '(csharp-want-imenu nil)
  '(custom-enabled-themes (quote (adwaita)))
  '(ecb-options-version "2.40")
  '(ido-default-buffer-method (quote selected-window))
  '(indent-tabs-mode nil)
  '(initial-buffer-choice t)
+ '(initial-scratch-message nil)
  '(package-selected-packages
    (quote
-    (ac-js2 company-racer racer yasnippet web-mode scss-mode rust-mode ecb csharp-mode color-theme coffee-mode)))
+    (typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode)))
+ '(show-paren-mode t)
+ '(tool-bar-mode nil)
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
