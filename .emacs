@@ -22,6 +22,14 @@
 (add-to-list 'load-path "D:/tools/emacsInc")
 (add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
 
+;; place all backup files in one directory https://www.emacswiki.org/emacs/AutoSave
+(setq backup-directory-alist
+      `(("." . ,(concat user-emacs-directory "backups"))))
+(setq auto-save-file-name-transforms
+          `((".*" ,(concat user-emacs-directory "backups/") t)))
+;; turn off lock files https://www.gnu.org/software/emacs/manual/html_node/emacs/Interlocking.html#Interlocking
+(setq create-lockfiles nil)
+
 ;; columns
 (column-number-mode 1)
 ;; hungry delete
@@ -38,7 +46,11 @@
 (ido-mode 'buffer)
 (setq ido-enable-flex-matching t)
 
-
+;;https://www.emacswiki.org/emacs/IsearchOtherEnd
+;;go to beginning after search
+(defun my-goto-match-beginning ()
+    (when (and isearch-forward (not isearch-mode-end-hook-quit)) (goto-char isearch-other-end)))
+(add-hook 'isearch-mode-end-hook 'my-goto-match-beginning)
 
 ;;ansi mode
 ;;show escape sequences in color
@@ -62,6 +74,7 @@
 ;open pdf files in fundamental mode
 (setq auto-mode-alist
       (append '(("\\.pdf$" . whitespace-mode))
+              '(("\\.svg$" . nxml-mode))
               auto-mode-alist))
 
 ;;-------------------------------------------
@@ -365,10 +378,10 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; rust
 ;;also the environment variable RUST_SRC_PATH has to be set
-(setq racer-rust-src-path "d:/progra/rust/rust/src/")
-(require 'company-racer)
-(with-eval-after-load 'company
-  (add-to-list 'company-backends 'company-racer))
+;;(setq racer-rust-src-path "d:/progra/rust/rust/src/")
+;;(require 'company-racer)
+;;(with-eval-after-load 'company
+;;  (add-to-list 'company-backends 'company-racer))
 (defun my-rust-mode-hook ()
   (racer-mode)
   (cargo-minor-mode)
@@ -377,10 +390,9 @@ void "clName"::Dump( CDumpContext& dc ) const
                (shell-quote-argument buffer-file-name))))
 
 (add-hook 'rust-mode-hook #'my-rust-mode-hook)
-
 (add-hook 'racer-mode-hook #'eldoc-mode)
-(add-hook 'racer-mode-hook #'company-mode)
 
+(add-hook 'racer-mode-hook #'company-mode)
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 (setq company-tooltip-align-annotations t)
 
@@ -390,7 +402,9 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-hook 'js2-mode-hook 'ac-js2-mode)
 (add-hook 'js2-mode-hook 'skewer-mode)
 (add-hook 'js2-mode-hook 'company-mode)
-
+;;skewer mode
+;;(add-hook 'css-mode-hook 'skewer-css-mode)
+;;(add-hook 'html-mode-hook 'skewer-html-mode)
 ;; lua
 (add-hook 'lua-mode-hook 'company-mode)
 
@@ -415,6 +429,9 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 ;;(add-hook 'go-mode-hook 'company-mode)
 
+;;octave and matlab
+(add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+
 ;; set default coding system to utf-8
 ;; from https://www.masteringemacs.org/article/working-coding-systems-unicode-emacs
 ;; to run a function with a different coding system use
@@ -431,6 +448,9 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+;; do not load on startup, takes 25 seconds
+;; (require 'ox-confluence)
 
 ;;ediff
 (defun ediff-copy-both-to-C ()
@@ -464,7 +484,7 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(initial-scratch-message nil)
  '(package-selected-packages
    (quote
-    (typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode)))
+    (inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode)))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))

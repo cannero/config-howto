@@ -12,23 +12,26 @@ run it in linux with /usr/sbin/rcmysql
 {start|stop|status|reload|restart|try-restart|force-reload}
 or /etc/inti.d/mysql
 
-| description       | command                                                      |
-|-------------------+--------------------------------------------------------------|
-| get all variables | SHOW VARIABLES (LIKE ...), of interest is e.g. character_set |
-| time interval     | NOW() - INTERVAL 2 HOUR SECOND DAY etc.                      |
-| create user       | CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'mypass';    |
-| use binary collate for case sensitive string comparison | select * from orders where leadset LIKE 's%' COLLATE utf8_bin                                                             |
-
+| description                                             | command                                                                                                                                                                                                                     |
+|---------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| get all variables                                       | SHOW VARIABLES (LIKE ...), of interest is e.g. character_set                                                                                                                                                                |
+| time interval                                           | NOW() - INTERVAL 2 HOUR SECOND DAY etc.                                                                                                                                                                                     |
+| create user                                             | CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'mypass';                                                                                                                                                                   |
+| use binary collate for case sensitive string comparison | select * from orders where leadset LIKE 's%' COLLATE utf8_bin                                                                                                                                                               |
+| tables without primary key                              | select * from `tables` t where t.table_schema = 'diko' and table_type = 'base table' and table_name not in (select table_name from KEY_COLUMN_USAGE c where c.CONSTRAINT_SCHEMA = 'diko' and c.CONSTRAINT_NAME = 'primary') |
+|                                                         |                                                                                                                                                                                                                             |
 
 
 *** InnoDB
 - create index allows concurrent DML, see http://dev.mysql.com/doc/refman/5.6/en/innodb-create-index-overview.html
 - MySQL will not use indexes if you query the wrong data type
-
+- show open transactions show (engine old without) innodb status: block with transactions
 ** mysqldump
 - export schema:
   mysqldump.exe -u diituser -p8932500 -h 142.120.60.114 -P 3306 -B diko --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r diko.sql
-
+** mysqlbinlog
+mysqlbinlog.exe --base64-output=decode-rows -v <mysql-bin...> > binlogparsed 
+another option: --start-datetime
 * Debugging
 - disable just in time debugging with Visual Studio:
 go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT debugger.
@@ -57,18 +60,30 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
     AAA is either x86 or AMD64, xxxx are the last digits of the version number
     lmv m mscorwks shows the include path for the dll
 *** Commands
-  | command          | description                           |
-  |------------------+---------------------------------------|
-  | .load            | load extension                        |
-  | .loadby          | .loadby sos mscorwks                  |
-  | .symfix          | load symbols                          |
-  | .reload /f       | reload symbols                        |
-  | !printexception  | show ex in crashdump                  |
-  | !clrstack        | .net stack                            |
-  | ~                | all threads                           |
-  | !threads         | all managed threads (when sos loaded) |
-  | ~<thread number> | activate thread                       |
-  |                  |                                       |
+  | command                                                      | description                                              |
+  |--------------------------------------------------------------+----------------------------------------------------------|
+  | .load                                                        | load extension                                           |
+  | .loadby                                                      | .loadby sos mscorwks                                     |
+  | .symfix                                                      | load symbols                                             |
+  | .reload /f                                                   | reload symbols                                           |
+  | !printexception                                              | show ex in crashdump                                     |
+  | !clrstack                                                    | managed call stack                                       |
+  | !CLRStack -p / -l /-a                                        | with parameters, locals or both                          |
+  | ~                                                            | all threads                                              |
+  | !threads                                                     | all managed threads (when sos loaded)                    |
+  | ~<thread number> s                                           | activate thread                                          |
+  | !EEStack                                                     | Runs the DumpStack command on all threads in the process |
+  | k                                                            | view call stack                                          |
+  | !runaway                                                     | Shows time consumed by each thread.                      |
+  | !dso                                                         | show list of references that are still on the stack      |
+  | !do <Object>                                                 | show object info                                         |
+  | !da <Array>                                                  | show array info                                          |
+  | !DumpHeap                                                    | show all objects in the heap                             |
+  | !DumpHeap -stat -type Assembly                               | show assemblies in the heap                              |
+  | !DumpDomain                                                  | show all loaded assemblies                               |
+  | kp; !do <Object from mscorwks!RaiseTheExceptionInternalOnly> | shows exception object info.                             |
+  | !pe <Object>                                                 | shows exception info                                     |
+
 *** Resources
 https://blogs.msdn.microsoft.com/amb/2011/05/12/do-not-collect-32bit-process-dumps-with-64bit-task-manager/
 ProcDump  https://technet.microsoft.com/en-us/sysinternals/dd996900.aspx
@@ -151,6 +166,11 @@ search for text in files with /S in subdirectories
     - remove with net use /delete h:
     - connect with net use H: \\aphrodite\home * /USER:schwarzhuber
       * is prompt for password
+    - get domain groups
+      net user /domain 'username optional'
+*** netstat
+- show listening ports (admin rights for -b show executable)
+  netstat -n -a -b
 ** Office
 - disable cursor animation
 HKEY_Current_User\Software\Microsoft\Office\16.0\Common\Graphics
@@ -159,6 +179,18 @@ Type: REG_DWORD
 Data: 1 (hexadecimal)
 *** Excel
 Hyperlinks relativ setzen mit Datei -> Eigenschaften -> Zusammenfassung: Hyperlink
+**** settings
+- set colon ; as delimiter for csv: Control Panel -> Region and Language -> Additional Settings
+**** commands
+- open vba editor: Alt+F11
+**** Formulas
+- references
+  relativ: A1
+  absolut: $A$1
+  partial: $A1, A$1
+- included in range, count
+=ZÄHLENWENN($A$1:$A$110;E186)
+
 ** Visual Studio
 edit autoexp.dat for expanding and not stepping into in debugger
 c:/Programme/Microsoft Visual Studio/Common/MSDev98/Bin/
@@ -209,8 +241,9 @@ create file with plist /t $<name>$
 **** Visual SourceSafe
      - disable with HKEY_CURRENT_USER\Software\Microsoft\DevStudio\6.0\Source Control\Disabled
 *** emacs keybinding > 2008
-   
-
+for 2019:
+https://github.com/justcla/EmacsKeys
+--> source code has to be edited also for the newest visual studio extension
     Download the Emacs emulation extension.
 
     Rename it from EmacsEmulations.vsix to EmacsEmulations.zip and unzip into a folder.
@@ -279,8 +312,7 @@ create file with plist /t $<name>$
 ** Visual Basic
    escape " with "", for a linebreak use \_
 ** .NET
-PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow Foundation are not selectable; this seems to be the same reason why the resume layout after the EndInit of the PerformanceCounter fails 
-
+PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow Foundation are not selectable; this seems to be the same reason why the resume layout after the EndInit of the PerformanceCounter fails
 ** Services
 - start and control services with the \textbf{sc} command
 - start net
@@ -339,6 +371,18 @@ sigcheck -a d:\tmp\DomainGroupsTester.exe
 File → Options → Advanced
 Outlook panes section, click Reading Pane
 Mark items as read when viewed in the Reading Pane and set interval
+** File indexing
+needed for outlook, can be disabled for hard drive to save space
+https://superuser.com/questions/59864/stopping-microsoft-search-from-eating-my-hard-drive
+    open services.msc
+    Stop the Windows Search service (I was this far already).
+    Rename C:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb
+    Start the Windows Search service
+    The directory rebuilds Windows.edb (34 MB initial size in my case)
+    Open Control Panel / Indexing Options
+    Wait a long time for buttons to become enabled
+    Click Modify
+    Uncheck Users directory or whatever else you don't want indexed (I left Start Menu enabled because it's so small)
 * Thunderbird
 ** new mail
 - switch text/html in new mail with create + shift
@@ -514,8 +558,16 @@ The specified registry key does not exist
 Registry location: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework  
 DWORD (32-bit) Value name: LegacyWPADSupport
 Value data: 0
+** Asynchronous programming
+https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/
+** Yield time slice
+From https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/component-that-supports-the-event-based-asynchronous-pattern?view=netframework-4.7.2
+Thread.Sleep(0) yields the reset of this time slice
+https://stackoverflow.com/questions/2956961/difference-between-thread-sleep0-and-thread-yield
+Thread.Sleep(0) cedes control to any ready thread of equal priority or keeps going on the current thread if there is none. Thread.Yield cedes control to any ready thread associated with the current processor.
+Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2006/08/22/priorityinduced-starvation-why-sleep1-is-better-than-sleep0-and-the-windows-balance-set-manager/
+
 * emacs
-64 bit build at http://sourceforge.net/projects/emacsbinw64/
 ** customize and start files
    - site-start.el is loaded first, cancel with --no-site-file
 
@@ -545,7 +597,7 @@ Value data: 0
      - release: CFLAGS='-O2' ../emacs/configure --prefix=/d/progra/c/emacsrelease
 ** modes
 *** artist mode
-    for drawing asccii art
+    for drawing asccii art, set unicode with (artist-select-line-char 128078)
 *** org mode
 **** ditaa
      - activate babel with ditaa
@@ -601,6 +653,7 @@ Value data: 0
     M-x find-name-dired: you will be prompted for a root directory and a filename pattern.
     Press t to "toggle mark" for all files found.
     Press Q for "Query-Replace in Files...": you will be prompted for query/substitution regexps.
+    To turn off the automatic switch of the letter case set case-replace to nil.
 *** execute shell command
 (shell-command-to-string "hostname")
 *** get char info
@@ -719,6 +772,10 @@ in windows add the bin directory for mysql to the exec-path
 - fvwm descendant from twn
 
 - icewm also a lightweight wm with profiles
+** ssh
+*** commands
+add host to known hosts
+ssh-keyscan -H 192.168.1.162 >> ~/.ssh/known_hosts
 * Vagrant
 ** config file
    - add local box with file:///C:/Users/...
@@ -746,23 +803,30 @@ in windows add the bin directory for mysql to the exec-path
    - unset an option with set no<option>
    - show whitespace: set list
    - set background color hi: Normal guibg=Grey90
+   - reload file with e!
+   - close buffer with bdelete
+   - go to line :<num>
+   - replace in file :%s/Search-Word/Replace-Word/gc, c for confirmation
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>
 ** bell
    set it to visual bell
    set noeb vb t_vb=
-
+** unicode support
+add https://www.vim.org/scripts/script.php?script_id=789 to config file
 * git
 ** basics
    - .gitignore for files which should not be shown in untracked files
 ** commands
-   - add: add files, redo if changed, -A adds all files
+   - add: add files, redo if changed, -A adds all files, -u only modified and deleted files
    - commit: commit -m 'message', -a for all unstaged changes
    - diff
-     -cached shows diff with staged files
+     --cached shows diff with staged files
      <commit> <commit> for difference between two commits
+     compare to last version: @{1} <file>, short for HEAD@{1}
      compare to master: git diff origin/master -- [local-path]
+     all changes between two commits, path can be also files: git diff commit1^..commit2 -- [<path>...]
    - log
      show last i commits with -n i
      short overview with files: --stat
@@ -776,16 +840,34 @@ in windows add the bin directory for mysql to the exec-path
      git mv foldername tempname && git mv tempname folderName
    - create mbox file from commits, first commit not included
      git format-patch --stdout 7c46acb1..c8ee6573 > 01.3_15.3.patch
+     for last commit git format-patch --stdout HEAD^
+   - undo add
+     git reset, git reset <file>
+     if no head exists git rm --cached <added_file_to_undo>
    - To get an inclusive list of commits, just list the two references separated by a space. Your first reference should reference the previous commit with a tilda ~ and then be excluded which is denoted with a leading circumflex ^
      git rev-list --reverse ^<tag1>~ <tag2>
    - To list all files in a commit
      git diff-tree --no-commit-id --name-only -r bd61ad98
      --name-status instead for action
-   
    - To revert single file before commit
      git checkout c5f567~1 -- file1/to/restore file2/to/restore
-   - show log graph
-     git log 
+   - branch
+     to show remote ones -r
+   - cherry-pick
+   - remove changes in all tracked files git checkout -f
+   - remove untracked files git clean -f, test run git clean -nf, . for current directory
+   - reset
+     git reset --hard <HEAD/sha> or origin/branch
+   - merge
+     --no-ff to create a new commit without fast forward
+   - stash
+     list with stash list, stash show and restore with stash apply
+   - status
+     to not show untracked files: -uno
+   - rev-parse, parents of commits
+     first parent ref~, ref^
+     second parent ref^2
+     parent of parent ref~
 ** checkout only subdirectory
 *** sparse checkout
 - git init
@@ -797,6 +879,9 @@ in windows add the bin directory for mysql to the exec-path
 git clone --filter
 has to be supported by the server, still in work?
 * powershell
+use this in the powershell profile, 'test-path $profile'
+Import-Module PSReadLine
+Set-PSReadLineOption -EditMode Emacs
 ** commands
    - Load a dll
      Add-Type -Path .$\backslash$DiIT.Misc.dll
@@ -817,6 +902,15 @@ has to be supported by the server, still in work?
      $dupLeadsets | select count, name > duplicate_leadsets.csv
    - get path for executable
      (Get-Command notepad.exe).Path
+   - test for open port
+     $ipaddress = IP_Address_Server
+     $port = port
+     $connection = New-Object System.Net.Sockets.TcpClient($ipaddress, $port)
+     if ($connection.Connected) {
+       Write-Host "Success"
+     } else {
+       Write-Host "Failed"
+     }
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine
@@ -845,21 +939,6 @@ right click -> edit master
 *** defaults
 F11 (styles and formatting): image and presentation styles
 -> right click edit styles
-* Office
-** VBA
-- 
-** Excel
-*** settings
-- set colon ; as delimiter for csv: Control Panel -> Region and Language -> Additional Settings
-*** commands
-- open vba editor: Alt+F11
-*** Formulas
-- references
-  relativ: A1
-  absolut: $A$1
-  partial: $A1, A$1
-- included in range, count
-=ZÄHLENWENN($A$1:$A$110;E186)
 * GDB
 ** init file
    [[file:.gdbinit]
@@ -999,6 +1078,10 @@ Gradle has to be synchronized after that in Android Studio
 in the sdk folder, platform tools start 'adb shell'
 - send location
 adb.exe emu geo fix 100 200
+- remove database
+adb -e shell rm /data/data/com.example.package/databases/*.db
+- remove app
+adb -e uninstall com.example.package
 *** evaluate command
 in the Debug window key evaluate expression
 *** logcat
@@ -1101,3 +1184,29 @@ https://www.techradar.com/news/software/how-to-remove-ebook-drm-with-calibre-129
 download plugin for calibre https://github.com/apprenticeharper/DeDRM_tools/releases/tag/v6.6.1
 
 add in calibre under preferences -> plugins
+* theory
+** game theory
+“The theory of games is a theory of decision-making.” This involves both how you feel you should make decisions, and how you actually make decisions, which is why understanding your motivations is valuable, because as Davis says, “your decisions are linked to your goals.”
+*** goal focused
+    See goals as a path to success
+    Focus on the rewards you’ll gain when you achieve the outcome
+    Be willing to take risks
+    Feel comfortable jumping into opportunities, and work quickly
+    Pay less attention to risks to your detriment, and be less prepared when things derail
+*** prevention focused
+See goals as important responsibilities to manage
+Take care to outline potential risks
+Strategize on process and progress to protect against risk
+Stay vigilant about what you gain, and focus on keeping those gains
+Be a problem-solver, and spend time on thorough analysis
+Take a little extra time to get on the right path the first time
+* octave
+** basics
+| identity matrix        | eye(i)                           |
+| matrix                 | A = [12 21;23 32; 32 9]          |
+| combining              | C = [A, A], C = [A;A]            |
+| access elements        | A(1,:) , A(1:2,:)                |
+| formating              | sprintf('dec %0.2f', 0.34234235) |
+| show defined variables | who(s)                           |
+| load/save file         | load x.dat, save file variable   |
+| for loop               | for i = 1:10 .. end              |
