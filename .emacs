@@ -13,8 +13,10 @@
 
 ;;(global-set-key  "\C-w" 'backward-kill-word)
 ;; ----------------------------------------
-(setq exec-path (append exec-path '("D:/tools/mingw/msys/1.0/bin" "D:/tools/mingw/bin" "D:/tools/GnuWin32/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37")))
-(setenv "PATH" (concat (expand-file-name "D:/tools/mingw/msys/1.0/bin") path-separator (expand-file-name "D:/tools/mingw/bin") path-separator (expand-file-name "D:/tools/GnuWin32/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37") path-separator (getenv "PATH")))
+;;(setq exec-path (append exec-path '("D:/tools/mingw/msys/1.0/bin" "D:/tools/mingw/bin" "D:/tools/GnuWin32/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37")))
+(setq exec-path (append exec-path '("D:/tools/Ruby25-x64/msys64/usr/bin" "D:/tools/Ruby25-x64/msys64/mingw64/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37/Scripts")))
+;;(setenv "PATH" (concat (expand-file-name "D:/tools/mingw/msys/1.0/bin") path-separator (expand-file-name "D:/tools/mingw/bin") path-separator (expand-file-name "D:/tools/GnuWin32/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37") path-separator (getenv "PATH")))
+(setenv "PATH" (concat (expand-file-name "D:/tools/Ruby25-x64/msys64/usr/bin") path-separator (expand-file-name "D:/tools/Ruby25-x64/msys64/mingw64/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37/Scripts") path-separator (getenv "PATH")))
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -95,10 +97,11 @@
                             (top . 5)
                             (left . 5)
                             ))
-(set-background-color "grey97")
+;;(set-background-color "grey97")
 
 (when (display-graphic-p)
-  (tool-bar-mode -1))
+  (tool-bar-mode -1)
+  (menu-bar-no-scroll-bar))
 ;; ============================================================
 ;; prompt before closing
 (defun ask-before-closing ()
@@ -378,10 +381,11 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; rust
 ;;also the environment variable RUST_SRC_PATH has to be set
-;;(setq racer-rust-src-path "d:/progra/rust/rust/src/")
-;;(require 'company-racer)
-;;(with-eval-after-load 'company
-;;  (add-to-list 'company-backends 'company-racer))
+;;todo use rustup for src
+(setq racer-rust-src-path "d:/progra/rust/rust/src/")
+(require 'company-racer)
+(with-eval-after-load 'company
+  (add-to-list 'company-backends 'company-racer))
 (defun my-rust-mode-hook ()
   (racer-mode)
   (cargo-minor-mode)
@@ -395,6 +399,7 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-hook 'racer-mode-hook #'company-mode)
 (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
 (setq company-tooltip-align-annotations t)
+(setq company-selection-wrap-around t)
 
 ;; javascript
 ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
@@ -414,6 +419,11 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; python
 (add-hook 'python-mode-hook 'company-mode)
+(add-hook 'python-mode-hook 'blacken-mode)
+(defcustom python-shell-interpreter "python3"
+  "Default Python interpreter for shell."
+  :type 'string
+  :group 'python)
 
 ;; java
 (add-hook 'java-mode-hook 'company-mode)
@@ -462,6 +472,8 @@ void "clName"::Dump( CDumpContext& dc ) const
 (defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
 (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 
+(minions-mode)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -476,21 +488,30 @@ void "clName"::Dump( CDumpContext& dc ) const
      (other . "java"))))
  '(column-number-mode t)
  '(csharp-want-imenu nil)
- '(custom-enabled-themes (quote (adwaita)))
+ '(custom-enabled-themes '(spacemacs-light))
+ '(custom-safe-themes
+   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
  '(ecb-options-version "2.40")
  '(ido-default-buffer-method (quote selected-window))
  '(indent-tabs-mode nil)
  '(initial-buffer-choice t)
  '(initial-scratch-message nil)
  '(package-selected-packages
-   (quote
-    (inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode)))
+   '(blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
+ '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e"))
+ '(scroll-bar-mode nil)
  '(show-paren-mode t)
  '(tool-bar-mode nil)
- '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
+ '(uniquify-buffer-name-style 'post-forward nil (uniquify)))
+;;(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+;; '(default ((t (:inherit nil :stipple nil :background "#EDEDED" :foreground "#2E3436" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "outline" :family "Source Code Pro")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#EDEDED" :foreground "#2E3436" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "outline" :family "Source Code Pro")))))
+ '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "outline" :family "Source Code Pro")))))
