@@ -1,0 +1,37 @@
+alias ls="ls -h --color=always"
+alias l="ls -xF"
+alias h="history | tail -20"
+alias hl="history | more"
+alias back="cd -"
+
+alias j=jobs
+alias z=suspend
+
+alias a="less -S /var/log/apache2/access_log"
+
+# Inline-Functions
+if alias ll > /dev/null 2>&1; then unalias ll; fi
+unset ll
+alias ll="ls -alh"
+alias lm="ls -albh | more"
+
+alias ..="cd .."
+alias .="/bin/pwd"
+alias cp="/bin/cp -i"
+alias rm="/bin/rm -i"
+alias mv="/bin/mv -i"
+
+#xterm 
+#alias xterm="/usr/bin/xterm -bg white -geometry 70x20+60+60 -fn courr14"
+alias xtMarry="xterm -T marry -e ssh marry"
+alias xtHyperion="xterm -T hyperion -e ssh hyperion"
+alias xtZelos="xterm -T zelos -e ssh zelos"
+
+alias emacs="/usr/bin/emacs --no-site-file"
+
+alias grep="/usr/bin/grep -Hin"
+
+#qt build command
+alias myqmake="qmake -project && qmake && make"
+
+alias grepInFiles="~/bin/grepInFiles.sh"

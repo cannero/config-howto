@@ -622,6 +622,7 @@ Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2
    - show all faces with M-x list-faces-display -> customize
    font family is fndry and fmly from xfontsel
 
+   todo! remove colors, otherwise they overwrite themes
    my options:'(default ((t (:stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :family "misc-fixed"))))
 ** Windows
    Here's a Windows tip that I find invaluable for tools such as editors. Rather than associating Emacs with the particular file types you want to edit with it (because you may want to associate another application with them), add Emacs to your SendTo menu.
@@ -731,7 +732,10 @@ in windows add the bin directory for mysql to the exec-path
 
 - info show online help with 'info'
 
-- find find . -follow -name "*.cfg" -exec grep -inHl 'mtbl' {} \; i: case insensitive, l: name of input file, H: filename, n: line number
+- find
+  find . -follow -name "*.cfg" -exec grep -inHl 'mtbl' {} \; i: case insensitive, l: name of input file, H: filename, n: line number
+  to start as few grep commands as possible GNU grep, otherwise last run not returned if only one file:
+  find / -type f -exec grep -Hi 'the brown dog' {} +
 
 - proc use 'proc show ZWN\_{}nprd' to start an agent in its directory or 'proc start YUL\_que'
 
@@ -861,13 +865,27 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
    - merge
      --no-ff to create a new commit without fast forward
    - stash
-     list with stash list, stash show and restore with stash apply
+     list with stash list, stash show @{index}
+     restore with stash apply --index n
+     
    - status
      to not show untracked files: -uno
    - rev-parse, parents of commits
      first parent ref~, ref^
      second parent ref^2
      parent of parent ref~
+   - config
+     show all entries: git config --list
+     don't change line ending: git config --global core.autocrlf input
+   - show/change remote origin/master or upstream
+     show: git remote -v
+     change: git remote set-url origin new.git.url/here
+   - add second remote (upstream) for getting changes for fork
+     git remote add upstream https://github.com/whoever/whatever.git
+     git fetch upstream
+     git checkout master
+     git rebase upstream/master
+     git push -f origin master
 ** checkout only subdirectory
 *** sparse checkout
 - git init
@@ -1160,6 +1178,7 @@ linker = "lld-link.exe"
 ** misc
 - RUST_BACKTRACE=1 cargo run
 - run example with cargo run --example <name>
+- break build on msys after some errors: cargo build --color=always 2>&1 | head -n 10
 * Inkscape
 ** coordinate system
 no transform in layer http://www.inkscapeforum.com/viewtopic.php?f=16&t=12352&p=46140#p46140
@@ -1210,3 +1229,23 @@ Take a little extra time to get on the right path the first time
 | show defined variables | who(s)                           |
 | load/save file         | load x.dat, save file variable   |
 | for loop               | for i = 1:10 .. end              |
+* bash
+** redirection
+- stdout -> file
+  programm > Datei.txt
+- stderr -> file
+  programm 2> Datei.txt
+- stdout AND stderr -> file
+  programm &> Datei.txt
+- stdout -> file AND stderr -> file
+  programm > Datei_stdout.txt 2> Datei_stderr.txt
+- stdout -> stderr
+  programm 1>&2
+- stderr -> stdout
+  programm 2>&1
+* fish
+** init
+- set path
+set -x PATH in config.fish
+could also be on command line:
+set -U fish_user_paths $fish_user_paths /c/Users/nile/AppData/Local/Programs/Python/Python37/Scripts
