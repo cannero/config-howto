@@ -262,6 +262,8 @@ https://github.com/justcla/EmacsKeys
     Install the extension as the user who needs the bindings and not as administrator.
     Manually copy the Emacs.vsk file from the unzipped content of the extension to the Common7\IDE folder in the Visual Studio program directory (for which you will need elevated permissions).
 
+*** command line compiler
+cl /EHsc -DUNICODE -D_UNICODE <file including windows.h>.cpp user32.lib
 ** remote desktop
 - local drives are mapped to //tsclient
 - for copy + paste enable all fields in local resources, and restart rdpclip.exe
@@ -383,6 +385,11 @@ https://superuser.com/questions/59864/stopping-microsoft-search-from-eating-my-h
     Wait a long time for buttons to become enabled
     Click Modify
     Uncheck Users directory or whatever else you don't want indexed (I left Start Menu enabled because it's so small)
+** virtual desktops
+- disable animation
+  System -> Advanced System Settings -> Performance:Settings
+  deselect animate windows when minimizing and maximizing
+
 * Thunderbird
 ** new mail
 - switch text/html in new mail with create + shift
@@ -599,6 +606,7 @@ Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2
 *** artist mode
     for drawing asccii art, set unicode with (artist-select-line-char 128078)
 *** org mode
+|insert src block|  C-c C-,|
 **** ditaa
      - activate babel with ditaa
      - download ditaa.jar and install java jre to run
@@ -666,6 +674,15 @@ in sgml mode select region and run sgml-pretty-print
 string-insert-rectangle. Set the mark (C-<SPC>) at the beginning of the first line you want to prefix, move the cursor to last line to be prefixed, and type M-x string-insert-rectangle <RET>
 *** turn off lockfiles
 do not create files #.<filename>: (setq create-lockfiles nil)
+*** kill process
+M-: (kill-process)
+in buffer which has process running
+otherwise list-processes, use process name as argument to kill process
+(delete-process PROCESS) if kill is not working
+proced will show processes for user
+*** goto matching paren
+C-M-n/C-M-p: list
+C-M-f/C-M-b: sexp
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -719,7 +736,9 @@ in windows add the bin directory for mysql to the exec-path
     - export table to csv with Tbl -> Export to File
     - file link
       file:<path to file> with two [ and two ]
-
+    - save link
+      C-c l: org-store-link
+      will be available in C-c C-l: org-insert-link
 * Linux
 ** commands
 - back quote command substitution: runs one command on the other, like ll `find . -print`. Could also be \$(cmd)
@@ -758,6 +777,7 @@ in windows add the bin directory for mysql to the exec-path
   perl -0777 -i.original -pe 's/END;\n\$\$/END;\n\$\$\n/igs' Update*
 - show ip
   ip addr show
+  hostname -I
 - telnet
   telnet <ip> <port>
 - show blocked ports
@@ -766,10 +786,35 @@ in windows add the bin directory for mysql to the exec-path
   sudo netstat -tulpn
 - diff two folders
   diff -ru src/ /f/restlib/src/
-- ssh
-  use 'ssh 142.120.61.41 -l root' to connect with root
 - remove directory
   rm -r mydir, -rf to force
+- echo output utf8
+  enable backslash, write bytes
+  echo -e 'hello\xff\xff'
+- nc/netcat
+  for tcp/udp connections
+- cURL
+  transfer data using various network protocols
+  curl -H 'Client-ID: clientId \
+       -X GET 'https://api.twitch.tv/helix/streams?game_id=33214'
+  -i: show response header
+- wget
+  non-interactive network retriever
+- show system information
+  uname -a
+  less /proc/meminfo, /proc/cpuinfo etc.
+
+- disk usage
+  df, free
+- dpkg
+  debian package manager, only installs package without dep
+- scp
+  secure copy
+*** apt
+- apt list --installed
+- sudo apt-get purge thunderbird*
+- apt-mark hold
+  stop updates
 ** window managers
 - old ones mwn, twn
 
@@ -778,8 +823,22 @@ in windows add the bin directory for mysql to the exec-path
 - icewm also a lightweight wm with profiles
 ** ssh
 *** commands
-add host to known hosts
-ssh-keyscan -H 192.168.1.162 >> ~/.ssh/known_hosts
+- add host to known hosts
+  ssh-keyscan -H 192.168.1.162 >> ~/.ssh/known_hosts
+- remove key from known_hosts
+  ssh-keygen -R <host>
+- ssh
+  use 'ssh 142.120.61.41 -l root' to connect with root
+  or ssh user@host
+- key generation
+  [[*generate ssh keys][generate ssh keys]]
+** distros
+*** opensuse
+https://en.opensuse.org/openSUSE:Cheat_sheet_13.1#Services
+*** ubuntu/debian
+https://wiki.debian.org/systemd/CheatSheet
+*** fedora
+https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 * Vagrant
 ** config file
    - add local box with file:///C:/Users/...
@@ -822,6 +881,10 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
 * git
 ** basics
    - .gitignore for files which should not be shown in untracked files
+   - add project to github
+     create project on github
+     git remote add origin https://github.com/cannero/monkey_interpreter_compiler.git
+     git push -u origin master
 ** commands
    - add: add files, redo if changed, -A adds all files, -u only modified and deleted files
    - commit: commit -m 'message', -a for all unstaged changes
@@ -867,7 +930,6 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
    - stash
      list with stash list, stash show @{index}
      restore with stash apply --index n
-     
    - status
      to not show untracked files: -uno
    - rev-parse, parents of commits
@@ -1140,8 +1202,58 @@ modulename:function().
 - lua -l somefile (no file ending)
 * cmake
 generate CMakeLists.txt with dependencies, <cmake .> generates the project
-* docker
-** windows
+* Containers
+** k8s/kubernetes
+*** commands kubectl
+all commands should be possible for pods, services, deployments, namespaces?
+
+| api groups, v1 if none specified | kubectl api-resources                            |
+| create pod/service               | kubectl create -f basic.yaml                     |
+| deployment                       | kubectl create deployment firstpod --image=nginx |
+| abbreviations                    | kubectl get deploy,rs,po,svc,ep                  |
+|                                  |                                                  |
+**** get
+| show nodes    | kubectl get nodes |         |
+| pods, with IP | kubectl get pods  | -o wide |
+|               | svc               |         |
+**** describe
+| nodes information | kubectl describe nodes         |
+| pod information   | kubectl describe pod <podname> |
+**** delete
+kubectl delete pod basicpod
+
+*** commands kubeadm
+- kubeadm init
+- kubeadm token create --print-join-command
+- kubeadm reset
+*** configuration
+- expose port in pod
+  containerPort
+- expose pod to other nodes/pods with service
+  selector in configuration matches pod label
+  type NodePort to expose port from pod
+
+** docker
+https://docs.docker.com/install/linux/docker-ce/ubuntu/
+add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -c "bash"
+*** commands
+- build
+  with Dockerfile in local directory, docker build -t <name> .
+- show images
+  docker images
+- docker run <name>
+  - detached, arbitrary port
+    docker run --name mynginx1 -P -d nginx
+  - with environment variable, remove if existing
+    docker run -e ASPNETCORE_URLS="http://*:80" -it --rm -p 12000:80 --name aspnetcore_sample aspnetapp
+- container
+  - docker container attach <name>
+  - docker container list
+  - get shell on container
+    sudo docker container exec -it <name> /bin/bash
+- ip of container
+  docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
+*** windows
 - set up host with virtualbox, hyperv only windows 10
 - set env with eval $("D:\tools\Docker Toolbox\docker-machine.exe" env default)
 - /d/tools/Docker\ Toolbox/docker.exe run busybox echo hello world
@@ -1249,3 +1361,51 @@ Take a little extra time to get on the right path the first time
 set -x PATH in config.fish
 could also be on command line:
 set -U fish_user_paths $fish_user_paths /c/Users/nile/AppData/Local/Programs/Python/Python37/Scripts
+** ssh-agent
+https://github.com/danhper/fish-ssh-agent, https://github.com/ivakyb/fish_ssh_agent
+
+wget https://raw.githubusercontent.com/danhper/fish-ssh-agent/master/functions/__ssh_agent_is_started.fish -P ~/.config/fish/functions/
+wget https://raw.githubusercontent.com/danhper/fish-ssh-agent/master/functions/__ssh_agent_start.fish -P ~/.config/fish/functions/
+
+add to config or source init.fish
+#+begin_src fish
+if test -z "$SSH_ENV"
+    set -xg SSH_ENV $HOME/.ssh/environment
+end
+
+if not __ssh_agent_is_started
+    __ssh_agent_start
+end
+#+end_src
+** usage
+- set environment variable for process
+  env CASE_INSENSITIVE=1 cargo run
+* python
+- start pydoc server with pydoc -b
+** setup virtual environment
+https://docs.python.org/3/library/venv.html
+python -m venv /path/to/new/virtual/environment
+run/source 'activate' script in <venv>/bin/ folder
+* firefox
+delete re-direct: in history right click site, Forget about this site:
+will remove browse history and passwd etc.
+* msys
+** generate ssh keys
+- check for existing key pair
+  ls -al ~/.ssh
+- create key
+  ssh-keygen -t rsa -C 'comment'
+- start agent, add certificate
+  bash: eval $(ssh-agent -s),  -c for csh style shell
+  ssh-add ~/.ssh/id_rsa
+  or add 'AddKeysToAgent yes' to ~/.ssh/config
+** create self-signed certificate
+for https on localhost
+https://letsencrypt.org/docs/certificates-for-localhost/
+openssl req -x509 -out localhost.crt -keyout localhost.key  -newkey rsa:2048 -nodes -sha256  -subj '/CN=localhost' -extensions EXT -config <(printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+use openssl from /usr/bin, the one from /mingw64/bin fails with Can't open /proc/2406/fd/63 for reading, No such file or directory
+
+** mintty
+*** color schemas/font
+are saved in /usr/share/mintty/themes/
+font in ~/.minttyrc
