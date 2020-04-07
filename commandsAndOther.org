@@ -4,6 +4,24 @@
   select * from leadsets where (leadset, prodversion) in (select leadset, prodversion from orders where uniqnr = 172858)
 - subselect with EXISTS
   select distinct(leadset) from leadset_attributes a1 where workstep = 5 and not exists (select 1 from leadset_attributes a2 where a2.Leadset = a1.Leadset and a2.ProdVersion = a1.ProdVersion and a2.Workstep = a1.Workstep and a2.Attribute = 2)
+- transpose without pivot
+  SELECT t.userid
+         MAX(CASE WHEN t.fieldname = 'Username' THEN t.fieldvalue ELSE NULL END) AS Username,
+         MAX(CASE WHEN t.fieldname = 'Password' THEN t.fieldvalue ELSE NULL END) AS Password,
+         MAX(CASE WHEN t.fieldname = 'Email Address' THEN t.fieldvalue ELSE NULL END) AS Email
+    FROM TABLE t
+  GROUP BY t.userid
+- select values from list not in table
+SELECT i
+FROM
+(
+    SELECT 1 AS i UNION SELECT 2 UNION SELECT 3 UNION SELECT 6 UNION SELECT 7
+) AS mylistofids
+LEFT JOIN mytable
+ON mytable.id = i
+WHERE mytable.id IS NULL;
+
+or with temporary table
 ** glossary
  - DML data manupilation language
  - DDL data defintion language
@@ -21,17 +39,30 @@ or /etc/inti.d/mysql
 | tables without primary key                              | select * from `tables` t where t.table_schema = 'diko' and table_type = 'base table' and table_name not in (select table_name from KEY_COLUMN_USAGE c where c.CONSTRAINT_SCHEMA = 'diko' and c.CONSTRAINT_NAME = 'primary') |
 |                                                         |                                                                                                                                                                                                                             |
 
-
+import file
+bin\mysqld.exe --defaults-file="c:\Program Files\MySQL\MySQL Server 5.7\bin\my.ini" --init-file=c:\tmp\create_user.sql
 *** InnoDB
 - create index allows concurrent DML, see http://dev.mysql.com/doc/refman/5.6/en/innodb-create-index-overview.html
 - MySQL will not use indexes if you query the wrong data type
 - show open transactions show (engine old without) innodb status: block with transactions
-** mysqldump
+*** mysqldump
 - export schema:
   mysqldump.exe -u diituser -p8932500 -h 142.120.60.114 -P 3306 -B diko --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r diko.sql
-** mysqlbinlog
+*** mysqlbinlog
 mysqlbinlog.exe --base64-output=decode-rows -v <mysql-bin...> > binlogparsed 
 another option: --start-datetime
+*** timeouts
+- connect_timeout
+during establishing session
+- interactive_timeout
+used for connections from interactive clients, CLIENT_INTERACTIVE option to mysql_real_connect()
+- wait_timeout
+timeout for idle non-interactive sessions
+- net_read_timeout
+wait for reading data from client
+- net_write_timeout
+wait for client to receive data
+- lock_wait_timeout
 * Debugging
 - disable just in time debugging with Visual Studio:
 go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT debugger.
@@ -60,29 +91,29 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
     AAA is either x86 or AMD64, xxxx are the last digits of the version number
     lmv m mscorwks shows the include path for the dll
 *** Commands
-  | command                                                      | description                                              |
-  |--------------------------------------------------------------+----------------------------------------------------------|
-  | .load                                                        | load extension                                           |
-  | .loadby                                                      | .loadby sos mscorwks                                     |
-  | .symfix                                                      | load symbols                                             |
-  | .reload /f                                                   | reload symbols                                           |
-  | !printexception                                              | show ex in crashdump                                     |
-  | !clrstack                                                    | managed call stack                                       |
-  | !CLRStack -p / -l /-a                                        | with parameters, locals or both                          |
-  | ~                                                            | all threads                                              |
-  | !threads                                                     | all managed threads (when sos loaded)                    |
-  | ~<thread number> s                                           | activate thread                                          |
-  | !EEStack                                                     | Runs the DumpStack command on all threads in the process |
-  | k                                                            | view call stack                                          |
-  | !runaway                                                     | Shows time consumed by each thread.                      |
-  | !dso                                                         | show list of references that are still on the stack      |
-  | !do <Object>                                                 | show object info                                         |
-  | !da <Array>                                                  | show array info                                          |
-  | !DumpHeap                                                    | show all objects in the heap                             |
-  | !DumpHeap -stat -type Assembly                               | show assemblies in the heap                              |
-  | !DumpDomain                                                  | show all loaded assemblies                               |
-  | kp; !do <Object from mscorwks!RaiseTheExceptionInternalOnly> | shows exception object info.                             |
-  | !pe <Object>                                                 | shows exception info                                     |
+  | command                                                      | description                                                         |
+  |--------------------------------------------------------------+---------------------------------------------------------------------|
+  | .load                                                        | load extension, better to use loadby to load sos matching framework |
+  | .loadby                                                      | .loadby sos mscorwks (for 3.5), .loadby sos clr (>3.5)              |
+  | .symfix                                                      | load symbols                                                        |
+  | .reload /f                                                   | reload symbols                                                      |
+  | !printexception                                              | show ex in crashdump                                                |
+  | !clrstack                                                    | managed call stack                                                  |
+  | !CLRStack -p / -l /-a                                        | with parameters, locals or both                                     |
+  | ~                                                            | all threads                                                         |
+  | !threads                                                     | all managed threads (when sos loaded)                               |
+  | ~<thread number> s                                           | activate thread                                                     |
+  | !EEStack                                                     | Runs the DumpStack command on all threads in the process            |
+  | k                                                            | view call stack                                                     |
+  | !runaway                                                     | Shows time consumed by each thread.                                 |
+  | !dso                                                         | show list of references that are still on the stack                 |
+  | !do <Object>                                                 | show object info                                                    |
+  | !da <Array>                                                  | show array info                                                     |
+  | !DumpHeap                                                    | show all objects in the heap                                        |
+  | !DumpHeap -stat -type Assembly                               | show assemblies in the heap                                         |
+  | !DumpDomain                                                  | show all loaded assemblies                                          |
+  | kp; !do <Object from mscorwks!RaiseTheExceptionInternalOnly> | shows exception object info.                                        |
+  | !pe <Object>                                                 | shows exception info                                                |
 
 *** Resources
 https://blogs.msdn.microsoft.com/amb/2011/05/12/do-not-collect-32bit-process-dumps-with-64bit-task-manager/
@@ -153,6 +184,7 @@ ftp client, login with ftp\_(IP), start with ftp $<$IP$>$, quit with bye, change
 *** cmd
   - start shell with C:$\backslash$WINDOWS$\backslash$system32$\backslash$cmd.exe /C "start" for multiple windows
   - start parameters: /V:ON: deactivate delayed resolving of variables, resolve them with !var!
+  - supply /Y if a default answer is requested, may work, e.g. net use ... /Y
 *** nbtstat
 find hostname from ip address: nbtstat -a
 *** nslookup
@@ -166,6 +198,7 @@ search for text in files with /S in subdirectories
     - remove with net use /delete h:
     - connect with net use H: \\aphrodite\home * /USER:schwarzhuber
       * is prompt for password
+      /Y for default prompt
     - get domain groups
       net user /domain 'username optional'
 *** netstat
@@ -271,7 +304,7 @@ cl /EHsc -DUNICODE -D_UNICODE <file including windows.h>.cpp user32.lib
 - back to fullscreen: ctrl alt break
 - send ctrl alt del: ctrl alt end
 ** Win
-   - disable task manager
+   - disable explorer
      HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
      "Shell"="%ExePath%"
    - start cmd box as administrator
@@ -304,6 +337,8 @@ cl /EHsc -DUNICODE -D_UNICODE <file including windows.h>.cpp user32.lib
      Taskkill /IM chrome.exe /F
    - default reply, no messagebox
      HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Error Message Instrument : EnableDefaultReply = 0
+   - go to program and features
+     Win+r, appwiz.cpl
 ** Gadgets
 *** basics
     - default gadgets are in C:\Program Files\Windows Sidebar\Gadgets
@@ -341,6 +376,8 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
      Click Add.
      In the Enter the object names to select box, type computername\IIS_IUSRS, click Check Names, and then click OK.
      Click to select the Read check box, and then click OK.
+   - configuration
+     %windir%\system32\inetsrv\config\applicationhost.config
 ** disable telemetry data gathering
    http://superuser.com/questions/972501/how-to-stop-microsoft-from-gathering-telemetry-data-from-windows-7-8-and-8-1
 
@@ -390,6 +427,12 @@ https://superuser.com/questions/59864/stopping-microsoft-search-from-eating-my-h
   System -> Advanced System Settings -> Performance:Settings
   deselect animate windows when minimizing and maximizing
 
+** beyond compare
+export at Session -> Text Compare Report
+*** Define Unimportant Text
+To ignore text differences, define a new Grammar element (what the text is), then mark it as unimportant.
+use different name than existing ones, e.g. columns from 1 to xx
+Navigate to the Session | Session Settings | Importance tab to set importance, Update session defaults
 * Thunderbird
 ** new mail
 - switch text/html in new mail with create + shift
@@ -602,6 +645,10 @@ Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2
        the again ./autogen.sh
 **** build
      - release: CFLAGS='-O2' ../emacs/configure --prefix=/d/progra/c/emacsrelease
+*** newer version
+autoconf fails with:
+' is already registered with AC_CONFIG_FILES.
+-> set line endings for git to linux
 ** modes
 *** artist mode
     for drawing asccii art, set unicode with (artist-select-line-char 128078)
@@ -616,6 +663,8 @@ Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2
      or hexl-find-file instead of find-file
 *** which-function-mode
     display the current function name
+*** lisp
+ielm, eshell
 ** format
 *** C++ Code
    - the C Label Minimum Indentation has to be set to 4 (with override style settings):
@@ -630,8 +679,6 @@ Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2
    - show all faces with M-x list-faces-display -> customize
    font family is fndry and fmly from xfontsel
 
-   todo! remove colors, otherwise they overwrite themes
-   my options:'(default ((t (:stipple nil :background "white" :foreground "black" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 140 :width normal :family "misc-fixed"))))
 ** Windows
    Here's a Windows tip that I find invaluable for tools such as editors. Rather than associating Emacs with the particular file types you want to edit with it (because you may want to associate another application with them), add Emacs to your SendTo menu.
 
@@ -648,7 +695,6 @@ Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2
 *** file layout
     show regex in new buffer
     M-x occur
-
 *** search for control characters
     C-q C-(control char), ^@ with C-Space, ^? with Backspace
 *** environment variables
@@ -677,12 +723,14 @@ do not create files #.<filename>: (setq create-lockfiles nil)
 *** kill process
 M-: (kill-process)
 in buffer which has process running
-otherwise list-processes, use process name as argument to kill process
+otherwise list-processes, d on process or use process name as argument to kill process
 (delete-process PROCESS) if kill is not working
 proced will show processes for user
 *** goto matching paren
 C-M-n/C-M-p: list
 C-M-f/C-M-b: sexp
+*** print without quotes
+in scratch (insert (fn))
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -739,6 +787,16 @@ in windows add the bin directory for mysql to the exec-path
     - save link
       C-c l: org-store-link
       will be available in C-c C-l: org-insert-link
+
+** server-client
+*** windows
+start server, place script in shell:startup:
+set HOME=%APPDATA%
+del /Q "%HOME%/.emacs.d/server/*"
+C:\tools\emacs\nt\runemacs.exe --daemon
+
+start client:
+C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
 * Linux
 ** commands
 - back quote command substitution: runs one command on the other, like ll `find . -print`. Could also be \$(cmd)
@@ -756,6 +814,8 @@ in windows add the bin directory for mysql to the exec-path
   to start as few grep commands as possible GNU grep, otherwise last run not returned if only one file:
   find / -type f -exec grep -Hi 'the brown dog' {} +
 
+  - two different files, maybe quoting of -name block necessary \( ... -o ... \):
+    find . -type f -name '*.err' -o -name '*.pdf'
 - proc use 'proc show ZWN\_{}nprd' to start an agent in its directory or 'proc start YUL\_que'
 
 - mounting use mount for list of mounted devices, mounting table under /etc/fstab
@@ -797,6 +857,7 @@ in windows add the bin directory for mysql to the exec-path
   transfer data using various network protocols
   curl -H 'Client-ID: clientId \
        -X GET 'https://api.twitch.tv/helix/streams?game_id=33214'
+       -X PUT "http://localhost:53266/API/v1/MaterialOrder/DispatchAcknowledged/4" -H  "accept: /*" -H  "Content-Type: application/json" -d "{\"userId\":\"user to\",\"applicatorId\":\"wac035"}"
   -i: show response header
 - wget
   non-interactive network retriever
@@ -855,13 +916,17 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
    - Bootstrapper entries are dependencies for click once setups 
 * Tags
 ** setup
-   run find . -name "*.cs" -exec "D:\tools\emacs24.3\bin\etags.exe" -a {} ;
-   creates a TAGS file
+   - msys
+     run find . -name "*.cs" -exec "D:\tools\emacs24.3\bin\etags.exe" -a {} ;
+     creates a TAGS file
+   - powershell
+     dir -Include *.cpp,*.h -Recurse | %{$_.FullName} | C:\tools\emacs\lib-src\etags.exe -
 ** use
    visit-tags-table for TAGS file to use
    search tags with M-., C-u M-., C-u - M-.
 
 * vi
+get 64b from https://github.com/vim/vim-win32-installer/releases
 ** commands
    - unset an option with set no<option>
    - show whitespace: set list
@@ -870,6 +935,9 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
    - close buffer with bdelete
    - go to line :<num>
    - replace in file :%s/Search-Word/Replace-Word/gc, c for confirmation
+   - run in shell (external command) :! <cmd> (% for current file) or start :shell
+   - run last external command :!!
+   - insert text in current buffer from file or command :r <file> :r ! <cmd>
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>
@@ -885,6 +953,7 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
      create project on github
      git remote add origin https://github.com/cannero/monkey_interpreter_compiler.git
      git push -u origin master
+   - on windows set credential.helper=manager if login to azure devops not possible
 ** commands
    - add: add files, redo if changed, -A adds all files, -u only modified and deleted files
    - commit: commit -m 'message', -a for all unstaged changes
@@ -920,14 +989,24 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
      git checkout c5f567~1 -- file1/to/restore file2/to/restore
    - branch
      to show remote ones -r
+     rename local branch: -m <oldname> <newname>, case sensitive -M
+     rename local and remote:
+     git branch -m <old_name> <new_name>
+     git push <remote> --delete <old_name>
+     # Or shorter way to delete remote branch [:]
+     git push <remote> :<old_name>
+     git push <remote> <new_name>
+     git push <remote> -u <new_name>
    - cherry-pick
-   - remove changes in all tracked files git checkout -f
+   - remove changes in all tracked files
+     git checkout -f
    - remove untracked files git clean -f, test run git clean -nf, . for current directory
    - reset
      git reset --hard <HEAD/sha> or origin/branch
    - merge
      --no-ff to create a new commit without fast forward
    - stash
+     add new entry with push -m
      list with stash list, stash show @{index}
      restore with stash apply --index n
    - status
@@ -936,6 +1015,7 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
      first parent ref~, ref^
      second parent ref^2
      parent of parent ref~
+     two commits back master~2
    - config
      show all entries: git config --list
      don't change line ending: git config --global core.autocrlf input
@@ -948,12 +1028,15 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
      git checkout master
      git rebase upstream/master
      git push -f origin master
+   - push
+     after rebase push with --force-with-lease to check if remote has been updated in between
 ** checkout only subdirectory
 *** sparse checkout
 - git init
 - git remote add -f origin https://github.com/googlesamples/android-architecture
 - git config core.sparseCheckout true
 - echo "BasicRxJavaSample/" >> .git/info/sparse-checkout
+  with powershell use ascii encoding
 - git pull origin master
 *** filter
 git clone --filter
@@ -962,6 +1045,9 @@ has to be supported by the server, still in work?
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
 Set-PSReadLineOption -EditMode Emacs
+** powershell core
+- update
+  iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
 ** commands
    - Load a dll
      Add-Type -Path .$\backslash$DiIT.Misc.dll
@@ -991,6 +1077,31 @@ Set-PSReadLineOption -EditMode Emacs
      } else {
        Write-Host "Failed"
      }
+   - base 64
+     to:
+     $Text = ‘This is a secret and should be hidden’
+     $Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text)
+     $EncodedText =[Convert]::ToBase64String($Bytes)
+     from:
+     $DecodedText = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($EncodedText))
+   - remove apps
+     Get-AppxPackage *Microsoft.YourPhone* -AllUsers | Remove-AppxPackage
+   - pipe file to stdin
+     Get-Content -ReadCount 500 backup.sql | & psql --username=... db_name
+     ReadCount for ps 5.0
+     Start-Process "C:\Program Files\PostgreSQL\<version>\bin\psql.exe" '--username=... db_name' -RedirectStandardInput backup.sql -NoNewWindow -Wait
+   - pipe stdout to file
+     Out-File -FilePath C:\Services.txt
+     -Append
+   - tail file
+     show the last two lines:
+     Get-Content  filename -Tail 2
+   - remoting
+     Enter-PSSession -ComputerName <pcname>
+     Invoke-Command -ComputerName <pcname> -ScriptBlock {hostname}
+   - search for multiple file types
+     recurse has to be set, -Filter allows only one type, dir is Get-ChildItem
+     dir -Include *.cpp,*.h -Recurse
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine
@@ -1082,68 +1193,90 @@ F11 (styles and formatting): image and presentation styles
 - Hollywood Principle: Don't call us, we call you
 - Single Responsibility: a class should have only one reason to change
 ** Patterns
+structural, behavioral, creational, concurrency patterns
 - Strategy
- defines a family of algorithms, encapsulates each one, and makes them interchangeable; algorithm can be modified independently from clients
+  b
+  defines a family of algorithms, encapsulates each one, and makes them interchangeable; algorithm can be modified independently from clients
 
 - Observer
- defines a one-to-many dependency between objects; all dependents are notified and udated automatically (push or pull by dependent)
+  b
+  defines a one-to-many dependency between objects; all dependents are notified and udated automatically (push or pull by dependent)
 
 - Decorator
- a decorator attaches additional responsibilities to an object (the component) dynamically; the component can be used on its own or wrapped by a decorator; the decorator has-a component and implements the same interface as the component and adds new behavoirs
+  s
+  a decorator attaches additional responsibilities to an object (the component) dynamically; the component can be used on its own or wrapped by a decorator; the decorator has-a component and implements the same interface as the component and adds new behavoirs
 
 - Factory
- a factory method handles object creation and encapsulates it in a subclass; the subclass decides which object to create; the method is only a interface in the base class, which can create a family of related or dependent products (abstract factory) or a single one
+  c
+  a factory method handles object creation and encapsulates it in a subclass; the subclass decides which object to create; the method is only a interface in the base class, which can create a family of related or dependent products (abstract factory) or a single one
 
 - Singleton
- only one object is instanciated and a global point of access is provided
+  c
+  only one object is instanciated and a global point of access is provided
 
 - Command
- this pattern encapsulates a request as an object, thereby letting you parametrize other objects with different requests, queue or log requests, and support undoable operations
+  b
+  this pattern encapsulates a request as an object, thereby letting you parametrize other objects with different requests, queue or log requests, and support undoable operations
 
-- Adapter
- converts the interface of a class into another one the clients expect
+- Adapter/Wrapper/Translator
+  s
+  converts the interface of a class into another one the clients expect
 
 - Facade
- provides a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use
+  s
+  provides a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use
 
 - Template Method
- defines the steps of an algorithm (skeleton) and allows subclasses to provide the implementation for one or more steps
+  b
+  defines the steps of an algorithm (skeleton) and allows subclasses to provide the implementation for one or more steps
 
 - Iterator
- an iterator provides a way to access elements of an aggregate object sequentially without exposing its underlying representation
+  b
+  an iterator provides a way to access elements of an aggregate object sequentially without exposing its underlying representation
 
 - Composite
- compose objects into tree structures to represent part-whole hierachies. Composite lets clients treat individual objects and composition of objects uniformly
+  s
+  compose objects into tree structures to represent part-whole hierachies. Composite lets clients treat individual objects and composition of objects uniformly
 
 - State
- allows an object to alter its behavior when its internal state changes. The object will appear to change its class
+  b
+  allows an object to alter its behavior when its internal state changes. The object will appear to change its class
 
 - Proxy
- provides a surrogate or placeholder for another object to control access to it
+  s
+  provides a surrogate or placeholder for another object to control access to it
 
 - Bridge
- decouples an implementation from the interface, abstraction and implementation can be extended independently
+  s
+  decouples an implementation from the interface, abstraction and implementation can be extended independently
 
 - Builder
- encapsulate the way a complex object is constructed and allows objects to be constructed in multistep
+  c
+  encapsulate the way a complex object is constructed and allows objects to be constructed in multistep
 
 - Chain of Responsibility
- decouples the sender and receiver of the request
+  b
+  decouples the sender and receiver of the request
 
 - Flyweight
- one instance of a class can be used to provide many virtual instances
+  s
+  one instance of a class can be used to provide many virtual instances
 
 - Mediator
- centralize complex communications and control between related objects
+  b
+  centralize complex communications and control between related objects
 
 - Memento
- return an object to one of its previous states by keeping the saved state external from the key object
+  b
+  return an object to one of its previous states by keeping the saved state external from the key object
 
 - Prototype
- hide the complexities of making new instances of a given class from the client
+  c
+  hide the complexities of making new instances of a given class from the client
 
 - Visitor
- add capabilities to a composite of objects if encapsulation is not important
+  b
+  add capabilities to a composite of objects if encapsulation is not important
 
 
 * Android
@@ -1389,7 +1522,9 @@ run/source 'activate' script in <venv>/bin/ folder
 * firefox
 delete re-direct: in history right click site, Forget about this site:
 will remove browse history and passwd etc.
-* msys
+* msys2/mingw64
+** pacman
+database lock is in /var/lib/pacman/db.lck
 ** generate ssh keys
 - check for existing key pair
   ls -al ~/.ssh
@@ -1409,3 +1544,11 @@ use openssl from /usr/bin, the one from /mingw64/bin fails with Can't open /proc
 *** color schemas/font
 are saved in /usr/share/mintty/themes/
 font in ~/.minttyrc
+* new installation
+** fonts
+- source code pro
+- jetbrains mono
+** utils
+- putty
+- emacs
+- freecommander
