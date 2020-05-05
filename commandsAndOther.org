@@ -333,12 +333,20 @@ cl /EHsc -DUNICODE -D_UNICODE <file including windows.h>.cpp user32.lib
      HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\ "Size" "3"
      HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\ "IRPStackSize" "50"
    - kill processes
-     list with tasklist
-     Taskkill /IM chrome.exe /F
+     list with tasklist, run as admin
+     Taskkill /IM chrome.exe /F /T
    - default reply, no messagebox
      HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Error Message Instrument : EnableDefaultReply = 0
    - go to program and features
      Win+r, appwiz.cpl
+   - boot manager
+     - set options for vmware
+       bcdedit /copy {current} /d "No Hyper-V" 
+       The entry was successfully copied to {ff-23-113-824e-5c5144ea}. 
+       bcdedit /set {ff-23-113-824e-5c5144ea} hypervisorlaunchtype off
+       powershell: bcdedit /copy `{current`} /d "No Hyper-V"
+   - reserve port win10
+     netsh http add urlacl url=http://+:49550/ sddl=D:PAI(A;;FA;;;WD)
 ** Gadgets
 *** basics
     - default gadgets are in C:\Program Files\Windows Sidebar\Gadgets
@@ -816,9 +824,16 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
 
   - two different files, maybe quoting of -name block necessary \( ... -o ... \):
     find . -type f -name '*.err' -o -name '*.pdf'
+- grep
+  skip directories with -d skip
 - proc use 'proc show ZWN\_{}nprd' to start an agent in its directory or 'proc start YUL\_que'
 
-- mounting use mount for list of mounted devices, mounting table under /etc/fstab
+- mounting 
+  use mount for list of mounted devices, mounting table under /etc/fstab
+  - mount windows share
+    apt update
+    apt-get install cifs-utils
+    mount -t cifs -o username=<un>,password=<pw> //<host>/fsharp /home/student/fsharp
 
 - ifconfig is in /sbin/, lists all ip addresses; (ipconfig)
 
@@ -871,6 +886,22 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
   debian package manager, only installs package without dep
 - scp
   secure copy
+- systemd
+  sudo systemctl status docker.service
+  sudo systemctl restart docker.service
+- change owner of files/directory
+  chown user:(group opt) -R (recursive) folder/file
+  does not work with mounted windows partition, user has to be set in fstab/during mount
+- file permissions
+  chmod u=rwx,g=(+-)rx,o=r myfile
+- getent
+  show entries from name service switch libraries
+  e.g. getent group
+- replace in file
+  sed -i 's/original/new/g' file.txt
+- sudo
+  run with -i with the current user's login shell
+  to preserve environment -E, -s for set shell
 *** apt
 - apt list --installed
 - sudo apt-get purge thunderbird*
@@ -898,6 +929,10 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
 https://en.opensuse.org/openSUSE:Cheat_sheet_13.1#Services
 *** ubuntu/debian
 https://wiki.debian.org/systemd/CheatSheet
+- scaling
+  gsettings set org.gnome.desktop.interface scaling-factor 2
+  drag vmware window, then scaling is shown in display settings
+
 *** fedora
 https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 * Vagrant
@@ -926,7 +961,7 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
    search tags with M-., C-u M-., C-u - M-.
 
 * vi
-get 64b from https://github.com/vim/vim-win32-installer/releases
+get 64bit from https://github.com/vim/vim-win32-installer/releases
 ** commands
    - unset an option with set no<option>
    - show whitespace: set list
@@ -1343,7 +1378,7 @@ all commands should be possible for pods, services, deployments, namespaces?
 | api groups, v1 if none specified | kubectl api-resources                            |
 | create pod/service               | kubectl create -f basic.yaml                     |
 | deployment                       | kubectl create deployment firstpod --image=nginx |
-| abbreviations                    | kubectl get deploy,rs,po,svc,ep                  |
+| abbreviations                    | kubectl get deploy,rs,po,svc,ep,pv               |
 |                                  |                                                  |
 **** get
 | show nodes    | kubectl get nodes |         |
@@ -1365,19 +1400,23 @@ kubectl delete pod basicpod
 - expose pod to other nodes/pods with service
   selector in configuration matches pod label
   type NodePort to expose port from pod
-
+- docker-compose.yaml
+  convert to kubernetes yaml with kompose convert
 ** docker
 https://docs.docker.com/install/linux/docker-ce/ubuntu/
 add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -c "bash"
 *** commands
 - build
   with Dockerfile in local directory, docker build -t <name> .
-- show images
+- image
+  detailed info: docker image <name>
+- images
   docker images
+  docker pull ubuntu
 - docker run <name>
   - detached, arbitrary port
     docker run --name mynginx1 -P -d nginx
-  - with environment variable, remove if existing
+  - with environment variable, remove after close
     docker run -e ASPNETCORE_URLS="http://*:80" -it --rm -p 12000:80 --name aspnetcore_sample aspnetapp
 - container
   - docker container attach <name>
@@ -1386,7 +1425,14 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
     sudo docker container exec -it <name> /bin/bash
 - ip of container
   docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
-*** windows
+- insecure access to registries
+  edit /etc/docker/daemon.json
+*** docker-compose
+- create yaml file, defining services, volumes, networks
+- start with docker-compose up
+- start shell with for service myapp
+  docker-compose run --service-ports --rm myapp
+*** windows(old)
 - set up host with virtualbox, hyperv only windows 10
 - set env with eval $("D:\tools\Docker Toolbox\docker-machine.exe" env default)
 - /d/tools/Docker\ Toolbox/docker.exe run busybox echo hello world
@@ -1424,6 +1470,14 @@ linker = "lld-link.exe"
 - RUST_BACKTRACE=1 cargo run
 - run example with cargo run --example <name>
 - break build on msys after some errors: cargo build --color=always 2>&1 | head -n 10
+** update toolchain/racer
+- all toolchains
+  rustup check
+  rustup update
+  - if component not available
+    rustup component remove --toolchain nightly-x86_64-pc-windows-msvc clippy
+- racer
+  cargo +nightly install racer
 * Inkscape
 ** coordinate system
 no transform in layer http://www.inkscapeforum.com/viewtopic.php?f=16&t=12352&p=46140#p46140
@@ -1488,6 +1542,19 @@ Take a little extra time to get on the right path the first time
   programm 1>&2
 - stderr -> stdout
   programm 2>&1
+| %                   | visible in terminal |        | visible in file |        | visible in file |           |
+| Syntax              | StdOut              | StdErr | StdOut          | StdErr | file            |           |
+|---------------------+---------------------+--------+-----------------+--------+-----------------+-----------|
+| >                   | no                  | yes    | yes             | no     | overwrite       |           |
+| >>                  | no                  | yes    | yes             | no     | append          |           |
+| 2>                  | yes                 | no     | no              | yes    | overwrite       |           |
+| 2>>                 | yes                 | no     | no              | yes    | append          |           |
+| &>                  | no                  | no     | yes             | yes    | overwrite       |           |
+| &>>                 | no                  | no     | yes             | yes    | append          |           |
+| tee                 | yes                 | yes    | yes             | no     | overwrite       |           |
+| tee -a              | yes                 | yes    | yes             | no     | append          |           |
+| & tee (on fish 2>&1 | tee)                | yes    | yes             | yes    | yes             | overwrite |
+| & tee -a            | yes                 | yes    | yes             | yes    | append          |           |
 * fish
 ** init
 - set path
@@ -1552,3 +1619,36 @@ font in ~/.minttyrc
 - putty
 - emacs
 - freecommander
+* java
+** compile
+javac file1.java file2.java
+or
+javac *.java
+-> generates fileX.class
+** run
+java fileX
+or with package com.somepackage
+from src folder, *.class files in com/somepackage/
+java com.somepackage.fileX
+* gradle
+** set up on linux
+1. download
+   gradle-6.3-all.zip, -bin does not include all libraries
+2. path
+   export PATH=$PATH:/home/student/java/gradle-6.3/bin
+3. init
+   gradle init --dsl kotlin
+   -> creates gradlew and setting files
+** configuration
+build.gradle.kts
+- plugins
+  e.g. id("base") at top of file
+** commands
+| gradlew            |                                 |
+|--------------------+---------------------------------|
+| tasks              | list tasks which can be invoked |
+| properties         |                                 |
+| --warning-mode all |                                 |
+| --scan             | creates overview on gradle.com  |
+|                    |                                 |
+|--------------------+---------------------------------|
