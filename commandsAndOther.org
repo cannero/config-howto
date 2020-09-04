@@ -22,6 +22,14 @@ ON mytable.id = i
 WHERE mytable.id IS NULL;
 
 or with temporary table
+- delete with subquery
+  wrap in additional subquery
+  DELETE e.*
+  FROM tableE e
+  WHERE id IN (SELECT id
+             FROM (SELECT id
+                   FROM tableE
+                   WHERE arg = 1 AND foo = 'bar') x);
 ** glossary
  - DML data manupilation language
  - DDL data defintion language
@@ -205,6 +213,19 @@ search for text in files with /S in subdirectories
 *** netstat
 - show listening ports (admin rights for -b show executable)
   netstat -n -a -b
+  netstat -ano for pid
+*** send mail per cmd line
+TELNET MAIL.THEIRDOMAIN.COM 25
+ehlo mydomain.com
+mail from:<martin9700@mydomain.com>
+rcpt to:<recipient@theirdomain.com>
+data
+This is a test, please do not respond
+.
+quit
+
+to test relay change rcpt
+rcpt to:<recipient@someotherdomain.com>
 ** Office
 - disable cursor animation
 HKEY_Current_User\Software\Microsoft\Office\16.0\Common\Graphics
@@ -348,6 +369,14 @@ cl /EHsc -DUNICODE -D_UNICODE <file including windows.h>.cpp user32.lib
        powershell: bcdedit /copy `{current`} /d "No Hyper-V"
    - reserve port win10
      netsh http add urlacl url=http://+:49550/ sddl=D:PAI(A;;FA;;;WD)
+   - caps lock to ctrl
+     Windows Registry Editor Version 5.00
+     [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+     "Scancode Map"=hex:00,00,00,00,00,00,00,00,02,00,00,00,1d,00,3a,00,00,00,00,00
+
+     $hexified = "00,00,00,00,00,00,00,00,02,00,00,00,1d,00,3a,00,00,00,00,00".Split(',') | % { "0x$_"};
+     $kbLayout = 'HKLM:\System\CurrentControlSet\Control\Keyboard Layout';
+     New-ItemProperty -Path $kbLayout -Name "Scancode Map" -PropertyType Binary -Value ([byte[]]$hexified);
 ** Gadgets
 *** basics
     - default gadgets are in C:\Program Files\Windows Sidebar\Gadgets
@@ -632,6 +661,14 @@ https://stackoverflow.com/questions/2956961/difference-between-thread-sleep0-and
 Thread.Sleep(0) cedes control to any ready thread of equal priority or keeps going on the current thread if there is none. Thread.Yield cedes control to any ready thread associated with the current processor.
 Therefore spin wait with Sleep(1) if SpinWait not used http://joeduffyblog.com/2006/08/22/priorityinduced-starvation-why-sleep1-is-better-than-sleep0-and-the-windows-balance-set-manager/
 
+** Ildasm
+only included in debug/release with debug build:
+// .custom instance void [mscorlib]System.Diagnostics.DebuggableAttribute::.ctor(valuetype [mscorlib]System.Diagnostics.DebuggableAttribute/DebuggingModes)
+= ( 01 00 XX XX 00 00 00 00 )
+optimized debug DLL 03 00
+optimized release 02 00
+non-optimized debug DLL 07 01
+non-optimized release DLL 06 01
 * emacs
 ** customize and start files
    - site-start.el is loaded first, cancel with --no-site-file
@@ -930,6 +967,7 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
   to preserve environment -E, -s for set shell
 *** apt
 - apt list --installed
+- apt search 'package'
 - sudo apt-get purge thunderbird*
 - apt-mark hold
   stop updates
@@ -1012,6 +1050,8 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
    set noeb vb t_vb=
 ** unicode support
 add https://www.vim.org/scripts/script.php?script_id=789 to config file
+** packages
+put packages in folder ~/vimfiles/pack/bundle/start/
 * git
 ** basics
    - .gitignore for files which should not be shown in untracked files
@@ -1096,6 +1136,10 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
      git push -f origin master
    - push
      after rebase push with --force-with-lease to check if remote has been updated in between
+   - apply
+     --stat to see changes in diff
+     --check
+     apply patch eiter with apply or am for signoff
 ** checkout only subdirectory
 *** sparse checkout
 - git init
@@ -1169,8 +1213,23 @@ Set-PSReadLineOption -EditMode Emacs
      Enter-PSSession -ComputerName <pcname>
      Invoke-Command -ComputerName <pcname> -ScriptBlock {hostname}
    - search for multiple file types
-     recurse has to be set, -Filter allows only one type, dir is Get-ChildItem
+     -Recurse has to be set for -Include, -Filter allows only one type, dir is Get-ChildItem
      dir -Include *.cpp,*.h -Recurse
+   - replace text in file
+     $text = (Get-Content -Path "File" -ReadCount 0) -join "`n"
+     $text -replace "oldName", "newName" -replace "oldName2", "newName2" | Set-Content -Path "newFile"
+   - open tcp listener
+     $Listener = [System.Net.Sockets.TcpListener]9999;
+     $Listener.Start();
+     while($true)
+     {
+       $client = $Listener.AcceptTcpClient();
+       Write-Host "Connected!";
+       $client.Close();
+     }
+   - uptime
+     - Get-Uptime -Since
+     - (gcim Win32_OperatingSystem).LastBootUpTime
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine

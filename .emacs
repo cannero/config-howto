@@ -521,6 +521,11 @@ void "clName"::Dump( CDumpContext& dc ) const
   (my-disable-all-themes)
   (load-theme theme))
 
+;; magit
+;; use magit-repository-directories for default directories
+;;;; magit show date in log
+(setq magit-log-margin '(t "%y-%m-%d %H:%M" magit-log-margin-width t 18))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
