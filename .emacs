@@ -13,16 +13,18 @@
 
 ;;(global-set-key  "\C-w" 'backward-kill-word)
 ;; ----------------------------------------
-;;(setq exec-path (append exec-path '("D:/tools/mingw/msys/1.0/bin" "D:/tools/mingw/bin" "D:/tools/GnuWin32/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37")))
-(setq exec-path (append exec-path '("D:/tools/Ruby25-x64/msys64/usr/bin" "D:/tools/Ruby25-x64/msys64/mingw64/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37/Scripts")))
-;;(setenv "PATH" (concat (expand-file-name "D:/tools/mingw/msys/1.0/bin") path-separator (expand-file-name "D:/tools/mingw/bin") path-separator (expand-file-name "D:/tools/GnuWin32/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37") path-separator (getenv "PATH")))
-(setenv "PATH" (concat (expand-file-name "D:/tools/Ruby25-x64/msys64/usr/bin") path-separator (expand-file-name "D:/tools/Ruby25-x64/msys64/mingw64/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37/Scripts") path-separator (getenv "PATH")))
+(setq exec-path (append exec-path '("C:/tools/Ruby27-x64/msys64/usr/bin" "C:/tools/Ruby27-x64/msys64/mingw64/bin" "C:/Users/nile/AppData/Local/Programs/Python/Python37/Scripts")))
+(setenv "PATH" (concat (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python37/Scripts") path-separator (getenv "PATH")))
 (require 'package)
+;; error message when starting package manager: Failed to verify signature archive-contents.sig
+;; tries to use msys gpg:
+;; gpg: keyblock resource '/c/progra/rust/monkey/interpreter_compiler/c:/Users/nile/AppData/Roaming/.emacs.d/elpa/gnupg/pubring.kbx': No such file or directory
+(setq package-check-signature nil)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 ;;load path
-(add-to-list 'load-path "D:/tools/emacsInc")
-(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
+;;(add-to-list 'load-path "D:/tools/emacsInc")
+;;(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
 
 ;; place all backup files in one directory https://www.emacswiki.org/emacs/AutoSave
 (setq backup-directory-alist
@@ -85,7 +87,7 @@
     (setq default-frame-alist ' (
                                  (user-size . t)
                                  (height . 58)
-                                 (width . 85)
+                                 (width . 95)
                                  ))
   (setq default-frame-alist ' (
                                (user-size . t)
@@ -250,7 +252,28 @@ void "clName"::Dump( CDumpContext& dc ) const
   "Print number of chars from beginning to cursor."
   (interactive "d")
   (message "Chars: %d" (- point 1))
-)
+  )
+
+(defun move-file (new-location)
+  "Write this file to NEW-LOCATION, and delete the old one."
+  (interactive (list (expand-file-name
+                      (if buffer-file-name
+                          (read-file-name "Move file to: ")
+                        (read-file-name "Move file to: "
+                                        default-directory
+                                        (expand-file-name (file-name-nondirectory (buffer-name))
+                                                          default-directory))))))
+  (when (file-exists-p new-location)
+    (delete-file new-location))
+  (let ((old-location (expand-file-name (buffer-file-name))))
+    (message "old file is %s and new file is %s"
+             old-location
+             new-location)
+    (write-file new-location t)
+    (when (and old-location
+               (file-exists-p new-location)
+               (not (string-equal old-location new-location)))
+      (delete-file old-location))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hooks
 (add-hook 'c++-mode-hook 'my-c++-mode-hook)
@@ -336,7 +359,7 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;;snippets
 (require 'yasnippet)
 (yas-global-mode 1)
-(require 'html5-snippets)
+;;(require 'html5-snippets)
 
 ;;global for source-code browsing
 ;(add-to-list 'load-path "D:/tools/global/share/gtags")
@@ -382,13 +405,15 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;; rust
 ;;also the environment variable RUST_SRC_PATH has to be set
 ;;todo use rustup for src
-(setq racer-rust-src-path "d:/progra/rust/rust/src/")
+;;(setq racer-rust-src-path "d:/progra/rust/rust/src/")
 (require 'company-racer)
 (with-eval-after-load 'company
   (add-to-list 'company-backends 'company-racer))
 (defun my-rust-mode-hook ()
   (racer-mode)
   (cargo-minor-mode)
+  ;;buffer local
+  (add-hook 'before-save-hook 'rust-format-buffer nil t)
   (set (make-local-variable 'compile-command)
        (concat "rustc "
                (shell-quote-argument buffer-file-name))))
@@ -418,8 +443,15 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-hook 'elixir-mode-hook 'alchemist-mode)
 
 ;; python
-(add-hook 'python-mode-hook 'company-mode)
-(add-hook 'python-mode-hook 'blacken-mode)
+(defun my-python-mode-hook ()
+  (company-mode)
+  (local-set-key (kbd "TAB") #'company-complete-common)
+  (local-set-key (kbd "<backtab>") #'company-indent-or-complete-common)
+  ;;not working with msys python
+  ;;(blacken-mode)
+  )
+(add-hook 'python-mode-hook 'my-python-mode-hook)
+
 (defcustom python-shell-interpreter "python3"
   "Default Python interpreter for shell."
   :type 'string
@@ -431,13 +463,12 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;; go
 (defun my-go-mode-hook ()
   (company-mode)
-  (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'before-save-hook 'gofmt-before-save nil t)
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
            "go build -v && go test -v && go vet"))
   )
 (add-hook 'go-mode-hook 'my-go-mode-hook)
-;;(add-hook 'go-mode-hook 'company-mode)
 
 ;;octave and matlab
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
@@ -474,35 +505,131 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 (minions-mode)
 
+;;==================================================
+;; themes
+(defun my-disable-all-themes ()
+  "disable all active themes."
+  (dolist (theme custom-enabled-themes)
+    (disable-theme theme)))
+
+(defun my-load-theme (theme)
+  (interactive
+   (list
+    (intern (completing-read "Load custom theme: "
+                             (mapcar #'symbol-name
+				     (custom-available-themes))))))
+  (my-disable-all-themes)
+  (load-theme theme))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
  '(ansi-color-names-vector
    ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
- '(c-default-style
-   (quote
-    ((java-mode . "java")
-     (awk-mode . "awk")
-     (other . "java"))))
+ '(beacon-color "#c82829")
+ '(c-default-style '((java-mode . "java") (awk-mode . "awk") (other . "java")))
  '(column-number-mode t)
+ '(company-quickhelp-color-background "#4F4F4F")
+ '(company-quickhelp-color-foreground "#DCDCCC")
+ '(compilation-message-face 'default)
  '(csharp-want-imenu nil)
- '(custom-enabled-themes '(spacemacs-light))
+ '(cua-global-mark-cursor-color "#2aa198")
+ '(cua-normal-cursor-color "#839496")
+ '(cua-overwrite-cursor-color "#b58900")
+ '(cua-read-only-cursor-color "#859900")
+ '(custom-enabled-themes nil)
  '(custom-safe-themes
-   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
+   '("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "2809bcb77ad21312897b541134981282dc455ccd7c14d74cc333b6e549b824f3" "830877f4aab227556548dc0a28bf395d0abe0e3a0ab95455731c9ea5ab5fe4e1" "285d1bf306091644fb49993341e0ad8bafe57130d9981b680c1dbd974475c5c7" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "13a8eaddb003fd0d561096e11e1a91b029d3c9d64554f8e897b2513dbf14b277" "c433c87bd4b64b8ba9890e8ed64597ea0f8eb0396f4c9a9e01bd20a04d15d358" "0fffa9669425ff140ff2ae8568c7719705ef33b7a927a0ba7c5e2ffcfac09b75" "f56eb33cd9f1e49c5df0080a3e8a292e83890a61a89bceeaa481a5f183e8e3ef" "b12be36f77442e77dba317814d8ca99acb7613bb9262df5737031bd4c0a6f88c" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
  '(ecb-options-version "2.40")
- '(ido-default-buffer-method (quote selected-window))
+ '(fci-rule-color "#d6d6d6")
+ '(flycheck-color-mode-line-face-to-color 'mode-line-buffer-id)
+ '(frame-background-mode 'light)
+ '(highlight-changes-colors '("#d33682" "#6c71c4"))
+ '(highlight-symbol-colors
+   '("#3b6b40f432d6" "#07b9463c4d36" "#47a3341e358a" "#1d873c3f56d5" "#2d86441c3361" "#43b7362d3199" "#061d417f59d7"))
+ '(highlight-symbol-foreground-color "#93a1a1")
+ '(highlight-tail-colors
+   '(("#073642" . 0)
+     ("#5b7300" . 20)
+     ("#007d76" . 30)
+     ("#0061a8" . 50)
+     ("#866300" . 60)
+     ("#992700" . 70)
+     ("#a00559" . 85)
+     ("#073642" . 100)))
+ '(hl-bg-colors
+   '("#866300" "#992700" "#a7020a" "#a00559" "#243e9b" "#0061a8" "#007d76" "#5b7300"))
+ '(hl-fg-colors
+   '("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36"))
+ '(hl-paren-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
+ '(hl-todo-keyword-faces
+   '(("TODO" . "#dc752f")
+     ("NEXT" . "#dc752f")
+     ("THEM" . "#2d9574")
+     ("PROG" . "#4f97d7")
+     ("OKAY" . "#4f97d7")
+     ("DONT" . "#f2241f")
+     ("FAIL" . "#f2241f")
+     ("DONE" . "#86dc2f")
+     ("NOTE" . "#b1951d")
+     ("KLUDGE" . "#b1951d")
+     ("HACK" . "#b1951d")
+     ("TEMP" . "#b1951d")
+     ("FIXME" . "#dc752f")
+     ("XXX+" . "#dc752f")
+     ("\\?\\?\\?+" . "#dc752f")))
+ '(ido-default-buffer-method 'selected-window)
  '(indent-tabs-mode nil)
  '(initial-buffer-choice t)
  '(initial-scratch-message nil)
+ '(lsp-ui-doc-border "#93a1a1")
+ '(nrepl-message-colors
+   '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(package-selected-packages
-   '(blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
+   '(dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit racer yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
  '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e"))
+ '(pos-tip-background-color "#073642")
+ '(pos-tip-foreground-color "#93a1a1")
  '(scroll-bar-mode nil)
  '(show-paren-mode t)
+ '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
+ '(term-default-bg-color "#002b36")
+ '(term-default-fg-color "#839496")
  '(tool-bar-mode nil)
- '(uniquify-buffer-name-style 'post-forward nil (uniquify)))
+ '(uniquify-buffer-name-style 'post-forward nil (uniquify))
+ '(vc-annotate-background nil)
+ '(vc-annotate-background-mode nil)
+ '(vc-annotate-color-map
+   '((20 . "#c82829")
+     (40 . "#f5871f")
+     (60 . "#eab700")
+     (80 . "#718c00")
+     (100 . "#3e999f")
+     (120 . "#4271ae")
+     (140 . "#8959a8")
+     (160 . "#c82829")
+     (180 . "#f5871f")
+     (200 . "#eab700")
+     (220 . "#718c00")
+     (240 . "#3e999f")
+     (260 . "#4271ae")
+     (280 . "#8959a8")
+     (300 . "#c82829")
+     (320 . "#f5871f")
+     (340 . "#eab700")
+     (360 . "#718c00")))
+ '(vc-annotate-very-old-color nil)
+ '(weechat-color-list
+   '(unspecified "#002b36" "#073642" "#a7020a" "#dc322f" "#5b7300" "#859900" "#866300" "#b58900" "#0061a8" "#268bd2" "#a00559" "#d33682" "#007d76" "#2aa198" "#839496" "#657b83"))
+ '(window-divider-mode nil)
+ '(xterm-color-names
+   ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])
+ '(xterm-color-names-bright
+   ["#002b36" "#cb4b16" "#586e75" "#657b83" "#839496" "#6c71c4" "#93a1a1" "#fdf6e3"]))
 ;;(custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

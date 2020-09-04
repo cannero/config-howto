@@ -13,6 +13,10 @@ set cindent
 set backspace=2
 set ignorecase
 
+"Get the 2-space YAML as the default when hit carriage return after the colon
+"something like <filetype plugin indent on> has to be set for indentation
+autocmd FileType yaml,yml setlocal ts=2 sts=2 sw=2 expandtab
+
 if has("gui_running")
   " GUI is running or is about to start.
   " Maximize gvim window (for an alternative on Windows, see simalt below).

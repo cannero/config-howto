@@ -185,6 +185,7 @@ ftp client, login with ftp\_(IP), start with ftp $<$IP$>$, quit with bye, change
   - start shell with C:$\backslash$WINDOWS$\backslash$system32$\backslash$cmd.exe /C "start" for multiple windows
   - start parameters: /V:ON: deactivate delayed resolving of variables, resolve them with !var!
   - supply /Y if a default answer is requested, may work, e.g. net use ... /Y
+  - use '::' before command to save it but not run
 *** nbtstat
 find hostname from ip address: nbtstat -a
 *** nslookup
@@ -441,6 +442,12 @@ export at Session -> Text Compare Report
 To ignore text differences, define a new Grammar element (what the text is), then mark it as unimportant.
 use different name than existing ones, e.g. columns from 1 to xx
 Navigate to the Session | Session Settings | Importance tab to set importance, Update session defaults
+** WSL
+access path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
+from app also 'explorer.exe .' is possible as non-root user
+*** docker
+install as listed on docker website for ubuntu
+start demon with 'sudo dockerd'
 * Thunderbird
 ** new mail
 - switch text/html in new mail with create + shift
@@ -661,7 +668,9 @@ autoconf fails with:
 *** artist mode
     for drawing asccii art, set unicode with (artist-select-line-char 128078)
 *** org mode
-|insert src block|  C-c C-,|
+| insert src block     | C-c C-,         |
+| preserve line breaks | #+OPTIONS: \n:t |
+|                      |                 |
 **** ditaa
      - activate babel with ditaa
      - download ditaa.jar and install java jre to run
@@ -700,9 +709,13 @@ ielm, eshell
     Rename the shortcut, if you like.
 
 ** misc commands
-*** file layout
-    show regex in new buffer
-    M-x occur
+*** file layout/matching lines
+**** occur
+show regex in new buffer
+M-x occur
+can also be used during incremental search M-s o
+**** how-many
+searches from pos onwards
 *** search for control characters
     C-q C-(control char), ^@ with C-Space, ^? with Backspace
 *** environment variables
@@ -739,6 +752,11 @@ C-M-n/C-M-p: list
 C-M-f/C-M-b: sexp
 *** print without quotes
 in scratch (insert (fn))
+*** insert in front of line/prefix
+- string-insert-rectangle
+- string-rectangle
+- query-replace-regexp
+^->..., not shown marked
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -795,7 +813,10 @@ in windows add the bin directory for mysql to the exec-path
     - save link
       C-c l: org-store-link
       will be available in C-c C-l: org-insert-link
-
+    - structure template
+      insert code block
+      C-c C-,
+      then choose s
 ** server-client
 *** windows
 start server, place script in shell:startup:
@@ -861,6 +882,8 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
   sudo netstat -tulpn
 - diff two folders
   diff -ru src/ /f/restlib/src/
+  or with new files N and ignore white space
+  diff -Ewb -N -u -r /folder1 /folder2
 - remove directory
   rm -r mydir, -rf to force
 - echo output utf8
@@ -885,10 +908,13 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
 - dpkg
   debian package manager, only installs package without dep
 - scp
-  secure copy
+  secure copy, copy from instance via ssh
 - systemd
   sudo systemctl status docker.service
   sudo systemctl restart docker.service
+
+  show log for service or other unit
+  journalctl -u kubelet.service
 - change owner of files/directory
   chown user:(group opt) -R (recursive) folder/file
   does not work with mounted windows partition, user has to be set in fstab/during mount
@@ -970,9 +996,14 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
    - close buffer with bdelete
    - go to line :<num>
    - replace in file :%s/Search-Word/Replace-Word/gc, c for confirmation
+     search for newline: \n, replace: \r
    - run in shell (external command) :! <cmd> (% for current file) or start :shell
    - run last external command :!!
+   - run last command .
    - insert text in current buffer from file or command :r <file> :r ! <cmd>
+   - shift text/shift block ::
+     in visual mode: >, . if more lines were selected
+     normal mode: >> for current line, 4>> for 4 lines
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>
@@ -1084,6 +1115,9 @@ Set-PSReadLineOption -EditMode Emacs
 - update
   iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
 ** commands
+   - info
+     $host has Version property
+     [Environment]::Is64BitProcess
    - Load a dll
      Add-Type -Path .$\backslash$DiIT.Misc.dll
    - get methods + members: [int] | Get-Member
@@ -1313,7 +1347,6 @@ structural, behavioral, creational, concurrency patterns
   b
   add capabilities to a composite of objects if encapsulation is not important
 
-
 * Android
 ** gradle
 *** version does not match for project
@@ -1373,23 +1406,37 @@ generate CMakeLists.txt with dependencies, <cmake .> generates the project
 * Containers
 ** k8s/kubernetes
 *** commands kubectl
-all commands should be possible for pods, services, deployments, namespaces?
+[[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][cheatsheet]]
+all commands should be possible for pods, services, deployments, namespaces, 
+jobs.batch, cronjobs.batch?
 
 | api groups, v1 if none specified | kubectl api-resources                            |
 | create pod/service               | kubectl create -f basic.yaml                     |
 | deployment                       | kubectl create deployment firstpod --image=nginx |
 | abbreviations                    | kubectl get deploy,rs,po,svc,ep,pv               |
-|                                  |                                                  |
+| configmap                        | create configmap <name>                          |
+| show log of pod                  | logs <pod>                                       |
 **** get
-| show nodes    | kubectl get nodes |         |
-| pods, with IP | kubectl get pods  | -o wide |
-|               | svc               |         |
+
+| show nodes      | kubectl get nodes                                      |                            |
+| pods, with IP   | kubectl get pods                                       | -o wide                    |
+|                 | svc                                                    |                            |
+| detailed output | get jobs.batch <job> -o yaml                           |                            |
+| pod with label  | get -l app=design2 pod/ get --selector app=design2 pod | when created by deployment |
+|                 |                                                        |                            |
 **** describe
 | nodes information | kubectl describe nodes         |
 | pod information   | kubectl describe pod <podname> |
 **** delete
 kubectl delete pod basicpod
 
+**** exec
+- first container in pod:
+kubectl exec  -it <podname> -- /bin/bash
+- with container name
+kubectl exec  -it <podname> -c <containername> -- /bin/bash
+**** edit
+kubectl edit pod <podname>
 *** commands kubeadm
 - kubeadm init
 - kubeadm token create --print-join-command
@@ -1423,13 +1470,26 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
   - docker container list
   - get shell on container
     sudo docker container exec -it <name> /bin/bash
-- ip of container
-  docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
+  - d c restart <container>
+- docker network
+  ls: show all networks, see inspect how to get it
+- inspect
+  show all information, e.g. networks
+  - ip of container
+    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
+    docker inspect --format '{{ .NetworkSettings.IPAddress }}' <containername>
+- log, for example for mysql
+  docker logs <containername>
 - insecure access to registries
   edit /etc/docker/daemon.json
+- volumes
+  permanent storage, can be share between containers
+  find mountpoint with inspect of container/volume
+  to mount directory use -v /host/path:/container/path
 *** docker-compose
 - create yaml file, defining services, volumes, networks
-- start with docker-compose up
+- start with docker-compose up (-d detach)
+- docker-compose stop (detatched)
 - start shell with for service myapp
   docker-compose run --service-ports --rm myapp
 *** windows(old)
@@ -1582,10 +1642,13 @@ end
   env CASE_INSENSITIVE=1 cargo run
 * python
 - start pydoc server with pydoc -b
+- start http server with python -m http.server
 ** setup virtual environment
 https://docs.python.org/3/library/venv.html
 python -m venv /path/to/new/virtual/environment
 run/source 'activate' script in <venv>/bin/ folder
+** exceptions
+https://docs.python.org/3/library/exceptions.html#exception-hierarchy
 * firefox
 delete re-direct: in history right click site, Forget about this site:
 will remove browse history and passwd etc.
@@ -1626,10 +1689,10 @@ or
 javac *.java
 -> generates fileX.class
 ** run
-java fileX
-or with package com.somepackage
+- java fileX
+- with package com.somepackage
 from src folder, *.class files in com/somepackage/
-java com.somepackage.fileX
+java com.somepackage.fileX (dot can be also /)
 * gradle
 ** set up on linux
 1. download
@@ -1639,16 +1702,77 @@ java com.somepackage.fileX
 3. init
    gradle init --dsl kotlin
    -> creates gradlew and setting files
+
+settings are saved at ~/.gradle, e.g. wrapper/dists
 ** configuration
 build.gradle.kts
 - plugins
   e.g. id("base") at top of file
+- repositories
+- dependencies
+
+settings.gradle.kts
+- projectname
+- subprojects
+
 ** commands
 | gradlew            |                                 |
 |--------------------+---------------------------------|
 | tasks              | list tasks which can be invoked |
 | properties         |                                 |
+| build              |                                 |
+| run                |                                 |
 | --warning-mode all |                                 |
-| --scan             | creates overview on gradle.com  |
-|                    |                                 |
+| --scan             | creates overview                |
+| --args='arg0 arg1' |                                 |
+| --stop             | stop daemons                    |
 |--------------------+---------------------------------|
+* html
+** basic html5
+#+begin_src html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="css/style.css" />
+        <title>The title</title>
+    </head>
+    <body>
+        <script src="js/app.js"></script>
+    </body>
+</html>
+#+end_src
+** css
+*** units
+- em
+- %
+- vh,vm
+  fill up only viewport, not parent
+*** basic properties
+- transform: scale, translate, ...
+- transition
+*** navbar (flex box)
+add to parent div:
+display:  flex;
+justify-content: space-between; /*or center*/
+margin: 0 5rem;
+*** css grid (2D flex box)
+set one element as grid:
+.the_container{
+    display: grid;
+    grid-template-areas:
+    'header header header'
+    'post post related'
+    'footer footer footer';
+}
+add elements with
+.header-container{
+    grid-area: header;
+}
+(other properties would be grid-template-columns where the width can be set, grid-template-rows,
+set grid-column per element)
+*** keyframes/animation
+define @keyframes <name>, define there changes e.g.
+- to {background: ...}
+- 10%{..} 40%{..}
+use it for element with animation-name, duration, fill-mode, delay
