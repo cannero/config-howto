@@ -71,6 +71,10 @@ wait for reading data from client
 - net_write_timeout
 wait for client to receive data
 - lock_wait_timeout
+
+*** time zones
+set on server and can be set per connection
+timestamp column saves time in UTC
 * Debugging
 - disable just in time debugging with Visual Studio:
 go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT debugger.
@@ -794,6 +798,9 @@ in scratch (insert (fn))
 - string-rectangle
 - query-replace-regexp
 ^->..., not shown marked
+*** capitalize/uppercase/lowercase
+capitalize-word, capitalize-region, upcase-word, upcase-region
+downcase-region
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -810,7 +817,11 @@ in scratch (insert (fn))
    17 & C-q
    24 & C-# XXX: 
    27 & Esc
-
+*** debug
+edebug or debug
+- M-x toggle-debug-on-error
+- M-x edebug-defun
+- enter with (debug)
 ** SQL Mode
 in windows add the bin directory for mysql to the exec-path
 
@@ -863,6 +874,10 @@ C:\tools\emacs\nt\runemacs.exe --daemon
 
 start client:
 C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
+** magit
+*** blobs
+open file with magit-find-file
+used e.g. in blame-reverse
 * Linux
 ** commands
 - back quote command substitution: runs one command on the other, like ll `find . -print`. Could also be \$(cmd)
@@ -934,6 +949,13 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
        -X GET 'https://api.twitch.tv/helix/streams?game_id=33214'
        -X PUT "http://localhost:53266/API/v1/MaterialOrder/DispatchAcknowledged/4" -H  "accept: /*" -H  "Content-Type: application/json" -d "{\"userId\":\"user to\",\"applicatorId\":\"wac035"}"
   -i: show response header
+  -X: use this method in all requests, also redirects
+  -L: follow rd
+  -v: verbose
+  - ranges
+    curl 'https://example.com/[1-9].html' -o save_#1.html
+    curl 'https://example.com/{ham,cheese}.jpg' -o out_#1.jpg
+  - in browser: copy as curl in dev tools
 - wget
   non-interactive network retriever
 - show system information
@@ -1140,6 +1162,13 @@ put packages in folder ~/vimfiles/pack/bundle/start/
      --stat to see changes in diff
      --check
      apply patch eiter with apply or am for signoff
+** find when line was deleted
+- git blame --reverse START.. file.ext
+  --first-parent if multiple merges
+- git log -S <string> path/to/file
+  can also be run on directory
+  -c -cc for combined merge
+  also called pickaxe
 ** checkout only subdirectory
 *** sparse checkout
 - git init
@@ -1445,7 +1474,18 @@ avd Manager set sdcard to enabled and maybe change disk size
    - src/Main.js
    test:
    - src-test/*.js
-
+** misc functions
+- arrays
+  contains element: .includes(ele)
+- get properties
+  - Object.keys(obj)
+  - for(var key in obj){ if (obj.hasOwnProperty(key)){...
+- shallow copy/clone
+  let cloned = {...orig}
+- deep copy
+  let deepCopy = JSON.parse(JSON.stringify(obj))
+- assign properties/change properties
+  Object.assign(objectToAssign, objectWithChangesNewProperties)
 * erlang
 ** shell
 - current directory
@@ -1708,12 +1748,15 @@ python -m venv /path/to/new/virtual/environment
 run/source 'activate' script in <venv>/bin/ folder
 ** exceptions
 https://docs.python.org/3/library/exceptions.html#exception-hierarchy
+** modules
+- inspect e.g. for getting arguments inspect.signature(m)
 * firefox
 delete re-direct: in history right click site, Forget about this site:
 will remove browse history and passwd etc.
 * msys2/mingw64
 ** pacman
 database lock is in /var/lib/pacman/db.lck
+partial upgrades will not work, update everything with pacman -Syuu
 ** generate ssh keys
 - check for existing key pair
   ls -al ~/.ssh
