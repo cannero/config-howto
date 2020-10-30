@@ -470,6 +470,12 @@ void "clName"::Dump( CDumpContext& dc ) const
   )
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
+;; fsharp
+(defun my-fsharp-mode-hook ()
+  (company-mode))
+(add-hook 'fsharp-mode-hook 'my-fsharp-mode-hook)
+(add-to-list 'auto-mode-alist '("\\.fsproj\\'" . nxml-mode))
+
 ;;octave and matlab
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
@@ -571,6 +577,7 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(hl-fg-colors
    '("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36"))
  '(hl-paren-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
+ '(hl-sexp-background-color "#33323e")
  '(hl-todo-keyword-faces
    '(("TODO" . "#dc752f")
      ("NEXT" . "#dc752f")
@@ -646,4 +653,4 @@ void "clName"::Dump( CDumpContext& dc ) const
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "outline" :family "Source Code Pro")))))
+ '(default ((((class color) (min-colors 89)) (:family "Source Code Pro" :foundry "outline" :slant normal :weight normal :height 113 :width normal)))))

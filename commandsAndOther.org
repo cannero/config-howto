@@ -2,6 +2,7 @@
 ** queries
 - multicolumn search 
   select * from leadsets where (leadset, prodversion) in (select leadset, prodversion from orders where uniqnr = 172858)
+  disable index with USE INDEX()
 - subselect with EXISTS
   select distinct(leadset) from leadset_attributes a1 where workstep = 5 and not exists (select 1 from leadset_attributes a2 where a2.Leadset = a1.Leadset and a2.ProdVersion = a1.ProdVersion and a2.Workstep = a1.Workstep and a2.Attribute = 2)
 - transpose without pivot
@@ -45,20 +46,29 @@ or /etc/inti.d/mysql
 | create user                                             | CREATE USER 'jeffrey'@'localhost' IDENTIFIED BY 'mypass';                                                                                                                                                                   |
 | use binary collate for case sensitive string comparison | select * from orders where leadset LIKE 's%' COLLATE utf8_bin                                                                                                                                                               |
 | tables without primary key                              | select * from `tables` t where t.table_schema = 'diko' and table_type = 'base table' and table_name not in (select table_name from KEY_COLUMN_USAGE c where c.CONSTRAINT_SCHEMA = 'diko' and c.CONSTRAINT_NAME = 'primary') |
-|                                                         |                                                                                                                                                                                                                             |
+| all processes                                           | SHOW FULL PROCESSLIST;                                                                                                                                                                                                      |
 
 import file
 bin\mysqld.exe --defaults-file="c:\Program Files\MySQL\MySQL Server 5.7\bin\my.ini" --init-file=c:\tmp\create_user.sql
 *** InnoDB
 - create index allows concurrent DML, see http://dev.mysql.com/doc/refman/5.6/en/innodb-create-index-overview.html
 - MySQL will not use indexes if you query the wrong data type
-- show open transactions show (engine old without) innodb status: block with transactions
+**** transactions
+| innodb status     | show engine innodb status                    |
+| show transactions | SELECT * FROM information_schema.innodb_trx; |
 *** mysqldump
 - export schema:
   mysqldump.exe -u diituser -p8932500 -h 142.120.60.114 -P 3306 -B diko --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r diko.sql
 *** mysqlbinlog
-mysqlbinlog.exe --base64-output=decode-rows -v <mysql-bin...> > binlogparsed 
-another option: --start-datetime
+mysqlbinlog.exe --base64-output=decode-rows -v <mysql-bin...> > binlogparsed
+-v: Reconstruct row events and display them as commented SQL statements.
+If this option is given twice (by passing in either "-vv" or "--verbose --verbose"),
+the output includes comments to indicate column data types and some metadata,
+and row query log events if so configured
+
+decode-rows not for re-executing, https://dev.mysql.com/doc/refman/5.7/en/mysqlbinlog-row-events.html
+
+--start-datetime or by log_pos
 *** timeouts
 - connect_timeout
 during establishing session
@@ -71,7 +81,12 @@ wait for reading data from client
 - net_write_timeout
 wait for client to receive data
 - lock_wait_timeout
-
+*** performance schema
+SELECT * FROM `performance_schema`.`events_statements_current
+*** mysqladmin
+| description                     | command                                  |
+|---------------------------------+------------------------------------------|
+| search for innodb to get memory | mysqladmin -r -i 1 -c 60 extended-status |
 *** time zones
 set on server and can be set per connection
 timestamp column saves time in UTC
@@ -249,7 +264,11 @@ Hyperlinks relativ setzen mit Datei -> Eigenschaften -> Zusammenfassung: Hyperli
   partial: $A1, A$1
 - included in range, count
 =ZÄHLENWENN($A$1:$A$110;E186)
-
+**** csv to grid
+- check for " for whole line
+- data -> import csv
+**** plotting
+column has to be formatted to right data type
 ** Visual Studio
 edit autoexp.dat for expanding and not stepping into in debugger
 c:/Programme/Microsoft Visual Studio/Common/MSDev98/Bin/
@@ -323,6 +342,10 @@ https://github.com/justcla/EmacsKeys
 
 *** command line compiler
 cl /EHsc -DUNICODE -D_UNICODE <file including windows.h>.cpp user32.lib
+*** subscription
+visual studio downloads
+msdn
+https://my.visualstudio.com/Downloads/Featured
 ** remote desktop
 - local drives are mapped to //tsclient
 - for copy + paste enable all fields in local resources, and restart rdpclip.exe
@@ -420,6 +443,9 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
      Click to select the Read check box, and then click OK.
    - configuration
      %windir%\system32\inetsrv\config\applicationhost.config
+   - users
+     https://stackoverflow.com/questions/14934006/iis-iusrs-and-iusr-permissions-in-iis8
+     IIS AppPool\MyApplicationPoolName, IUSR, IIS_IUSRS
 ** disable telemetry data gathering
    http://superuser.com/questions/972501/how-to-stop-microsoft-from-gathering-telemetry-data-from-windows-7-8-and-8-1
 
@@ -478,6 +504,9 @@ Navigate to the Session | Session Settings | Importance tab to set importance, U
 ** WSL
 access path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
 from app also 'explorer.exe .' is possible as non-root user
+restart with Get-Service LxssManager | Restart-Service
+*** ubuntu
+update system with do-release-upgrade
 *** docker
 install as listed on docker website for ubuntu
 start demon with 'sudo dockerd'
@@ -988,11 +1017,14 @@ used e.g. in blame-reverse
   run with -i with the current user's login shell
   to preserve environment -E, -s for set shell
 *** apt
-- apt list --installed
+- apt list --installed/--upgradable
 - apt search 'package'
-- sudo apt-get purge thunderbird*
+- sudo apt purge thunderbird*
 - apt-mark hold
   stop updates
+- update with
+  sudo apt update
+  sudo apt upgrade
 ** window managers
 - old ones mwn, twn
 
@@ -1180,6 +1212,10 @@ put packages in folder ~/vimfiles/pack/bundle/start/
 *** filter
 git clone --filter
 has to be supported by the server, still in work?
+** credential manager windows
+for azure devops, msys has not manager
+https://github.com/Microsoft/Git-Credential-Manager-for-Windows/issues/500
+-> use windows build
 * powershell
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
@@ -1577,7 +1613,7 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
   - ip of container
     docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' container_name_or_id
     docker inspect --format '{{ .NetworkSettings.IPAddress }}' <containername>
-- log, for example for mysql
+- log, for example for mysql, show stdout
   docker logs <containername>
 - insecure access to registries
   edit /etc/docker/daemon.json
