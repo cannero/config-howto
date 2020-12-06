@@ -6,7 +6,7 @@
 - subselect with EXISTS
   select distinct(leadset) from leadset_attributes a1 where workstep = 5 and not exists (select 1 from leadset_attributes a2 where a2.Leadset = a1.Leadset and a2.ProdVersion = a1.ProdVersion and a2.Workstep = a1.Workstep and a2.Attribute = 2)
 - transpose without pivot
-  SELECT t.userid
+  SELECT t.userid,
          MAX(CASE WHEN t.fieldname = 'Username' THEN t.fieldvalue ELSE NULL END) AS Username,
          MAX(CASE WHEN t.fieldname = 'Password' THEN t.fieldvalue ELSE NULL END) AS Password,
          MAX(CASE WHEN t.fieldname = 'Email Address' THEN t.fieldvalue ELSE NULL END) AS Email
@@ -396,6 +396,8 @@ https://my.visualstudio.com/Downloads/Featured
        powershell: bcdedit /copy `{current`} /d "No Hyper-V"
    - reserve port win10
      netsh http add urlacl url=http://+:49550/ sddl=D:PAI(A;;FA;;;WD)
+     netsh http add urlacl url=http://+:49550/ sddl=D:(A;;GX;;;S-1-1-0)
+     netsh http delete urlacl url=http://+:49550/
    - caps lock to ctrl
      Windows Registry Editor Version 5.00
      [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
@@ -502,9 +504,11 @@ To ignore text differences, define a new Grammar element (what the text is), the
 use different name than existing ones, e.g. columns from 1 to xx
 Navigate to the Session | Session Settings | Importance tab to set importance, Update session defaults
 ** WSL
-access path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
-from app also 'explorer.exe .' is possible as non-root user
-restart with Get-Service LxssManager | Restart-Service
+- access
+  path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
+  from app also 'explorer.exe .' is possible as non-root user
+- restart
+  Get-Service LxssManager | Restart-Service
 *** ubuntu
 update system with do-release-upgrade
 *** docker
@@ -663,6 +667,8 @@ To disable ThinPrint within the virtual desktop:
 ** Host USB device connection disabled
 Try right clicking on one of the USB hubs and looking at the driver details. If usbfilter.sys is listed then open HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{36FC9E60-C465-11CF-8056-444553540000} and delete the UpperFilter, usbfilter pair. 
 restart some times after change
+** update vmware tools
+dvd drive required
 * C#
 ** folders
 *** exe.config files
@@ -981,6 +987,7 @@ used e.g. in blame-reverse
   -X: use this method in all requests, also redirects
   -L: follow rd
   -v: verbose
+  -k: insecure https access
   - ranges
     curl 'https://example.com/[1-9].html' -o save_#1.html
     curl 'https://example.com/{ham,cheese}.jpg' -o out_#1.jpg
@@ -1016,12 +1023,22 @@ used e.g. in blame-reverse
 - sudo
   run with -i with the current user's login shell
   to preserve environment -E, -s for set shell
+- ripgrep rg
+  -S/--smart-case
+  -g/--glob file pattern
+- ffmpeg
+  ffmpeg -i sample.avi -ss 00:03:05 -to 00:05:45 -q:a 0 -map a sample.mp3
+- dig
+  dns lookup
+- tcpdump
+  show traffic on network
 *** apt
 - apt list --installed/--upgradable
 - apt search 'package'
 - sudo apt purge thunderbird*
 - apt-mark hold
   stop updates
+  to continue
 - update with
   sudo apt update
   sudo apt upgrade
@@ -1040,6 +1057,8 @@ used e.g. in blame-reverse
 - ssh
   use 'ssh 142.120.61.41 -l root' to connect with root
   or ssh user@host
+- no host check
+  ssh -o StrictHostKeyChecking=no
 - key generation
   [[*generate ssh keys][generate ssh keys]]
 ** distros
@@ -1078,7 +1097,7 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
    visit-tags-table for TAGS file to use
    search tags with M-., C-u M-., C-u - M-.
 
-* vi
+* vi/vim/neovim
 get 64bit from https://github.com/vim/vim-win32-installer/releases
 ** commands
    - unset an option with set no<option>
@@ -1105,7 +1124,9 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
 ** unicode support
 add https://www.vim.org/scripts/script.php?script_id=789 to config file
 ** packages
-put packages in folder ~/vimfiles/pack/bundle/start/
+put packages in folder
+vim windows: ~/vimfiles/pack/bundle/start/
+neovim: ~/.config/nvim/pack/bundle/start
 * git
 ** basics
    - .gitignore for files which should not be shown in untracked files
@@ -1543,7 +1564,7 @@ generate CMakeLists.txt with dependencies, <cmake .> generates the project
 *** commands kubectl
 [[https://kubernetes.io/docs/reference/kubectl/cheatsheet/][cheatsheet]]
 all commands should be possible for pods, services, deployments, namespaces, 
-jobs.batch, cronjobs.batch?
+jobs.batch, cronjobs.batch, events, endpoints?
 
 | api groups, v1 if none specified | kubectl api-resources                            |
 | create pod/service               | kubectl create -f basic.yaml                     |
@@ -1552,19 +1573,18 @@ jobs.batch, cronjobs.batch?
 | configmap                        | create configmap <name>                          |
 | show log of pod                  | logs <pod>                                       |
 **** get
-
-| show nodes      | kubectl get nodes                                      |                            |
-| pods, with IP   | kubectl get pods                                       | -o wide                    |
-|                 | svc                                                    |                            |
-| detailed output | get jobs.batch <job> -o yaml                           |                            |
-| pod with label  | get -l app=design2 pod/ get --selector app=design2 pod | when created by deployment |
-|                 |                                                        |                            |
+separate resources with ,
+| show nodes            | kubectl get nodes                                      |                            |
+| pods, with IP         | kubectl get pods                                       | -o wide                    |
+|                       | svc                                                    |                            |
+| detailed output       | get jobs.batch <job> -o yaml                           |                            |
+| pod with label        | get -l app=design2 pod/ get --selector app=design2 pod | when created by deployment |
+| resource in namespace |                                                        | -n <namespace>             |
 **** describe
 | nodes information | kubectl describe nodes         |
 | pod information   | kubectl describe pod <podname> |
 **** delete
 kubectl delete pod basicpod
-
 **** exec
 - first container in pod:
 kubectl exec  -it <podname> -- /bin/bash
@@ -1572,10 +1592,20 @@ kubectl exec  -it <podname> -- /bin/bash
 kubectl exec  -it <podname> -c <containername> -- /bin/bash
 **** edit
 kubectl edit pod <podname>
+**** expose
+create service with port and type
+**** scale
+kubectl scale deployment <depl> --replicas=6
+current-replicas or resource-version allow for validation before scaling
+**** rollout
+- history
+- undo
+**** replace
 *** commands kubeadm
 - kubeadm init
 - kubeadm token create --print-join-command
 - kubeadm reset
+  revert changes by init/join
 *** configuration
 - expose port in pod
   containerPort
@@ -1627,6 +1657,8 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
 - docker-compose stop (detatched)
 - start shell with for service myapp
   docker-compose run --service-ports --rm myapp
+  - run bash
+    docker-compose run --service-ports --rm myapp bash
 *** windows(old)
 - set up host with virtualbox, hyperv only windows 10
 - set env with eval $("D:\tools\Docker Toolbox\docker-machine.exe" env default)
@@ -1909,8 +1941,15 @@ add elements with
 }
 (other properties would be grid-template-columns where the width can be set, grid-template-rows,
 set grid-column per element)
+*** responsive web design
+- media queries
+- viewport
 *** keyframes/animation
 define @keyframes <name>, define there changes e.g.
 - to {background: ...}
 - 10%{..} 40%{..}
 use it for element with animation-name, duration, fill-mode, delay
+* encoding
+http://www.unicode.org/versions/Unicode5.0.0/ch02.pdf
+page 30
+Use of a BOM is neither required nor recommended for UTF-8, but may be encountered in contexts where UTF-8 data is converted from other encoding forms that use a BOM or where the BOM is used as a UTF-8 signature.
