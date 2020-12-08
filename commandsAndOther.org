@@ -1032,6 +1032,8 @@ used e.g. in blame-reverse
   dns lookup
 - tcpdump
   show traffic on network
+- base64
+  padding is different compared to node
 *** apt
 - apt list --installed/--upgradable
 - apt search 'package'
@@ -1543,6 +1545,8 @@ avd Manager set sdcard to enabled and maybe change disk size
   let deepCopy = JSON.parse(JSON.stringify(obj))
 - assign properties/change properties
   Object.assign(objectToAssign, objectWithChangesNewProperties)
+- base64
+  new Buffer(client_id + ':' + client_secret).toString('base64')
 * erlang
 ** shell
 - current directory

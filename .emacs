@@ -404,7 +404,6 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; rust
 ;;also the environment variable RUST_SRC_PATH has to be set
-;;todo use rustup for src
 ;;(setq racer-rust-src-path "d:/progra/rust/rust/src/")
 (require 'company-racer)
 (with-eval-after-load 'company
@@ -506,7 +505,14 @@ void "clName"::Dump( CDumpContext& dc ) const
                    (concat
                     (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
                     (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
-(defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(defun ediff-combine-both-to-A ()
+  (interactive)
+  (ediff-copy-diff ediff-current-difference nil 'A nil
+                   (concat
+                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+
+(defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-combine-both-to-A))
 (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 
 (minions-mode)
@@ -602,7 +608,7 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(nrepl-message-colors
    '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(package-selected-packages
-   '(dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit racer yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
+   '(editorconfig leuven-theme dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit racer yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
  '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e"))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
