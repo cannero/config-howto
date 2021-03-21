@@ -284,7 +284,8 @@ c:/Programme/Microsoft Visual Studio 9.0/Common7/Packages/Debugger/
 Makefile export:
 wrong format for custom build of dll, use .$\backslash$LPPars not .LPPars\\
 add path for DJGPP binaries
-
+*** find-replace
+new lines with regex + \r\n
 *** search not working
 
   No matching text found to look in. 
@@ -445,6 +446,7 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
      Click to select the Read check box, and then click OK.
    - configuration
      %windir%\system32\inetsrv\config\applicationhost.config
+     e.g. environment variables per pool in applicationPools
    - users
      https://stackoverflow.com/questions/14934006/iis-iusrs-and-iusr-permissions-in-iis8
      IIS AppPool\MyApplicationPoolName, IUSR, IIS_IUSRS
@@ -669,7 +671,8 @@ Try right clicking on one of the USB hubs and looking at the driver details. If 
 restart some times after change
 ** update vmware tools
 dvd drive required
-* C#
+* C#/F#
+repl with scriptcs/fsi
 ** folders
 *** exe.config files
 - XP: C:\Dokumente und Einstellungen\sebastian\Lokale Einstellungen\Anwendungsdaten\DiIT\
@@ -900,6 +903,8 @@ in windows add the bin directory for mysql to the exec-path
       insert code block
       C-c C-,
       then choose s
+    - no indentation below header
+      (setq org-adapt-indentation nil)
 ** server-client
 *** windows
 start server, place script in shell:startup:
@@ -992,6 +997,7 @@ used e.g. in blame-reverse
     curl 'https://example.com/[1-9].html' -o save_#1.html
     curl 'https://example.com/{ham,cheese}.jpg' -o out_#1.jpg
   - in browser: copy as curl in dev tools
+  -O: output to file
 - wget
   non-interactive network retriever
 - show system information
@@ -1032,6 +1038,9 @@ used e.g. in blame-reverse
   dns lookup
 - tcpdump
   show traffic on network
+- linux version flavor
+  cat /etc/os-release
+  hostnamectl
 - base64
   padding is different compared to node
 *** apt
@@ -1146,6 +1155,9 @@ neovim: ~/.config/nvim/pack/bundle/start
      compare to last version: @{1} <file>, short for HEAD@{1}
      compare to master: git diff origin/master -- [local-path]
      all changes between two commits, path can be also files: git diff commit1^..commit2 -- [<path>...]
+     between two files: git diff --word-diff=color --word-diff-regex=. file1 file2, if in repo add --no-index
+     -w ignore whitespace
+     -U<n> n lines of context
    - log
      show last i commits with -n i
      short overview with files: --stat
@@ -1168,8 +1180,11 @@ neovim: ~/.config/nvim/pack/bundle/start
    - To list all files in a commit
      git diff-tree --no-commit-id --name-only -r bd61ad98
      --name-status instead for action
-   - To revert single file before commit
+   - To revert single file before adding/everything
      git checkout c5f567~1 -- file1/to/restore file2/to/restore
+     git checkout .
+   - revert change from commit in one file
+     git show some_commit_sha1 -- some_file.c | git apply -R
    - branch
      to show remote ones -r
      rename local branch: -m <oldname> <newname>, case sensitive -M
@@ -1217,6 +1232,8 @@ neovim: ~/.config/nvim/pack/bundle/start
      --stat to see changes in diff
      --check
      apply patch eiter with apply or am for signoff
+   - update-git-for-windows
+     windows version
 ** find when line was deleted
 - git blame --reverse START.. file.ext
   --first-parent if multiple merges
@@ -1235,10 +1252,16 @@ neovim: ~/.config/nvim/pack/bundle/start
 *** filter
 git clone --filter
 has to be supported by the server, still in work?
-** credential manager windows
+** credential.helper
+*** manager for windows
+git config --global credential.helper manager
+newer: git config --global credential.helper manager-core
 for azure devops, msys has not manager
 https://github.com/Microsoft/Git-Credential-Manager-for-Windows/issues/500
 -> use windows build
+*** store
+git config --global credential.helper store
+stores pwd after the next commit in ~/.git-credentials
 * powershell
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
@@ -1318,6 +1341,12 @@ Set-PSReadLineOption -EditMode Emacs
    - uptime
      - Get-Uptime -Since
      - (gcim Win32_OperatingSystem).LastBootUpTime
+   - test ip connection
+     Test-NetConnection -Port 0000 -ComputerName ABC
+   - cpu load
+     $NumberOfLogicalProcessors=(Get-WmiObject -class Win32_processor | Measure-Object -Sum NumberOfLogicalProcessors).Sum
+     (Get-Counter '\Process(*)\% Processor Time').Countersamples | Where cookedvalue -gt ($NumberOfLogicalProcessors*10) | Sort cookedvalue -Desc | ft -a instancename, @{Name='CPU %';Expr={[Math]::Round($_.CookedValue / $NumberOfLogicalProcessors)}}
+
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine
@@ -1493,6 +1522,14 @@ structural, behavioral, creational, concurrency patterns
 - Visitor
   b
   add capabilities to a composite of objects if encapsulation is not important
+** more design patterns
+*** Repository Pattern
+https://docs.microsoft.com/en-us/previous-versions/msp-n-p/ff649690(v=pandp.10)?redirectedfrom=MSDN
+- centralize data logic
+- mediate between data and business layers
+*** Unit of Work
+https://martinfowler.com/eaaCatalog/unitOfWork.html
+maintain list of affected objects by business transaction and coordinates the writing of changes
 
 * Android
 ** gradle
@@ -1535,7 +1572,9 @@ avd Manager set sdcard to enabled and maybe change disk size
    - src-test/*.js
 ** misc functions
 - arrays
-  contains element: .includes(ele)
+  - contains element: .includes(ele)
+  - Array(n) creates array with length n but no elements, cannot iterate over it
+  - Array(n).fill() (see above) fills array also with elements
 - get properties
   - Object.keys(obj)
   - for(var key in obj){ if (obj.hasOwnProperty(key)){...
@@ -1547,6 +1586,22 @@ avd Manager set sdcard to enabled and maybe change disk size
   Object.assign(objectToAssign, objectWithChangesNewProperties)
 - base64
   new Buffer(client_id + ':' + client_secret).toString('base64')
+*** insert dashes
+function insertDashes(str) {
+    zip= rows=>rows[0].map((_,c)=>rows.map(row=>row[c]))
+    const str_as_arr = str.split('');
+    let str_as_arr_shifted = str_as_arr.slice(1);
+    str_as_arr_shifted.push(' ');
+    const zipped = zip([str_as_arr,str_as_arr_shifted]);
+    const with_dashes = zipped.map(chars => {
+        if(chars[0] != ' ' && chars[1] != ' '){
+            return  chars[0] + '-';
+        }else{
+            return chars[0];
+        }
+    })
+    return with_dashes.join('');
+}
 * erlang
 ** shell
 - current directory
@@ -1634,6 +1689,8 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
     docker run --name mynginx1 -P -d nginx
   - with environment variable, remove after close
     docker run -e ASPNETCORE_URLS="http://*:80" -it --rm -p 12000:80 --name aspnetcore_sample aspnetapp
+    mount volume -v /host/directory:/container/directory
+  - optionally <cmd> which should be run
 - container
   - docker container attach <name>
   - docker container list
@@ -1957,3 +2014,7 @@ use it for element with animation-name, duration, fill-mode, delay
 http://www.unicode.org/versions/Unicode5.0.0/ch02.pdf
 page 30
 Use of a BOM is neither required nor recommended for UTF-8, but may be encountered in contexts where UTF-8 data is converted from other encoding forms that use a BOM or where the BOM is used as a UTF-8 signature.
+* atlassian
+** confluence
+*** m2conf.py
+python ~/projects/md_to_conf/md2conf.py import.md <space> -a <create page under>
