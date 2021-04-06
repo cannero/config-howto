@@ -426,6 +426,7 @@ void "clName"::Dump( CDumpContext& dc ) const
 (setq company-selection-wrap-around t)
 
 ;; javascript
+(add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
 ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (setq ac-js2-evaluate-calls t)
 (add-hook 'js2-mode-hook 'ac-js2-mode)
@@ -471,7 +472,9 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; fsharp
 (defun my-fsharp-mode-hook ()
-  (company-mode))
+  (company-mode)
+  (local-set-key (kbd "TAB") #'company-complete-common)
+  (local-set-key (kbd "<backtab>") #'company-indent-or-complete-common))
 (add-hook 'fsharp-mode-hook 'my-fsharp-mode-hook)
 (add-to-list 'auto-mode-alist '("\\.fsproj\\'" . nxml-mode))
 
@@ -608,7 +611,7 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(nrepl-message-colors
    '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(package-selected-packages
-   '(editorconfig leuven-theme dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit racer yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
+   '(doom-themes cmake-mode jinja2-mode editorconfig leuven-theme dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit racer yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
  '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e"))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
@@ -643,6 +646,7 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(vc-annotate-very-old-color nil)
  '(weechat-color-list
    '(unspecified "#002b36" "#073642" "#a7020a" "#dc322f" "#5b7300" "#859900" "#866300" "#b58900" "#0061a8" "#268bd2" "#a00559" "#d33682" "#007d76" "#2aa198" "#839496" "#657b83"))
+ '(which-function-mode t)
  '(window-divider-mode nil)
  '(xterm-color-names
    ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])

@@ -1787,7 +1787,7 @@ see https://blog.golang.org/profiling-go-programs
 (from https://apprenticealf.wordpress.com/2012/09/10/calibre-plugins-the-simplest-option-for-removing-most-ebook-drm/,
 https://www.techradar.com/news/software/how-to-remove-ebook-drm-with-calibre-1291960)
 
-download plugin for calibre https://github.com/apprenticeharper/DeDRM_tools/releases/tag/v6.6.1
+download plugin for calibre https://github.com/apprenticeharper/DeDRM_tools/releases
 
 add in calibre under preferences -> plugins
 * theory
