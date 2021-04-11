@@ -839,6 +839,8 @@ in scratch (insert (fn))
 *** capitalize/uppercase/lowercase
 capitalize-word, capitalize-region, upcase-word, upcase-region
 downcase-region
+*** run non-interactive command
+eval-expression, M-:
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 

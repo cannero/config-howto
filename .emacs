@@ -403,27 +403,31 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-hook 'ruby-mode-hook #'hs-minor-mode)
 
 ;; rust
-;;also the environment variable RUST_SRC_PATH has to be set
-;;(setq racer-rust-src-path "d:/progra/rust/rust/src/")
-(require 'company-racer)
-(with-eval-after-load 'company
-  (add-to-list 'company-backends 'company-racer))
-(defun my-rust-mode-hook ()
-  (racer-mode)
-  (cargo-minor-mode)
-  ;;buffer local
-  (add-hook 'before-save-hook 'rust-format-buffer nil t)
+;;from https://github.com/rksm/emacs-rust-config
+(defun my-rustic-mode-hook ()
+  (setq rustic-format-on-save t)
+  (setq-local buffer-save-without-query t)
   (set (make-local-variable 'compile-command)
        (concat "rustc "
                (shell-quote-argument buffer-file-name))))
+(add-hook 'rustic-mode-hook #'my-rustic-mode-hook)
 
-(add-hook 'rust-mode-hook #'my-rust-mode-hook)
-(add-hook 'racer-mode-hook #'eldoc-mode)
+(defun my-lsp-ui-mode-hook ()
+  (lsp-ui-doc-enable nil))
+(add-hook 'lsp-ui-mode-hook #'my-lsp-ui-mode-hook)
 
-(add-hook 'racer-mode-hook #'company-mode)
-(global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+;;company
+(require 'company)
 (setq company-tooltip-align-annotations t)
 (setq company-selection-wrap-around t)
+;; or make key bindings for company-tab-indent and company-complete minor modes
+;; and load those instead of company
+;; https://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs
+;; https://stackoverflow.com/questions/9818307/emacs-mode-specific-custom-key-bindings-local-set-key-vs-define-key
+(with-eval-after-load 'company
+  (define-key company-mode-map (kbd "<tab>") #'company-complete-common)
+  (define-key company-mode-map (kbd "<backtab>") #'company-indent-or-complete-common)
+  (define-key company-active-map (kbd "<tab>") #'company-complete-selection))
 
 ;; javascript
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
@@ -444,12 +448,7 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; python
 (defun my-python-mode-hook ()
-  (company-mode)
-  (local-set-key (kbd "TAB") #'company-complete-common)
-  (local-set-key (kbd "<backtab>") #'company-indent-or-complete-common)
-  ;;not working with msys python
-  ;;(blacken-mode)
-  )
+  (company-mode))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 (defcustom python-shell-interpreter "python3"
@@ -472,9 +471,7 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; fsharp
 (defun my-fsharp-mode-hook ()
-  (company-mode)
-  (local-set-key (kbd "TAB") #'company-complete-common)
-  (local-set-key (kbd "<backtab>") #'company-indent-or-complete-common))
+  (company-mode))
 (add-hook 'fsharp-mode-hook 'my-fsharp-mode-hook)
 (add-to-list 'auto-mode-alist '("\\.fsproj\\'" . nxml-mode))
 
@@ -497,9 +494,6 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; Treat clipboard input as UTF-8 string first; compound text next, etc.
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-
-;; do not load on startup, takes 25 seconds
-;; (require 'ox-confluence)
 
 ;;ediff
 (defun ediff-copy-both-to-C ()
@@ -611,8 +605,7 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(nrepl-message-colors
    '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(package-selected-packages
-   '(doom-themes cmake-mode jinja2-mode editorconfig leuven-theme dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit racer yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi cargo typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 company-racer web-mode scss-mode ecb color-theme coffee-mode))
- '(pdf-view-midnight-colors '("#b2b2b2" . "#292b2e"))
+   '(rustic lsp-ui lsp-mode flycheck doom-themes cmake-mode jinja2-mode editorconfig leuven-theme dockerfile-mode color-theme-sanityinc-tomorrow solarized-theme zenburn-theme kotlin-mode fsharp-mode yaml-mode fish-mode neotree magit yasnippet-snippets blacken spacemacs-theme minions inf-ruby typescript-mode go-snippets go-mode java-snippets yasnippet-classic-snippets python company-jedi typing-game markdown-mode clojure-mode alchemist elixir-mode powershell company-lua erlang ac-js2 web-mode scss-mode ecb color-theme coffee-mode))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(scroll-bar-mode nil)
