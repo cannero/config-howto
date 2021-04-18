@@ -226,6 +226,9 @@ void "clName"::Dump( CDumpContext& dc ) const
            "../contrib"
            (file-name-directory (org-find-library-dir "org"))
            ))))))
+(setq org-adapt-indentation nil)
+;; todo: test with t
+;; (setq org-startup-folded 'content)
 ;;==================================================
 ;;miscellaneous  helpers
 ;;
@@ -425,9 +428,32 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;; https://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs
 ;; https://stackoverflow.com/questions/9818307/emacs-mode-specific-custom-key-bindings-local-set-key-vs-define-key
 (with-eval-after-load 'company
-  (define-key company-mode-map (kbd "<tab>") #'company-complete-common)
+  (define-key company-mode-map (kbd "TAB") #'tab-indent-or-complete)
+  (define-key company-mode-map (kbd "<tab>") #'tab-indent-or-complete)
   (define-key company-mode-map (kbd "<backtab>") #'company-indent-or-complete-common)
   (define-key company-active-map (kbd "<tab>") #'company-complete-selection))
+
+(defun check-expansion ()
+  (save-excursion
+    (if (looking-at "\\_>") t
+      (backward-char 1)
+      (if (looking-at "\\.") t
+        (backward-char 1)
+        (if (looking-at "::") t nil)))))
+
+(defun do-yas-expand ()
+  (let ((yas-fallback-behavior 'return-nil))
+    (yas-expand)))
+
+(defun tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (or (not yas-minor-mode)
+            (null (do-yas-expand)))
+        (if (check-expansion)
+            (company-complete-common)
+          (indent-for-tab-command)))))
 
 ;; javascript
 (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
@@ -448,7 +474,9 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; python
 (defun my-python-mode-hook ()
-  (company-mode))
+  (company-mode)
+  (flycheck-mode)
+  (setq flycheck-python-pylint-executable "python"))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 (defcustom python-shell-interpreter "python3"
