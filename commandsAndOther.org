@@ -56,6 +56,15 @@ bin\mysqld.exe --defaults-file="c:\Program Files\MySQL\MySQL Server 5.7\bin\my.i
 **** transactions
 | innodb status     | show engine innodb status                    |
 | show transactions | SELECT * FROM information_schema.innodb_trx; |
+***** Isolation levels
+tx_isolation
+- Repeatable Read
+  forbids
+  - dirty reads of uncommited data
+  - non-repeatable reads
+  - phantom reads (new rows not visible, contrary to sql standard)
+  but allows
+  phantom writes of modified and new rows
 *** mysqldump
 - export schema:
   mysqldump.exe -u diituser -p8932500 -h 142.120.60.114 -P 3306 -B diko --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r diko.sql
@@ -73,7 +82,8 @@ decode-rows not for re-executing, https://dev.mysql.com/doc/refman/5.7/en/mysqlb
 - connect_timeout
 during establishing session
 - interactive_timeout
-used for connections from interactive clients, CLIENT_INTERACTIVE option to mysql_real_connect()
+used for connections from interactive clients, CLIENT_INTERACTIVE option to mysql_real_connect(),
+should only be in use by mysql command lines
 - wait_timeout
 timeout for idle non-interactive sessions
 - net_read_timeout
@@ -408,7 +418,7 @@ https://my.visualstudio.com/Downloads/Featured
      $kbLayout = 'HKLM:\System\CurrentControlSet\Control\Keyboard Layout';
      New-ItemProperty -Path $kbLayout -Name "Scancode Map" -PropertyType Binary -Value ([byte[]]$hexified);
    - disable python link to app store
-     open app execution aliases in app store, disable links
+     open app execution aliases in settings, disable links
 ** Gadgets
 *** basics
     - default gadgets are in C:\Program Files\Windows Sidebar\Gadgets
@@ -955,6 +965,7 @@ used e.g. in blame-reverse
     apt update
     apt-get install cifs-utils
     mount -t cifs -o username=<un>,password=<pw> //<host>/fsharp /home/student/fsharp
+  - load all entries in fstab with mount -a
 
 - ifconfig is in /sbin/, lists all ip addresses; (ipconfig)
 
@@ -1062,6 +1073,11 @@ used e.g. in blame-reverse
 - update with
   sudo apt update
   sudo apt upgrade
+*** compiling etc
+- ldd
+  show shared libraries
+- nm
+  print symbol table
 ** window managers
 - old ones mwn, twn
 
@@ -1161,6 +1177,7 @@ neovim: ~/.config/nvim/pack/bundle/start
      git remote add origin https://github.com/cannero/monkey_interpreter_compiler.git
      git push -u origin master
    - on windows set credential.helper=manager if login to azure devops not possible
+   - in .git/hooks enable check for pre-commit
 ** commands
    - add: add files, redo if changed, -A adds all files, -u only modified and deleted files
    - commit: commit -m 'message', -a for all unstaged changes
@@ -1213,6 +1230,8 @@ neovim: ~/.config/nvim/pack/bundle/start
    - cherry-pick
    - remove changes in all tracked files
      git checkout -f
+   - checkout branch/tag with same name
+     get path from .git/refs/... and checkout this one
    - remove untracked files git clean -f, test run git clean -nf, . for current directory
    - reset
      git reset --hard <HEAD/sha> or origin/branch
@@ -1293,6 +1312,7 @@ Set-PSReadLineOption -EditMode Emacs
    - get methods + members: [int] | Get-Member
    - call static methods with [int]::MaxValue
    - pipe to fl (Format-List) to get all properties
+     'fl *' or 'fl * -force'
    - call method: $i = 30, $i.GetHashCode()
    - create a class
      $a = New-Object DiIT.Misc.LeadsetPV("sfasdf/122/3")
@@ -1893,6 +1913,7 @@ fish --profile /tmp/some_file -c 'complete -C"git switch "'
 * python
 - start pydoc server with pydoc -b
 - start http server with python -m http.server
+- check pip version: py -m pip --version
 ** setup virtual environment
 https://docs.python.org/3/library/venv.html
 python -m venv /path/to/new/virtual/environment
@@ -1901,6 +1922,8 @@ run/source 'activate' script in <venv>/bin/ folder
 https://docs.python.org/3/library/exceptions.html#exception-hierarchy
 ** modules
 - inspect e.g. for getting arguments inspect.signature(m)
+** requirements
+pip freeze > requirements.txt
 * firefox
 delete re-direct: in history right click site, Forget about this site:
 will remove browse history and passwd etc.
