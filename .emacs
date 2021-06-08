@@ -227,8 +227,7 @@ void "clName"::Dump( CDumpContext& dc ) const
            (file-name-directory (org-find-library-dir "org"))
            ))))))
 (setq org-adapt-indentation nil)
-;; todo: test with t
-;; (setq org-startup-folded 'content)
+(setq org-startup-folded t)
 ;;==================================================
 ;;miscellaneous  helpers
 ;;
@@ -407,6 +406,10 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; rust
 ;;from https://github.com/rksm/emacs-rust-config
+(require 'rustic)
+(with-eval-after-load 'rustic
+  (define-key rustic-mode-map (kbd "C-c C-c q") #'lsp-workspace-restart))
+
 (defun my-rustic-mode-hook ()
   (setq rustic-format-on-save t)
   (setq-local buffer-save-without-query t)
@@ -479,7 +482,7 @@ void "clName"::Dump( CDumpContext& dc ) const
   (setq flycheck-python-pylint-executable "python"))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
-(defcustom python-shell-interpreter "python3"
+(defcustom python-shell-interpreter "python"
   "Default Python interpreter for shell."
   :type 'string
   :group 'python)
@@ -667,7 +670,6 @@ void "clName"::Dump( CDumpContext& dc ) const
  '(vc-annotate-very-old-color nil)
  '(weechat-color-list
    '(unspecified "#002b36" "#073642" "#a7020a" "#dc322f" "#5b7300" "#859900" "#866300" "#b58900" "#0061a8" "#268bd2" "#a00559" "#d33682" "#007d76" "#2aa198" "#839496" "#657b83"))
- '(which-function-mode t)
  '(window-divider-mode nil)
  '(xterm-color-names
    ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])

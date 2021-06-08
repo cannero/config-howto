@@ -513,6 +513,9 @@ Navigate to the Session | Session Settings | Importance tab to set importance, U
   from app also 'explorer.exe .' is possible as non-root user
 - restart
   Get-Service LxssManager | Restart-Service
+- config
+  %UserProfile%/.wslconfig
+  set memory etc.
 *** ubuntu
 update system with do-release-upgrade
 *** docker
@@ -829,8 +832,8 @@ otherwise list-processes, d on process or use process name as argument to kill p
 (delete-process PROCESS) if kill is not working
 proced will show processes for user
 *** goto matching paren
-C-M-n/C-M-p: list
-C-M-f/C-M-b: sexp
+C-M-n/C-M-p: forward-list
+C-M-f/C-M-b: forward-sexp
 *** print without quotes
 in scratch (insert (fn))
 *** insert in front of line/prefix
@@ -935,9 +938,10 @@ used e.g. in blame-reverse
 - info show online help with 'info'
 
 - find
-  find . -follow -name "*.cfg" -exec grep -inHl 'mtbl' {} \; i: case insensitive, l: name of input file, H: filename, n: line number
+  find . -name "*.cfg" -exec grep -inHl 'mtbl' {} \; i: case insensitive, l: name of input file, H: filename, n: line number
   to start as few grep commands as possible GNU grep, otherwise last run not returned if only one file:
   find / -type f -exec grep -Hi 'the brown dog' {} +
+  -L follow symbolic links
 
   - two different files, maybe quoting of -name block necessary \( ... -o ... \):
     find . -type f -name '*.err' -o -name '*.pdf'
@@ -1035,7 +1039,8 @@ used e.g. in blame-reverse
   to preserve environment -E, -s for set shell
 - ripgrep rg
   -S/--smart-case
-  -g/--glob file pattern
+  -g/--glob file pattern, single quote pattern
+  --max-depth control recursion
 - ffmpeg
   ffmpeg -i sample.avi -ss 00:03:05 -to 00:05:45 -q:a 0 -map a sample.mp3
 - dig
@@ -1104,7 +1109,7 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 * Tags
 ** setup
    - msys
-     run find . -name "*.cs" -exec "D:\tools\emacs24.3\bin\etags.exe" -a {} ;
+     run find . -name "*.cs" -exec "D:\tools\emacs24.3\bin\etags.exe" -a {} \;
      creates a TAGS file
    - powershell
      dir -Include *.cpp,*.h -Recurse | %{$_.FullName} | C:\tools\emacs\lib-src\etags.exe -
@@ -1112,12 +1117,11 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
    visit-tags-table for TAGS file to use
    search tags with M-., C-u M-., C-u - M-.
 
-* vi/vim/neovim
+* vi/vim/neovim/nvim
 get 64bit from https://github.com/vim/vim-win32-installer/releases
 ** commands
    - unset an option with set no<option>
    - show whitespace: set list
-   - set background color hi: Normal guibg=Grey90
    - reload file with e!
    - close buffer with bdelete
    - go to line :<num>
@@ -1130,6 +1134,10 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
    - shift text/shift block ::
      in visual mode: >, . if more lines were selected
      normal mode: >> for current line, 4>> for 4 lines
+   - show value of option
+     :echo &title
+   - reload init.vim
+     source $MYVIMRC
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>
@@ -1142,6 +1150,9 @@ add https://www.vim.org/scripts/script.php?script_id=789 to config file
 put packages in folder
 vim windows: ~/vimfiles/pack/bundle/start/
 neovim: ~/.config/nvim/pack/bundle/start
+** nvim
+- :checkhealth
+- https://github.com/neovim/neovim/wiki/FAQ#how-to-use-the-windows-clipboard-from-wsl
 * git
 ** basics
    - .gitignore for files which should not be shown in untracked files
@@ -1755,7 +1766,7 @@ the installed versions can be shown with <rustup toolchain list>, to add or set 
 for the current directory <rustup override add/set nightly>
 ** set linker
 https://github.com/rust-lang/rust/issues/37543
-download llvm and set the linker in the .cargo/config file
+download llvm and set the linker in the .cargo/config.toml file
 [target.x86_64-pc-windows-msvc]
 linker = "lld-link.exe"
 ** misc
@@ -1828,6 +1839,7 @@ Take a little extra time to get on the right path the first time
   programm 2> Datei.txt
 - stdout AND stderr -> file
   programm &> Datei.txt
+  windows: program > file.txt 2>&1
 - stdout -> file AND stderr -> file
   programm > Datei_stdout.txt 2> Datei_stderr.txt
 - stdout -> stderr
@@ -1853,6 +1865,9 @@ Take a little extra time to get on the right path the first time
 set -x PATH in config.fish
 could also be on command line:
 set -U fish_user_paths $fish_user_paths /c/Users/nile/AppData/Local/Programs/Python/Python37/Scripts
+- alias
+  alias rgr='rg -trust'
+  funcsave rgr
 ** ssh-agent
 https://github.com/danhper/fish-ssh-agent, https://github.com/ivakyb/fish_ssh_agent
 
@@ -1872,6 +1887,9 @@ end
 ** usage
 - set environment variable for process
   env CASE_INSENSITIVE=1 cargo run
+** todo
+https://github.com/fish-shell/fish-shell/issues/4117
+fish --profile /tmp/some_file -c 'complete -C"git switch "'
 * python
 - start pydoc server with pydoc -b
 - start http server with python -m http.server
@@ -1887,6 +1905,9 @@ https://docs.python.org/3/library/exceptions.html#exception-hierarchy
 delete re-direct: in history right click site, Forget about this site:
 will remove browse history and passwd etc.
 * msys2/mingw64
+** commands
+- cygpath
+  to u/w with -u/-w
 ** pacman
 database lock is in /var/lib/pacman/db.lck
 partial upgrades will not work, update everything with pacman -Syuu
