@@ -531,6 +531,12 @@ update system with do-release-upgrade
 *** docker
 install as listed on docker website for ubuntu
 start demon with 'sudo dockerd'
+** compiling etc
+- dumpbin
+  binary file dumper
+** SDK
+*** debugging tools
+when sdk installed with vs installer: go to programs, change, add debugging tools
 * Thunderbird
 ** new mail
 - switch text/html in new mail with create + shift
@@ -856,6 +862,9 @@ capitalize-word, capitalize-region, upcase-word, upcase-region
 downcase-region
 *** run non-interactive command
 eval-expression, M-:
+*** clear buffer without kill-ring
+- erase-buffer
+- delete-region
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -1268,6 +1277,9 @@ neovim: ~/.config/nvim/pack/bundle/start
      apply patch eiter with apply or am for signoff
    - update-git-for-windows
      windows version
+   - submodulue
+     update (with --init) (--recursive)
+     use status of submodule's remote-tracking branch --remote
 ** find when line was deleted
 - git blame --reverse START.. file.ext
   --first-parent if multiple merges
