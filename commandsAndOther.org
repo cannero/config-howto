@@ -533,7 +533,7 @@ install as listed on docker website for ubuntu
 start demon with 'sudo dockerd'
 ** compiling etc
 - dumpbin
-  binary file dumper
+  binary file dumper, print symbol table /symbols
 ** SDK
 *** debugging tools
 when sdk installed with vs installer: go to programs, change, add debugging tools
@@ -734,8 +734,8 @@ non-optimized debug DLL 07 01
 non-optimized release DLL 06 01
 * emacs
 ** customize and start files
-   - site-start.el is loaded first, cancel with --no-site-file
-
+- site-start.el is loaded first, cancel with --no-site-file
+- see w32-register-hot-key for super/hyper key binding
 ** build emacs
 *** old verision
 **** tools
@@ -865,6 +865,9 @@ eval-expression, M-:
 *** clear buffer without kill-ring
 - erase-buffer
 - delete-region
+*** compile help
+- system-configuration-options
+- system-configuration-features
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -964,6 +967,9 @@ used e.g. in blame-reverse
 
   - two different files, maybe quoting of -name block necessary \( ... -o ... \):
     find . -type f -name '*.err' -o -name '*.pdf'
+  - directory tree
+    find . -type d | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/| - \1/"
+    or all files find | sed 's|[^/]*/|- |g'
 - grep
   skip directories with -d skip
 - proc use 'proc show ZWN\_{}nprd' to start an agent in its directory or 'proc start YUL\_que'
@@ -1072,6 +1078,14 @@ used e.g. in blame-reverse
   hostnamectl
 - base64
   padding is different compared to node
+- merge pdf
+  pdfunit from poppler-utils
+*** feed command list with here document
+prog <<InputIdentifierHereDoc
+command1
+command2
+...
+InputIdentifierHereDoc
 *** apt
 - apt list --installed/--upgradable
 - apt search 'package'
@@ -1965,6 +1979,8 @@ use openssl from /usr/bin, the one from /mingw64/bin fails with Can't open /proc
 *** color schemas/font
 are saved in /usr/share/mintty/themes/
 font in ~/.minttyrc
+** use in terminal
+<path_to>\msys64\msys2_shell.cmd -defterm -no-start -mingw64 -shell fish
 * new installation
 ** fonts
 - source code pro

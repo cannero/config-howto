@@ -187,15 +187,21 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;;===================================================
 ;;C# mode
 (require 'cc-mode)
+(require 'lsp-mode)
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist
       (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
 (defun my-csharp-mode-fn ()
   "my function that runs when csharp-mode is initialized for a buffer."
   (setq-default c-basic-offset 4
-				tab-width 4
-				indent-tabs-mode nil)
-  (c-set-offset 'substatement-open 0))
+                tab-width 4
+                indent-tabs-mode nil)
+  (c-set-offset 'substatement-open 0)
+  ;; if not using lsp mode dumb-jump
+  ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  ;; lsp-install-server omnisharp
+  (lsp-deferred)
+  )
 
 (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
 
@@ -217,22 +223,22 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;;(setq org-agenda-files (list "D:/usr/orgFiles/withoutProject.org")
 ;;      )
 
-(org-babel-do-load-languages
-     'org-babel-load-languages
-     '((ditaa . t)
-       (plantuml . t))) ; this line activates ditaa
+;(org-babel-do-load-languages
+;     'org-babel-load-languages
+;     '((ditaa . t)
+;       (plantuml . t))) ; this line activates ditaa
 
-(setq org-plantuml-jar-path
-      (expand-file-name
-       "plantuml.jar"
-       (file-name-as-directory
-        (expand-file-name
-         "scripts"
-         (file-name-as-directory
-          (expand-file-name
-           "../contrib"
-           (file-name-directory (org-find-library-dir "org"))
-           ))))))
+;(setq org-plantuml-jar-path
+;      (expand-file-name
+;       "plantuml.jar"
+;       (file-name-as-directory
+;        (expand-file-name
+;         "scripts"
+;         (file-name-as-directory
+;          (expand-file-name
+;           "../contrib"
+;           (file-name-directory (org-find-library-dir "org"))
+                                        ;           ))))))
 (setq org-adapt-indentation nil)
 (setq org-startup-folded t)
 ;;==================================================
@@ -523,6 +529,9 @@ void "clName"::Dump( CDumpContext& dc ) const
 (require 'gn-mode)
 (add-to-list 'auto-mode-alist '("\\.gn$" . gn-mode))
 (add-to-list 'auto-mode-alist '("\\.gni$" . gn-mode))
+;; powershell
+(add-hook 'powershell-mode-hook 'company-mode)
+
 ;; set default coding system to utf-8
 ;; from https://www.masteringemacs.org/article/working-coding-systems-unicode-emacs
 ;; to run a function with a different coding system use
@@ -643,6 +652,7 @@ void "clName"::Dump( CDumpContext& dc ) const
      ("XXX+" . "#dc752f")
      ("\\?\\?\\?+" . "#dc752f")))
  '(ido-default-buffer-method 'selected-window)
+ '(ignored-local-variable-values '((eval add-hook 'before-save-hook 'time-stamp)))
  '(indent-tabs-mode nil)
  '(initial-buffer-choice t)
  '(initial-scratch-message nil)
