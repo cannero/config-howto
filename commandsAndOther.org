@@ -100,6 +100,10 @@ SELECT * FROM `performance_schema`.`events_statements_current
 *** time zones
 set on server and can be set per connection
 timestamp column saves time in UTC
+*** statements
+**** delete with inner join
+delete only data from t1:
+delete t1 from t1 join t2 on ....
 * Debugging
 - disable just in time debugging with Visual Studio:
 go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT debugger.
@@ -255,6 +259,8 @@ quit
 
 to test relay change rcpt
 rcpt to:<recipient@someotherdomain.com>
+*** misc
+get ad server/active directory echo %LOGONSERVER%
 ** Office
 - disable cursor animation
 HKEY_Current_User\Software\Microsoft\Office\16.0\Common\Graphics
@@ -1149,7 +1155,7 @@ https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 ** setup
    - msys
      run find . -name "*.cs" -exec "D:\tools\emacs24.3\bin\etags.exe" -a {} \;
-     creates a TAGS file
+     find . -type f -iname '*.cpp' -o -iname '*.h' | etags -
    - powershell
      dir -Include *.cpp,*.h -Recurse | %{$_.FullName} | C:\tools\emacs\lib-src\etags.exe -
 ** use
@@ -1322,6 +1328,7 @@ https://github.com/Microsoft/Git-Credential-Manager-for-Windows/issues/500
 *** store
 git config --global credential.helper store
 stores pwd after the next commit in ~/.git-credentials
+re-fresh password by running the failing cmd a second time
 * powershell
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
