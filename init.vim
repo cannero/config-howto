@@ -14,3 +14,7 @@ noremap  <silent> k gk
 noremap  <silent> j gj
 " noremap  <silent> 0 g0
 " noremap  <silent> $ g$
+
+" vim-airline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
