@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: test_interview
+# key: tint
+# group : testing
+# expand-env: ((yas-indent-line 'fixed))
+# --
+import unittest
+
+class Test${1:toTest}(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test$0(self):
+        actual = 1
+        expected = 0
+        self.assertEqual(expected, actual)
+
+if __name__ == '__main__':
+    unittest.main()

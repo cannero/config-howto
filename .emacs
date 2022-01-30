@@ -187,7 +187,10 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;;===================================================
 ;;C# mode
 (require 'cc-mode)
+
+(setq lsp-keymap-prefix "s-m")
 (require 'lsp-mode)
+
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist
       (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
@@ -427,6 +430,8 @@ void "clName"::Dump( CDumpContext& dc ) const
   ;;(setq rustic-lsp-client nil)
   ;;rustic-lsp-setup-p
   (setq rustic-format-on-save nil)
+  (setq rustic-cargo-bin "~/../../.cargo/bin/cargo")
+  (setq rustic-rustfmt-bin "~/../../.cargo/bin/rustfmt")
   (setq-local buffer-save-without-query t)
   (set (make-local-variable 'compile-command)
        (concat "rustc "
@@ -519,7 +524,11 @@ void "clName"::Dump( CDumpContext& dc ) const
 
 ;; fsharp
 (defun my-fsharp-mode-hook ()
-  (company-mode))
+  (company-mode)
+  ;; todo install dotnet, framework is not supported any more
+  ;;(require 'eglot-fsharp)
+  ;;(eglot)
+  )
 (add-hook 'fsharp-mode-hook 'my-fsharp-mode-hook)
 (add-to-list 'auto-mode-alist '("\\.fsproj\\'" . nxml-mode))
 
@@ -567,6 +576,8 @@ void "clName"::Dump( CDumpContext& dc ) const
 (add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 
 (minions-mode)
+;; show menu at right mouse
+(context-menu-mode)
 
 ;;==================================================
 ;; themes
@@ -588,6 +599,11 @@ void "clName"::Dump( CDumpContext& dc ) const
 ;; use magit-repository-directories for default directories
 ;;;; magit show date in log
 (setq magit-log-margin '(t "%y-%m-%d %H:%M" magit-log-margin-width t 18))
+
+;; set left windows key to super, handle super-m in emacs
+;; no need to set w32-pass-lwindow-to-system
+(setq w32-lwindow-modifier 'super)
+(w32-register-hot-key [s-m])
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
