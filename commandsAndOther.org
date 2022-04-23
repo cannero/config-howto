@@ -742,6 +742,8 @@ non-optimized release DLL 06 01
 ** customize and start files
 - site-start.el is loaded first, cancel with --no-site-file
 - see w32-register-hot-key for super/hyper key binding
+- custom-set-variables, customize-set-variable
+  initialize config, setq will not change variable after package has been loaded
 ** build emacs
 *** old verision
 **** tools
@@ -841,7 +843,10 @@ searches from pos onwards
 *** get char info
     describe-char for character at point
 
-*** pretty print xml
+*** pretty print
+**** json
+with negative argument to remove linebreaks
+**** pretty print xml
 in sgml mode select region and run sgml-pretty-print
 *** insert text at beginning of line
 string-insert-rectangle. Set the mark (C-<SPC>) at the beginning of the first line you want to prefix, move the cursor to last line to be prefixed, and type M-x string-insert-rectangle <RET>
@@ -874,6 +879,9 @@ eval-expression, M-:
 *** compile help
 - system-configuration-options
 - system-configuration-features
+*** minibuffer commands
+- use last command/filename etc M-n/M-p
+- search for under point C-w
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -940,6 +948,12 @@ in windows add the bin directory for mysql to the exec-path
       then choose s
     - no indentation below header
       (setq org-adapt-indentation nil)
+*** latex
+org-latex-preview, single prefix to clear images
+- on mingw
+  texlive-core
+  texlive-extra-utils?
+  texlive-plain-generic
 ** server-client
 *** windows
 start server, place script in shell:startup:
@@ -1085,7 +1099,7 @@ used e.g. in blame-reverse
 - base64
   padding is different compared to node
 - merge pdf
-  pdfunit from poppler-utils
+  pdfunite from poppler-utils
 *** feed command list with here document
 prog <<InputIdentifierHereDoc
 command1
@@ -1300,6 +1314,13 @@ neovim: ~/.config/nvim/pack/bundle/start
    - submodulue
      update (with --init) (--recursive)
      use status of submodule's remote-tracking branch --remote
+   - alias
+     git config --global alias.st status
+   - get commit hash from short hash
+     git rev-parse <short>
+   - switch <branch name>
+     checkout remote branch, no origin
+     with multiple remotes switch -c name_branch origin/remote_name
 ** find when line was deleted
 - git blame --reverse START.. file.ext
   --first-parent if multiple merges
@@ -1333,6 +1354,9 @@ re-fresh password by running the failing cmd a second time
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
 Set-PSReadLineOption -EditMode Emacs
+** encoding
+#PowerShell v3 or higher, you can use $PSDefaultParameterValues to change the encoding of any cmdlets and advanced functions that accept an -Encoding parameter. Out-File and Set-Content will use UTF-8 encoding by default.
+$PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
 ** powershell core
 - update
   iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI"
@@ -1957,6 +1981,9 @@ https://docs.python.org/3/library/exceptions.html#exception-hierarchy
 - inspect e.g. for getting arguments inspect.signature(m)
 ** requirements
 pip freeze > requirements.txt
+** jupyter
+- jupyter-themes
+  font change only with theme change
 * firefox
 delete re-direct: in history right click site, Forget about this site:
 will remove browse history and passwd etc.
