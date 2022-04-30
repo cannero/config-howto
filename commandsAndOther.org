@@ -533,7 +533,9 @@ Navigate to the Session | Session Settings | Importance tab to set importance, U
   %UserProfile%/.wslconfig
   set memory etc.
 *** ubuntu
-update system with do-release-upgrade
+- update system with do-release-upgrade
+- set default user or root
+  ubuntu config --default-user <username>
 *** docker
 install as listed on docker website for ubuntu
 start demon with 'sudo dockerd'
@@ -876,12 +878,14 @@ eval-expression, M-:
 *** clear buffer without kill-ring
 - erase-buffer
 - delete-region
-*** compile help
+*** compile info
 - system-configuration-options
 - system-configuration-features
 *** minibuffer commands
 - use last command/filename etc M-n/M-p
 - search for under point C-w
+*** font size
+- C-x C-- or + to zoom
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -1305,10 +1309,9 @@ neovim: ~/.config/nvim/pack/bundle/start
      git push -f origin master
    - push
      after rebase push with --force-with-lease to check if remote has been updated in between
-   - apply
-     --stat to see changes in diff
-     --check
-     apply patch eiter with apply or am for signoff
+   - apply / am: apply patch
+     --stat to see changes in diff, --check
+     --keep-cr, --ignore-whitespace, --transfer-encoding
    - update-git-for-windows
      windows version
    - submodulue
@@ -1415,6 +1418,7 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
    - remoting
      Enter-PSSession -ComputerName <pcname>
      Invoke-Command -ComputerName <pcname> -ScriptBlock {hostname}
+     Enable-PSRemoting
    - search for multiple file types
      -Recurse has to be set for -Include, -Filter allows only one type, dir is Get-ChildItem
      dir -Include *.cpp,*.h -Recurse
