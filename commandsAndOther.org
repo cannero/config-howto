@@ -1968,6 +1968,10 @@ end
 ** usage
 - set environment variable for process
   env CASE_INSENSITIVE=1 cargo run
+** prompt
+see usr/share/fish/functions/fish_config.fish
+sample prompts usr/share/fish/tools/web_config/sample_prompts/
+fish_color_cwd:brblue
 ** todo
 https://github.com/fish-shell/fish-shell/issues/4117
 fish --profile /tmp/some_file -c 'complete -C"git switch "'
