@@ -550,21 +550,18 @@ use magit-repository-directories for default directories
 #+end_src
 *** org mode
 #+begin_src emacs-lisp :tangle yes :comments org
-  (require 'org-install)
-  (add-hook 'org-mode-hook
-            (lambda()
-                    'turn-on-font-lock ; not needed when global-font-lock-mode is on
-                    (define-key org-mode-map "\M-q" 'toggle-truncate-lines)))
-  (global-set-key "\C-cl" 'org-store-link)
-  ;;(global-set-key "\C-ca" 'org-agenda)
-  (global-set-key "\C-cb" 'org-iswitchb)
+  (defun my-org-mode-hook ()
+    (turn-on-font-lock) ; not needed when global-font-lock-mode is on
+    (define-key org-mode-map (kbd "\M-q") 'toggle-truncate-lines)
+    (define-key org-mode-map (kbd "\C-c b") 'org-switchb)
 
-  (setq org-log-done t) ;set timestamps
-  (setq org-adapt-indentation nil)
-  (setq org-startup-folded t)
+    (setq org-log-done t) ;set timestamps
+    (setq org-adapt-indentation nil)
+    (setq org-startup-folded t)
 
-  (add-to-list 'org-structure-template-alist
-           '("S" . "src emacs-lisp :tangle yes :comments org"))
+    (add-to-list 'org-structure-template-alist
+                 '("S" . "src emacs-lisp :tangle yes :comments org")))
+  (add-hook 'org-mode-hook 'my-org-mode-hook)
 #+end_src
 *** c++ mode
 #+begin_src emacs-lisp :tangle yes :comments org
