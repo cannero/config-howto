@@ -429,6 +429,71 @@ use magit-repository-directories for default directories
     '(("jsx" . "\\.js[x]?\\'")))
   (add-hook 'web-mode-hook 'company-mode)
 #+end_src
+*** org mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  (defun my-org-mode-hook ()
+    (turn-on-font-lock) ; not needed when global-font-lock-mode is on
+    (define-key org-mode-map (kbd "\M-q") 'toggle-truncate-lines)
+    (define-key org-mode-map (kbd "\C-c b") 'org-switchb)
+
+    (setq org-log-done t) ;set timestamps
+    (setq org-adapt-indentation nil)
+    (setq org-startup-folded t)
+
+    (add-to-list 'org-structure-template-alist
+                 '("S" . "src emacs-lisp :tangle yes :comments org")))
+  (add-hook 'org-mode-hook 'my-org-mode-hook)
+#+end_src
+*** c++ mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  (defun my-c++-mode-hook ()
+    (c-toggle-hungry-state 1)
+    (define-key c++-mode-map "\C-c\C-k" 'compile)
+    (setq c-default-style "linux"
+    ;;(setq c-default-style "gnu"
+          c-basic-offset 4)
+
+    (defun Chelp-simple-debug ()
+      "insert a CString and a Message Box for best debugging"
+      (interactive)
+      (insert "
+      //TODO remove
+      CString out;
+      out.Format(\"%d\",i);
+      AfxMessageBox(out);
+      //TODO end
+      "
+              )
+      ))
+  (add-hook 'c++-mode-hook 'my-c++-mode-hook)
+#+end_src
+*** auto-mode-alist
+#+begin_src emacs-lisp :tangle yes :comments org
+  (setq auto-mode-alist
+        (append '(("\\.pdf$" . whitespace-mode))
+                '(("\\.svg$" . nxml-mode))
+                auto-mode-alist))
+  (setq auto-mode-alist
+        (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+  (add-to-list 'auto-mode-alist '("\\.kmk\\'" . makefile-mode))
+  (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
+  (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+
+  (add-to-list 'auto-mode-alist '("\\.gn$" . gn-mode))
+  (add-to-list 'auto-mode-alist '("\\.gni$" . gn-mode))
+  ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+#+end_src
+*** custom hooks
+#+begin_src emacs-lisp :tangle yes :comments org
+  (add-hook 'sgml-mode-hook 'skewer-html-mode)
+  (add-hook 'js2-mode-hook 'skewer-mode)
+  (add-hook 'elixir-mode-hook 'alchemist-mode)
+  ;;skewer mode
+  ;;(add-hook 'css-mode-hook 'skewer-css-mode)
+  ;;(add-hook 'html-mode-hook 'skewer-html-mode)
+
+#+end_src
+
 ** misc functions
 *** move file
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -546,70 +611,6 @@ use magit-repository-directories for default directories
       (save-excursion
         (forward-line 1)
         (replace-string-in-region "_" " " beg (point)))))
-
-#+end_src
-*** org mode
-#+begin_src emacs-lisp :tangle yes :comments org
-  (defun my-org-mode-hook ()
-    (turn-on-font-lock) ; not needed when global-font-lock-mode is on
-    (define-key org-mode-map (kbd "\M-q") 'toggle-truncate-lines)
-    (define-key org-mode-map (kbd "\C-c b") 'org-switchb)
-
-    (setq org-log-done t) ;set timestamps
-    (setq org-adapt-indentation nil)
-    (setq org-startup-folded t)
-
-    (add-to-list 'org-structure-template-alist
-                 '("S" . "src emacs-lisp :tangle yes :comments org")))
-  (add-hook 'org-mode-hook 'my-org-mode-hook)
-#+end_src
-*** c++ mode
-#+begin_src emacs-lisp :tangle yes :comments org
-  (defun my-c++-mode-hook ()
-    (c-toggle-hungry-state 1)
-    (define-key c++-mode-map "\C-c\C-k" 'compile)
-    (setq c-default-style "linux"
-    ;;(setq c-default-style "gnu"
-          c-basic-offset 4)
-
-    (defun Chelp-simple-debug ()
-      "insert a CString and a Message Box for best debugging"
-      (interactive)
-      (insert "
-      //TODO remove
-      CString out;
-      out.Format(\"%d\",i);
-      AfxMessageBox(out);
-      //TODO end
-      "
-              )
-      ))
-  (add-hook 'c++-mode-hook 'my-c++-mode-hook)
-#+end_src
-*** auto-mode-alist
-#+begin_src emacs-lisp :tangle yes :comments org
-  (setq auto-mode-alist
-        (append '(("\\.pdf$" . whitespace-mode))
-                '(("\\.svg$" . nxml-mode))
-                auto-mode-alist))
-  (setq auto-mode-alist
-        (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-  (add-to-list 'auto-mode-alist '("\\.kmk\\'" . makefile-mode))
-  (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
-  (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
-
-  (add-to-list 'auto-mode-alist '("\\.gn$" . gn-mode))
-  (add-to-list 'auto-mode-alist '("\\.gni$" . gn-mode))
-  ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-#+end_src
-*** custom hooks
-#+begin_src emacs-lisp :tangle yes :comments org
-  (add-hook 'sgml-mode-hook 'skewer-html-mode)
-  (add-hook 'js2-mode-hook 'skewer-mode)
-  (add-hook 'elixir-mode-hook 'alchemist-mode)
-  ;;skewer mode
-  ;;(add-hook 'css-mode-hook 'skewer-css-mode)
-  ;;(add-hook 'html-mode-hook 'skewer-html-mode)
 
 #+end_src
 ** custom-set
