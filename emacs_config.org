@@ -29,6 +29,13 @@ https://orgmode.org/manual/Extracting-Source-Code.html
 
 * content
 
+** gc settings start
+
+#+begin_src emacs-lisp :tangle yes :comments org
+  (setq gc-cons-percentage 0.6)
+  (setq gc-cons-threshold most-positive-fixnum)
+#+end_src
+
 ** default coding system utf-8
 https://www.masteringemacs.org/article/working-coding-systems-unicode-emacs
 to run a function with a different coding system use
@@ -441,7 +448,7 @@ use magit-repository-directories for default directories
     (setq org-startup-folded t)
 
     (add-to-list 'org-structure-template-alist
-                 '("S" . "src emacs-lisp :tangle yes :comments org")))
+                 '("S" . "src emacs-lisp :tangle yes :comments org\n")))
   (add-hook 'org-mode-hook 'my-org-mode-hook)
 #+end_src
 *** c++ mode
@@ -613,6 +620,17 @@ use magit-repository-directories for default directories
         (replace-string-in-region "_" " " beg (point)))))
 
 #+end_src
+** gc settings end
+#+begin_src emacs-lisp :tangle yes :comments org
+(defun my-cleanup-gc ()
+  "Clean up gc."
+  (setq gc-cons-threshold  67108864) ; 64M
+  (setq gc-cons-percentage 0.1) ; original value
+  (garbage-collect))
+
+(run-with-idle-timer 4 nil #'my-cleanup-gc)
+#+end_src
+
 ** custom-set
 #+begin_src emacs-lisp :tangle yes :comments org
   (custom-set-variables
