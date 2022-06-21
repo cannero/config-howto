@@ -238,7 +238,7 @@ search for text in files with /S in subdirectories
 *** net
     - show connections with net use
     - remove with net use /delete h:
-    - connect with net use H: \\aphrodite\home * /USER:schwarzhuber
+    - connect with net use H: \\servername\home * /USER:username
       * is prompt for password
       /Y for default prompt
     - get domain groups
@@ -399,8 +399,9 @@ https://my.visualstudio.com/Downloads/Featured
      HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\ "Size" "3"
      HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\ "IRPStackSize" "50"
    - kill processes
-     list with tasklist, run as admin
-     Taskkill /IM chrome.exe /F /T
+     - list with tasklist, run as admin
+     - Taskkill /IM chrome.exe /F /T
+     - /PID to kill process id
    - default reply, no messagebox
      HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Error Message Instrument : EnableDefaultReply = 0
    - go to program and features
@@ -439,9 +440,9 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
 ** Services
 - start and control services with the \textbf{sc} command
 - start net
-  install a .Net service with installutil
-  install: sc create CAO-COPLSapSebastian binPath= "C:\usr\schwarzhuber\COPL\bin\sap_gw.exe /ServiceName=CAO-COPLSapSebastian /gwFile=\"C:\usr\schwarzhuber\COPL\config\SAP_GW\SapGateway.xml\""
-  change: sc config binPath= ...
+  - install: sc create service-Sap binPath= "C:\usr\\bin\service.exe /ServiceName=service_name /gwFile=\"C:\usr\path\config\ser\ser.xml\""
+  - change: sc config binPath= ...
+  - show info like pid: sc.exe queryex <name>
 - set start timeout
   1. Click Start, click Run, type regedit, and then click OK.
   2. Locate and then click the following registry subkey:
@@ -454,6 +455,13 @@ PerformanceCounter cannot be used: in PerfMon all counters in Windows Workflow F
   5. Click Decimal, type 60000, and then click OK.
      This value represents the time in milliseconds before a service times out.
   6. Restart the computer.
+*** regedit service config
+when the service is a controlled by the windows service config
+it is read only during windows startup
+-> for changes windows must be restarted
+*** env variables for services
+- REG_MULTI_SZ named Environment
+- variables as key value pairs
 ** IIS
 
    -logfiles c:/inetpub/logs, set in IIS configuration, enable logging in Programs and Features -> turn Features on/off
@@ -524,7 +532,7 @@ To ignore text differences, define a new Grammar element (what the text is), the
 use different name than existing ones, e.g. columns from 1 to xx
 Navigate to the Session | Session Settings | Importance tab to set importance, Update session defaults
 ** WSL
-- access
+- access wsl1
   path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
   from app also 'explorer.exe .' is possible as non-root user
 - restart
@@ -704,8 +712,8 @@ dvd drive required
 repl with scriptcs/fsi
 ** folders
 *** exe.config files
-- XP: C:\Dokumente und Einstellungen\sebastian\Lokale Einstellungen\Anwendungsdaten\DiIT\
-- Win7: C:\Users\schwarzhuber\AppData\Local\DiIT
+- XP: C:\Dokumente und Einstellungen\<user>\Lokale Einstellungen\Anwendungsdaten\DiIT\
+- Win7: C:\Users\<user>\AppData\Local\DiIT
 ** NUnit
 *** basisc
     - console runner
@@ -777,10 +785,6 @@ autoconf fails with:
 ** modes
 *** artist mode
     for drawing asccii art, set unicode with (artist-select-line-char 128078)
-*** org mode
-| insert src block     | C-c C-,         |
-| preserve line breaks | #+OPTIONS: \n:t |
-|                      |                 |
 **** ditaa
      - activate babel with ditaa
      - download ditaa.jar and install java jre to run
@@ -936,7 +940,7 @@ in windows add the bin directory for mysql to the exec-path
 *** export only visible area
     C-c C-e C-v
 *** odt export
-    - export #+OPTIONS: H:10 num:t for template file, save as ott, use with #+ODT_STYLES_FILE: "D:/usr/schwarzhuber/projects/mine/example.ott"
+    - export #+OPTIONS: H:10 num:t for template file, save as ott, use with #+ODT_STYLES_FILE: "D:/usr/projects/mine/example.ott"
     - set font in template under options, writer, default font only for this document
     - filename can be set with #+PROPERTY: EXPORT_FILE_NAME 2015_06_11_Neue_Funktionen_2, only if export subtree is used, C-s, change of property has to be activated with C-c C-c
 *** misc
@@ -952,12 +956,16 @@ in windows add the bin directory for mysql to the exec-path
       then choose s
     - no indentation below header
       (setq org-adapt-indentation nil)
+    - preserve line breaks | #+OPTIONS: \n:t |
 *** latex
 org-latex-preview, single prefix to clear images
 - on mingw
   texlive-core
   texlive-extra-utils?
   texlive-plain-generic
+*** display number of todo items
+- end headline with [/], C-c C-c refreshes it
+- list with [ ] or [X]
 ** server-client
 *** windows
 start server, place script in shell:startup:
@@ -1006,8 +1014,6 @@ used e.g. in blame-reverse
     mount -t cifs -o username=<un>,password=<pw> //<host>/fsharp /home/student/fsharp
   - load all entries in fstab with mount -a
 
-- ifconfig is in /sbin/, lists all ip addresses; (ipconfig)
-
 - xev show key commands
 
 - prompt display variable set through PS1
@@ -1022,8 +1028,9 @@ used e.g. in blame-reverse
 - append newline to end of file
   perl -0777 -i.original -pe 's/END;\n\$\$/END;\n\$\$\n/igs' Update*
 - show ip
-  ip addr show
-  hostname -I
+  - ifconfig is in /sbin/, lists all ip addresses; (ipconfig)
+  - ip addr show
+  - hostname -I
 - telnet
   telnet <ip> <port>
 - show blocked ports
@@ -1199,8 +1206,8 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
      normal mode: >> for current line, 4>> for 4 lines
    - show value of option
      :echo &title
-   - reload init.vim
-     source $MYVIMRC
+   - complete
+     C-n
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>
@@ -1216,6 +1223,8 @@ neovim: ~/.config/nvim/pack/bundle/start
 ** nvim
 - :checkhealth
 - https://github.com/neovim/neovim/wiki/FAQ#how-to-use-the-windows-clipboard-from-wsl
+- reload init.vim
+  source $MYVIMRC
 * git
 ** basics
    - .gitignore for files which should not be shown in untracked files
@@ -1375,7 +1384,7 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      'fl *' or 'fl * -force'
    - call method: $i = 30, $i.GetHashCode()
    - create a class
-     $a = New-Object DiIT.Misc.LeadsetPV("sfasdf/122/3")
+     $a = New-Object Misc.LeadsetPV("sfasdf/122/3")
    - parameter switch
      set it with colon -parameter:$true
    - open registry key remotely
@@ -1442,6 +1451,11 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
    - cpu load
      $NumberOfLogicalProcessors=(Get-WmiObject -class Win32_processor | Measure-Object -Sum NumberOfLogicalProcessors).Sum
      (Get-Counter '\Process(*)\% Processor Time').Countersamples | Where cookedvalue -gt ($NumberOfLogicalProcessors*10) | Sort cookedvalue -Desc | ft -a instancename, @{Name='CPU %';Expr={[Math]::Round($_.CookedValue / $NumberOfLogicalProcessors)}}
+   - memory
+     - total: (Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum).Sum / 1024 / 1024
+     - available: Get-Counter '\Memory\Available MBytes'
+   - format string
+     - property: "name: $($service.Name)"
 
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}

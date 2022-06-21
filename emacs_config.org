@@ -226,8 +226,8 @@ stay with point at beginning after search https://www.emacswiki.org/emacs/Isearc
 
 *** modeline
 #+begin_src emacs-lisp :tangle yes :comments org
-  (minions-mode)
-  ;;(add-hook 'after-init-hook #'doom-modeline-mode)
+  ;;(minions-mode)
+  (add-hook 'after-init-hook #'doom-modeline-mode)
 #+end_src
 
 ** modes
@@ -297,7 +297,7 @@ from https://github.com/rksm/emacs-rust-config
     ;;(setq rustic-lsp-client nil)
     ;;rustic-lsp-setup-p
     (setq rustic-format-on-save nil)
-    (setq rustic-cargo-bin "~/../../.cargo/bin/cargo")
+    ;;(setq rustic-cargo-bin "~/../../.cargo/bin/cargo")
     (setq rustic-rustfmt-bin "~/../../.cargo/bin/rustfmt")
     (setq-local buffer-save-without-query t)
     (set (make-local-variable 'compile-command)
@@ -368,6 +368,7 @@ xml and ruby folding
                      ruby-forward-sexp nil)))
 
   (add-hook 'ruby-mode-hook #'hs-minor-mode)
+  (add-hook 'ruby-mode-hook 'company-mode)
 #+end_src
 *** csharp
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -606,11 +607,11 @@ use magit-repository-directories for default directories
     ;;buffer-display-table needs integer, string-split returns strings,
     ;;string-to-list integers
     (let ((charlist (string-to-list chars)))
-         (setq buffer-display-table (make-display-table))
-         (while charlist
-           (aset buffer-display-table (car charlist) [])
-           (setq charlist (cdr charlist)))
-         )
+      (setq buffer-display-table (make-display-table))
+      (while charlist
+        (aset buffer-display-table (car charlist) [])
+        (setq charlist (cdr charlist)))
+      )
     )
 
   (defun format-pr-title ()
@@ -618,22 +619,18 @@ use magit-repository-directories for default directories
     (let ((beg (point)))
       (save-excursion
         (forward-line 1)
-        (replace-string-in-region "_" " " beg (point)))))
+        (replace-string-in-region "_" " " beg (point)))
+      (save-excursion
+        (re-search-forward "[[:alpha:]]")
+        (capitalize-word -1))))
 
-    (defun format-pr-title ()
-      (interactive)
-      (let ((beg (point)))
-        (save-excursion
-          (forward-line 1)
-          (replace-string-in-region "_" " " beg (point)))))
-
-    (defun find-file-user-dir ()
-        (interactive)
-        (let ((default-directory (cond ((eq system-type 'windows-nt)
-                                        (concat
-                                         (file-name-concat  "C:/Users" user-login-name)
-                                         "/")))))
-          (call-interactively 'find-file)))
+  (defun find-file-user-dir ()
+    (interactive)
+    (let ((default-directory (cond ((eq system-type 'windows-nt)
+                                    (concat
+                                     (file-name-concat  "C:/Users" user-login-name)
+                                     "/")))))
+      (call-interactively 'find-file)))
 #+end_src
 
 ** gc settings end
@@ -713,7 +710,6 @@ use magit-repository-directories for default directories
    '(pos-tip-background-color "#073642")
    '(pos-tip-foreground-color "#93a1a1")
    '(python-shell-interpreter "python")
-   '(rustic-cargo-bin "~/../../.cargo/bin/cargo")
    '(scroll-bar-mode nil)
    '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
    '(term-default-bg-color "#002b36")
