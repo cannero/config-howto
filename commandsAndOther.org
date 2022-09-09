@@ -426,6 +426,8 @@ https://my.visualstudio.com/Downloads/Featured
      New-ItemProperty -Path $kbLayout -Name "Scancode Map" -PropertyType Binary -Value ([byte[]]$hexified);
    - disable python link to app store
      open app execution aliases in settings, disable links
+   - login screen images win 10 (windows spotlight)
+     %userprofile%\AppData\Local\Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets
 ** Gadgets
 *** basics
     - default gadgets are in C:\Program Files\Windows Sidebar\Gadgets
@@ -748,6 +750,9 @@ optimized debug DLL 03 00
 optimized release 02 00
 non-optimized debug DLL 07 01
 non-optimized release DLL 06 01
+** check for BuildPlatform
+from developer command prompt
+corflags some.dll
 * emacs
 ** customize and start files
 - site-start.el is loaded first, cancel with --no-site-file
@@ -1195,19 +1200,24 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
    - reload file with e!
    - close buffer with bdelete
    - go to line :<num>
-   - replace in file :%s/Search-Word/Replace-Word/gc, c for confirmation
-     search for newline: \n, replace: \r
+   - substitute
+     - replace in file :%s/Search-Word/Replace-Word/gc, c for confirmation
+     - search for newline: \n, replace with newline: \r
+     - re-run, options must be added, e.g. :%sgc
    - run in shell (external command) :! <cmd> (% for current file) or start :shell
    - run last external command :!!
    - run last command .
    - insert text in current buffer from file or command :r <file> :r ! <cmd>
-   - shift text/shift block ::
+   - shift text/shift block
      in visual mode: >, . if more lines were selected
      normal mode: >> for current line, 4>> for 4 lines
    - show value of option
      :echo &title
    - complete
      C-n
+   - % jump to other brace
+   - = format/indent text
+   - ls list buffers
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>
@@ -1394,8 +1404,10 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      $leadsets = Import-Csv .\sft.csv -Delimiter ';'
      $dupLeadsets = $leadsets | Group {$_.Leadset} | where {$_.Count -gt 1}
      $dupLeadsets | select count, name > duplicate_leadsets.csv
-   - get path for executable
-     (Get-Command notepad.exe).Path
+   - which
+     get-command
+     - get path for executable
+       (Get-Command notepad.exe).Path
    - test for open port
      $ipaddress = IP_Address_Server
      $port = port
@@ -1876,6 +1888,8 @@ linker = "lld-link.exe"
     rustup component remove --toolchain nightly-x86_64-pc-windows-msvc clippy
 - racer
   cargo +nightly install racer
+** rust-analyzer
+build with cargo xtask install --server
 * Inkscape
 ** coordinate system
 no transform in layer http://www.inkscapeforum.com/viewtopic.php?f=16&t=12352&p=46140#p46140
@@ -1982,6 +1996,9 @@ end
 ** usage
 - set environment variable for process
   env CASE_INSENSITIVE=1 cargo run
+- list of 1..5
+  seq 1 5
+  in for loop for i in (seq 1 5); ...
 ** prompt
 see usr/share/fish/functions/fish_config.fish
 sample prompts usr/share/fish/tools/web_config/sample_prompts/
@@ -1997,6 +2014,9 @@ fish --profile /tmp/some_file -c 'complete -C"git switch "'
 https://docs.python.org/3/library/venv.html
 python -m venv /path/to/new/virtual/environment
 run/source 'activate' script in <venv>/bin/ folder
+- conda
+  - conda env list
+  - conda activate 'env name'
 ** exceptions
 https://docs.python.org/3/library/exceptions.html#exception-hierarchy
 ** modules

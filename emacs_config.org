@@ -302,8 +302,69 @@ from https://github.com/rksm/emacs-rust-config
     (setq-local buffer-save-without-query t)
     (set (make-local-variable 'compile-command)
          (concat "rustc "
+         ;; (concat "rustc --test "
                  (shell-quote-argument buffer-file-name))))
   (add-hook 'rustic-mode-hook #'my-rustic-mode-hook)
+#+end_src
+**** lsp rust
+rust-analyzer uses features defined in lsp-rust-features
+see https://users.rust-lang.org/t/rust-analyzer-emacs-multiple-projects-changing-features-target/73823/3
+for how to define features per workspace (other ways not easily possible, dir-locals are not re-read when changed)
+#+begin_src emacs-lisp :tangle yes :comments org
+  (custom-set-variables
+   '(lsp-after-initialize-hook '(ia0-lsp-after-initialize-hook))
+   '(lsp-workspace-folders-changed-functions
+     '(ia0-lsp-workspace-folders-changed-functions)))
+
+  ;; Maps directory(string) to variable(symbol) to value
+  (setq ia0-lsp (make-hash-table :test 'equal))
+
+  (defun ia0-lsp-get (k)
+    (let ((h (gethash (lsp-workspace-root) ia0-lsp)))
+      (or (if h (gethash k h)) (eval k))))
+
+  (defun ia0-lsp-put (k v)
+    (let* ((w (lsp-workspace-root))
+           (h (gethash w ia0-lsp)))
+      (unless h
+        (setq h (make-hash-table))
+        (puthash w h ia0-lsp))
+      (puthash k v h)))
+
+  (defun ia0-lsp-load (k)
+    (set k (ia0-lsp-get k)))
+
+  (defun edit-lsp-rust-features ()
+    "Edit lsp-rust-features and lsp-rust-no-default-features."
+    (interactive)
+    (let* ((old-features (ia0-lsp-get 'lsp-rust-features))
+           (old-no-default (ia0-lsp-get 'lsp-rust-no-default-features)))
+      (setq old-features (mapconcat 'identity old-features ","))
+      (when old-no-default (setq old-features (concat "=" old-features)))
+      (let ((new-features (read-string "Features? " old-features)))
+        (setq new-no-default (string-prefix-p "=" new-features))
+        (ia0-lsp-put 'lsp-rust-no-default-features new-no-default)
+        (if new-no-default (aset new-features 0 ?,))
+        (setq new-features (vconcat (split-string new-features "," t)))
+        (ia0-lsp-put 'lsp-rust-features new-features))))
+
+  (defun edit-lsp-rust-target ()
+    "Edit lsp-rust-analyzer-cargo-target."
+    (interactive)
+    (let* ((old-target (ia0-lsp-get 'lsp-rust-analyzer-cargo-target))
+           (new-target (read-string "Target? " (or old-target ""))))
+      (setq new-target (if (string= new-target "") nil new-target))
+      (ia0-lsp-put 'lsp-rust-analyzer-cargo-target new-target)))
+
+  (defun ia0-lsp-workspace-folders-changed-functions (added removed)
+    (ia0-lsp-load 'lsp-rust-no-default-features)
+    (ia0-lsp-load 'lsp-rust-features)
+    (ia0-lsp-load 'lsp-rust-analyzer-cargo-target))
+
+  (defun ia0-lsp-after-initialize-hook ()
+    (setq lsp-rust-no-default-features nil)
+    (setq lsp-rust-features [])
+    (setq lsp-rust-analyzer-cargo-target nil))
 #+end_src
 *** python
 #+begin_src emacs-lisp :tangle yes :comments org
