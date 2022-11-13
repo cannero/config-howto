@@ -538,10 +538,12 @@ Navigate to the Session | Session Settings | Importance tab to set importance, U
   path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
   from app also 'explorer.exe .' is possible as non-root user
 - restart
-  Get-Service LxssManager | Restart-Service
+  - Get-Service LxssManager | Restart-Service
+  - wsl --terminate ubuntu
 - config
   %UserProfile%/.wslconfig
   set memory etc.
+- update kernel: wsl --update
 *** ubuntu
 - update system with do-release-upgrade
 - set default user or root
@@ -853,7 +855,6 @@ searches from pos onwards
 (shell-command-to-string "hostname")
 *** get char info
     describe-char for character at point
-
 *** pretty print
 **** json
 with negative argument to remove linebreaks
@@ -869,9 +870,12 @@ in buffer which has process running
 otherwise list-processes, d on process or use process name as argument to kill process
 (delete-process PROCESS) if kill is not working
 proced will show processes for user
-*** goto matching paren
+*** cursor movement
+**** goto matching paren
 C-M-n/C-M-p: forward-list
 C-M-f/C-M-b: forward-sexp
+**** up one level
+C-M-u
 *** print without quotes
 in scratch (insert (fn))
 *** insert in front of line/prefix
@@ -895,6 +899,8 @@ eval-expression, M-:
 - search for under point C-w
 *** font size
 - C-x C-- or + to zoom
+*** background/foreground color
+describe-face
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -1227,7 +1233,7 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
 ** unicode support
 add https://www.vim.org/scripts/script.php?script_id=789 to config file
 ** packages
-put packages in folder
+put packages in folder (packpath variable)
 vim windows: ~/vimfiles/pack/bundle/start/
 neovim: ~/.config/nvim/pack/bundle/start
 ** nvim

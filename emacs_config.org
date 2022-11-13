@@ -68,6 +68,7 @@ no need to set w32-pass-lwindow-to-system
   (global-set-key "\C-c\C-r" 'recompile)
   ;;(global-set-key  "\C-w" 'backward-kill-word)
   (global-set-key (kbd "C-x C-S-f") 'find-file-user-dir)
+  (global-set-key (kbd "C-x <f3>") 'find-file-progra-dir)
 #+end_src
 
 ** path and load path
@@ -309,13 +310,9 @@ from https://github.com/rksm/emacs-rust-config
 **** lsp rust
 rust-analyzer uses features defined in lsp-rust-features
 see https://users.rust-lang.org/t/rust-analyzer-emacs-multiple-projects-changing-features-target/73823/3
-for how to define features per workspace (other ways not easily possible, dir-locals are not re-read when changed)
+for how to define features per workspace (other ways not easily possible, dir-locals are not re-read when changed).
+-> initialized in custom-set block
 #+begin_src emacs-lisp :tangle yes :comments org
-  (custom-set-variables
-   '(lsp-after-initialize-hook '(ia0-lsp-after-initialize-hook))
-   '(lsp-workspace-folders-changed-functions
-     '(ia0-lsp-workspace-folders-changed-functions)))
-
   ;; Maps directory(string) to variable(symbol) to value
   (setq ia0-lsp (make-hash-table :test 'equal))
 
@@ -483,6 +480,8 @@ use magit-repository-directories for default directories
 *** web mode
 #+begin_src emacs-lisp :tangle yes :comments org
   (require 'web-mode)
+  ;; to set web-mode-block-face (if dark mode shows blocks to light)
+  (setq web-mode-enable-block-face t)
   (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
@@ -493,10 +492,14 @@ use magit-repository-directories for default directories
   (add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
+  ;; seems not to work (setq web-mode-engines-alist '(("razor" . "\\.cshtml\\'")))
+  (add-to-list 'auto-mode-alist '("\\.razor\\'" . web-mode))
   ;; does not work with skewer-html-mode
   ;;(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
   (setq web-mode-content-types-alist
-    '(("jsx" . "\\.js[x]?\\'")))
+        '(("jsx" . "\\.js[x]?\\'")))
   (add-hook 'web-mode-hook 'company-mode)
 #+end_src
 *** org mode
@@ -521,7 +524,8 @@ use magit-repository-directories for default directories
     (define-key c++-mode-map "\C-c\C-k" 'compile)
     (setq c-default-style "linux"
     ;;(setq c-default-style "gnu"
-          c-basic-offset 4)
+          c-basic-offset 4
+          indent-tabs-mode nil)
 
     (defun Chelp-simple-debug ()
       "insert a CString and a Message Box for best debugging"
@@ -552,6 +556,8 @@ use magit-repository-directories for default directories
   (add-to-list 'auto-mode-alist '("\\.gn$" . gn-mode))
   (add-to-list 'auto-mode-alist '("\\.gni$" . gn-mode))
   ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  ;; arduino
+  (add-to-list 'auto-mode-alist '("\\.ino\\'" . c++-mode))
 #+end_src
 *** custom hooks
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -692,6 +698,13 @@ use magit-repository-directories for default directories
                                      (file-name-concat  "C:/Users" user-login-name)
                                      "/")))))
       (call-interactively 'find-file)))
+
+  (defun find-file-progra-dir ()
+    (interactive)
+    (let ((default-directory (cond ((eq system-type 'windows-nt)
+                                    "C:/progra/"))))
+      (call-interactively 'find-file)))
+
 #+end_src
 
 ** gc settings end
@@ -763,7 +776,9 @@ use magit-repository-directories for default directories
    '(indent-tabs-mode nil)
    '(initial-buffer-choice t)
    '(initial-scratch-message nil)
+   '(lsp-after-initialize-hook '(ia0-lsp-after-initialize-hook))
    '(lsp-ui-doc-border "#282828")
+   '(lsp-workspace-folders-changed-functions '(ia0-lsp-workspace-folders-changed-functions)))
    '(nrepl-message-colors
      '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
    '(package-selected-packages
