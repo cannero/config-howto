@@ -436,6 +436,7 @@ xml and ruby folding
                   tab-width 4
                   indent-tabs-mode nil)
     (c-set-offset 'substatement-open 0)
+    (company-mode)
     ;; if not using lsp mode dumb-jump
     ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
     ;; lsp-install-server omnisharp

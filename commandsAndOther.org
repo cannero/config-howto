@@ -990,6 +990,8 @@ C:\tools\emacs\lib-src\emacsclientw.exe -c -n -a runemacs.exe
 *** blobs
 open file with magit-find-file
 used e.g. in blame-reverse
+*** rebase
+r i for interactive (squash/pick)
 * Linux
 ** commands
 - back quote command substitution: runs one command on the other, like ll `find . -print`. Could also be \$(cmd)
@@ -1138,6 +1140,8 @@ InputIdentifierHereDoc
 - update with
   sudo apt update
   sudo apt upgrade
+*** dnf fedora
+- sudo dnf install docker-compose
 *** compiling etc
 - ldd
   show shared libraries
@@ -1263,11 +1267,12 @@ neovim: ~/.config/nvim/pack/bundle/start
      -w ignore whitespace
      -U<n> n lines of context
    - log
-     show last i commits with -n i
+     show latest i commits with -n i
      short overview with files: --stat
      patch output of last two commits: -p -2
      log graph: --graph --decorate --pretty=oneline --abbrev-commit
      Only show commits adding or removing code matching the string: -S string
+     --reverse
    - add to last commit
      git commit --amend --no-edit
      no-edit flag re-uses the last commit message
@@ -1279,6 +1284,7 @@ neovim: ~/.config/nvim/pack/bundle/start
    - undo add
      git reset, git reset <file>
      if no head exists git rm --cached <added_file_to_undo>
+     after force push fetch, then reset --hard origin/master
    - To get an inclusive list of commits, just list the two references separated by a space. Your first reference should reference the previous commit with a tilda ~ and then be excluded which is denoted with a leading circumflex ^
      git rev-list --reverse ^<tag1>~ <tag2>
    - To list all files in a commit
@@ -1840,7 +1846,7 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
   permanent storage, can be share between containers
   find mountpoint with inspect of container/volume
   to mount directory use -v /host/path:/container/path
-*** docker-compose
+** docker-compose
 - create yaml file, defining services, volumes, networks
 - start with docker-compose up (-d detach)
 - docker-compose stop (detatched)
@@ -1848,11 +1854,14 @@ add user to docker group (root!): sudo usermod -aG docker your-user, sg docker -
   docker-compose run --service-ports --rm myapp
   - run bash
     docker-compose run --service-ports --rm myapp bash
-*** windows(old)
-- set up host with virtualbox, hyperv only windows 10
-- set env with eval $("D:\tools\Docker Toolbox\docker-machine.exe" env default)
-- /d/tools/Docker\ Toolbox/docker.exe run busybox echo hello world
-- /d/tools/Docker\ Toolbox/docker run -it --rm busybox
+- reference Dockerfile in build instead of image
+** podman
+- runs separate wsl distro on windows
+- dnf docker-compose, see fedora
+  - build image sudo docker-compose build
+*** cmds
+- windows https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md
+- podman machine start
 * mongodb
 ** basic
 - ./mongod --dbpath "d:\data"
