@@ -286,6 +286,7 @@ usage
   (add-hook 'lua-mode-hook 'company-mode)
   (add-hook 'js2-mode-hook 'company-mode)
   (add-hook 'powershell-mode-hook 'company-mode)
+  (add-hook 'scala-mode-hook 'company-mode)
 #+end_src
 *** rustic
 from https://github.com/rksm/emacs-rust-config
@@ -445,6 +446,7 @@ xml and ruby folding
 
   (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
   (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
+  (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
 #+end_src
 *** fundamental-ansi
 show escape sequences in color
@@ -541,6 +543,12 @@ use magit-repository-directories for default directories
               )
       ))
   (add-hook 'c++-mode-hook 'my-c++-mode-hook)
+#+end_src
+*** tree-sitter
+#+begin_src emacs-lisp :tangle yes :comments org
+  ;; compiled dlls: https://github.com/iquiw/emacs-tree-sitter-module-dll
+  ;; copy to path
+  (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
 #+end_src
 *** auto-mode-alist
 #+begin_src emacs-lisp :tangle yes :comments org

@@ -104,6 +104,8 @@ timestamp column saves time in UTC
 **** delete with inner join
 delete only data from t1:
 delete t1 from t1 join t2 on ....
+**** search for umlaut
+col like 'ß%ß' and col not like 'S%S
 * Debugging
 - disable just in time debugging with Visual Studio:
 go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT debugger.
@@ -116,6 +118,7 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
   - commands starting with ! are from some loaded extension
 *** Installation
   - included in Debugging Tools for Windows
+  - windbg preview microsoft store
 *** Setup
   - copy sos.dll from C:\Windows\Microsoft.NET\Framework\ (or Framework64) to windbg folder for .Net debugging
   - load it with .load sos
@@ -143,10 +146,12 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
   | !CLRStack -p / -l /-a                                        | with parameters, locals or both                                     |
   | ~                                                            | all threads                                                         |
   | !threads                                                     | all managed threads (when sos loaded)                               |
-  | ~<thread number> s                                           | activate thread                                                     |
+  | ~<logical thread number>s                                    | activate thread from ~ command, e.g. ~1s                            |
+  | ~~[<os thread id>]s                                          | Id in ~ gives processId.threadId   e.g. ~~[318]s                    |
   | !EEStack                                                     | Runs the DumpStack command on all threads in the process            |
   | k                                                            | view call stack                                                     |
   | !runaway                                                     | Shows time consumed by each thread.                                 |
+  | .time                                                        | process and user mode time                                          |
   | !dso                                                         | show list of references that are still on the stack                 |
   | !do <Object>                                                 | show object info                                                    |
   | !da <Array>                                                  | show array info                                                     |
@@ -154,11 +159,14 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
   | !DumpHeap -stat -type Assembly                               | show assemblies in the heap                                         |
   | !DumpDomain                                                  | show all loaded assemblies                                          |
   | kp; !do <Object from mscorwks!RaiseTheExceptionInternalOnly> | shows exception object info.                                        |
-  | !pe <Object>                                                 | shows exception info                                                |
+  | !pe <Object>                                                 | shows exception info, object can be from !threads call              |
 
 *** Resources
 https://blogs.msdn.microsoft.com/amb/2011/05/12/do-not-collect-32bit-process-dumps-with-64bit-task-manager/
-ProcDump  https://technet.microsoft.com/en-us/sysinternals/dd996900.aspx
+** procdump
+sysinternals
+create a full dump when the process terminates
+procdump -ma -t name.exe/pid
 ** GDB
 *** init file
     [[file:.gdbinit]
@@ -761,8 +769,9 @@ corflags some.dll
 - see w32-register-hot-key for super/hyper key binding
 - custom-set-variables, customize-set-variable
   initialize config, setq will not change variable after package has been loaded
+- compat problems: M-x package-recompile compat RET
 ** build emacs
-*** old verision
+*** old version
 **** tools
     - mingw32: gcc, make (rename from mingw32-make)
     - GnuWin Packages: CoreUtils, FindUtils, libxpm (with src)
@@ -816,19 +825,6 @@ ielm, eshell
 ** fonts
    - show all faces with M-x list-faces-display -> customize
    font family is fndry and fmly from xfontsel
-
-** Windows
-   Here's a Windows tip that I find invaluable for tools such as editors. Rather than associating Emacs with the particular file types you want to edit with it (because you may want to associate another application with them), add Emacs to your SendTo menu.
-
-   - Open the folder where you installed Emacs and navigate to the bin directory.
-   - Select runemacs.exe, click mouse-button-2 and select Create Shortcut. The new shortcut appears, highlighted.
-   - Click mouse-button-2 again and select Cut (you're going to move it).
-   - Move to the Start button and click mouse-button-2 to open the menu.
-   - Select Explore, which should open Windows Explorer to the Start Menu folder.
-    In the navigation pane, select the SendTo folder (usually just above the Start Menu folder) to open it.
-    Within the SendTo folder, click mouse-button-2 and select Paste to insert the runemacs.exe shortcut.
-    Rename the shortcut, if you like.
-
 ** misc commands
 *** file layout/matching lines
 **** occur
@@ -1480,7 +1476,8 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      - available: Get-Counter '\Memory\Available MBytes'
    - format string
      - property: "name: $($service.Name)"
-
+   - install package
+     Install-Package Azure.Messaging.ServiceBus -source https://www.nuget.org/api/v2 -Scope CurrentUser
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine
@@ -2051,6 +2048,7 @@ will remove browse history and passwd etc.
 ** pacman
 database lock is in /var/lib/pacman/db.lck
 partial upgrades will not work, update everything with pacman -Syuu
+- search -Ss
 ** generate ssh keys
 - check for existing key pair
   ls -al ~/.ssh
@@ -2080,19 +2078,20 @@ font in ~/.minttyrc
 - putty
 - emacs
 - freecommander
-* java
-** compile
+* java vm
+** java
+*** compile
 javac file1.java file2.java
 or
 javac *.java
 -> generates fileX.class
-** run
+*** run
 - java fileX
 - with package com.somepackage
 from src folder, *.class files in com/somepackage/
 java com.somepackage.fileX (dot can be also /)
-* gradle
-** set up on linux
+** gradle
+*** set up on linux
 1. download
    gradle-6.3-all.zip, -bin does not include all libraries
 2. path
@@ -2102,7 +2101,7 @@ java com.somepackage.fileX (dot can be also /)
    -> creates gradlew and setting files
 
 settings are saved at ~/.gradle, e.g. wrapper/dists
-** configuration
+*** configuration
 build.gradle.kts
 - plugins
   e.g. id("base") at top of file
@@ -2113,7 +2112,7 @@ settings.gradle.kts
 - projectname
 - subprojects
 
-** commands
+*** commands
 | gradlew            |                                 |
 |--------------------+---------------------------------|
 | tasks              | list tasks which can be invoked |
@@ -2125,6 +2124,10 @@ settings.gradle.kts
 | --args='arg0 arg1' |                                 |
 | --stop             | stop daemons                    |
 |--------------------+---------------------------------|
+** sbt
+- console
+  for repl
+  - :paste switch to paste mode
 * html
 ** basic html5
 #+begin_src html
