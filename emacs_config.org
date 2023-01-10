@@ -227,11 +227,17 @@ stay with point at beginning after search https://www.emacswiki.org/emacs/Isearc
 
 *** modeline
 #+begin_src emacs-lisp :tangle yes :comments org
+  ;; minions if doom-modeline is not used
   ;;(minions-mode)
   (add-hook 'after-init-hook #'doom-modeline-mode)
 #+end_src
 
 ** modes
+*** which-function
+#+begin_src emacs-lisp :tangle yes :comments org
+(eval-after-load "which-func"
+  '(setq which-func-modes '(python-mode python-ts-mode)))
+#+end_src
 *** lsp
 #+begin_src emacs-lisp :tangle yes :comments org
   (setq lsp-keymap-prefix "s-m")
@@ -376,8 +382,19 @@ for how to define features per workspace (other ways not easily possible, dir-lo
     ;; tried also pyvenv-mode and anaconda-mode, conda was working out of the box
     (conda-env-initialize-interactive-shells)
     ;; eshell support
-    (conda-env-initialize-eshell))
+    (conda-env-initialize-eshell)
+
+    ;; show which-function in header line
+    ;; https://emacs.stackexchange.com/questions/2222/show-current-function-in-header-line
+    ;; https://emacsredux.com/blog/2014/04/05/which-function-mode/
+    (which-function-mode)
+    (setq header-line-format
+          '((which-func-mode ("   " which-func-format " "))))
+    (setq mode-line-misc-info
+          (assq-delete-all 'which-function-mode mode-line-misc-info)))
   (add-hook 'python-mode-hook 'my-python-mode-hook)
+  (add-hook 'python-ts-mode-hook 'my-python-mode-hook)
+  ;(add-to-list 'auto-mode-alist '("\\.py[wi]?\\'" . python-ts-mode))
 #+end_src
 *** go
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -438,6 +455,7 @@ xml and ruby folding
                   indent-tabs-mode nil)
     (c-set-offset 'substatement-open 0)
     (company-mode)
+    (csharp-ts-mode)
     ;; if not using lsp mode dumb-jump
     ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
     ;; lsp-install-server omnisharp
@@ -556,8 +574,6 @@ use magit-repository-directories for default directories
         (append '(("\\.pdf$" . whitespace-mode))
                 '(("\\.svg$" . nxml-mode))
                 auto-mode-alist))
-  (setq auto-mode-alist
-        (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
   (add-to-list 'auto-mode-alist '("\\.kmk\\'" . makefile-mode))
   (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
   (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))

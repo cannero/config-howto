@@ -1252,6 +1252,7 @@ neovim: ~/.config/nvim/pack/bundle/start
    - in .git/hooks enable check for pre-commit
 ** commands
    - add: add files, redo if changed, -A adds all files, -u only modified and deleted files
+   - clone: shallow with --depth 1
    - commit: commit -m 'message', -a for all unstaged changes
    - diff
      --cached shows diff with staged files
