@@ -4,20 +4,20 @@
     "actions": 
     [
         {
-            "command": 
-            {
-                "action": "copy",
-                "singleLine": false
-            },
-            "keys": "ctrl+c"
-        },
-        {
             "command": "find",
             "keys": "ctrl+shift+f"
         },
         {
             "command": "paste",
             "keys": "ctrl+v"
+        },
+        {
+            "command": 
+            {
+                "action": "copy",
+                "singleLine": false
+            },
+            "keys": "ctrl+c"
         },
         {
             "command": 
@@ -31,7 +31,7 @@
     ],
     "copyFormatting": "none",
     "copyOnSelect": false,
-    "defaultProfile": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+    "defaultProfile": "{ff1017f4-7ce6-4b42-b5f2-526607065477}",
     "initialCols": 100,
     "initialRows": 50,
     "profiles": 
@@ -55,6 +55,11 @@
             {
                 "colorScheme": "Tango Dark",
                 "cursorShape": "vintage",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 12
+                },
                 "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
                 "hidden": false,
                 "name": "Ubuntu",
@@ -68,8 +73,14 @@
                 "source": "Windows.Terminal.Azure"
             },
             {
-                "colorScheme": "Campbell",
+                "colorScheme": "One Half Dark",
                 "commandline": "C:\\tools\\Ruby27-x64\\msys64\\msys2_shell.cmd -defterm -no-start -mingw64 -shell fish",
+                "font": 
+                {
+                    "face": "Hermit",
+                    "size": 11,
+                    "weight": "normal"
+                },
                 "guid": "{ff1017f4-7ce6-4b42-b5f2-526607065477}",
                 "icon": "C:\\tools\\Ruby27-x64\\msys64\\mingw64.ico",
                 "name": "mingw",
@@ -92,6 +103,7 @@
                 "altGrAliasing": true,
                 "antialiasingMode": "grayscale",
                 "closeOnExit": "graceful",
+                "colorScheme": "Campbell",
                 "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -ExecutionPolicy ByPass -NoExit -Command \"& 'C:\\Users\\nile\\anaconda3\\shell\\condabin\\conda-hook.ps1' ; conda activate 'C:\\Users\\nile\\anaconda3' \"",
                 "cursorShape": "bar",
                 "font": 
@@ -108,6 +120,27 @@
                 "snapOnInput": true,
                 "startingDirectory": "%USERPROFILE%",
                 "useAcrylic": false
+            },
+            {
+                "colorScheme": "Tango Dark",
+                "commandline": "C:\\WINDOWS\\system32\\wsl.exe -d podman-machine-default",
+                "cursorShape": "vintage",
+                "font": 
+                {
+                    "face": "Fira Code",
+                    "size": 12
+                },
+                "guid": "{3d3347ae-1ae3-4cd4-800c-a54483863941}",
+                "hidden": false,
+                "icon": "ms-appx:///ProfileIcons/{9acb9455-ca41-5af7-950f-6bca1bc9722f}.png",
+                "name": "podman-default",
+                "startingDirectory": "~"
+            },
+            {
+                "guid": "{8ab8e6f6-35c6-5b46-8419-3e1568105476}",
+                "hidden": false,
+                "name": "podman-machine-default",
+                "source": "Windows.Terminal.Wsl"
             }
         ]
     },
@@ -321,5 +354,5 @@
             "yellow": "#808000"
         }
     ],
-    "theme": "system"
+    "theme": "dark"
 }

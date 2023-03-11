@@ -1222,8 +1222,9 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
    - complete
      C-n
    - % jump to other brace
-   - = format/indent text
+   - = format/indent text, whole file gg=G
    - ls list buffers
+   - copy to clipboard "*y
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>

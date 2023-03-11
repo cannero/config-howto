@@ -412,6 +412,8 @@ for how to define features per workspace (other ways not easily possible, dir-lo
   (defun my-fsharp-mode-hook ()
     (company-mode)
     (lsp-deferred)
+    ;; https://github.com/fsharp/FsAutoComplete/issues/1000
+    (setq warning-minimum-level :error)
     ;;(require 'eglot-fsharp)
     ;;(eglot)
     )
@@ -562,11 +564,28 @@ use magit-repository-directories for default directories
       ))
   (add-hook 'c++-mode-hook 'my-c++-mode-hook)
 #+end_src
+*** typescript mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  ; todo check if this is the correct way https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
+  ; or use https://robbmann.io/posts/emacs-treesit-auto/
+  (add-to-list 'major-mode-remap-alist
+               '(typescript-mode . typescript-ts-mode))
+  (defun my-typescript-mode-hook ()
+    (company-mode))
+  (add-hook 'typescript-ts-mode-hook 'my-typescript-mode-hook)
+#+end_src
 *** tree-sitter
 #+begin_src emacs-lisp :tangle yes :comments org
   ;; compiled dlls: https://github.com/iquiw/emacs-tree-sitter-module-dll
   ;; copy to path
   (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
+#+end_src
+*** deadgrep
+#+begin_src emacs-lisp :tangle yes :comments org
+(defun deadgrep-here (search-term)
+  "Start deadgrep from the current working directory."
+  (interactive (list (deadgrep--read-search-term)))
+  (deadgrep search-term default-directory))
 #+end_src
 *** auto-mode-alist
 #+begin_src emacs-lisp :tangle yes :comments org
