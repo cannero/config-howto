@@ -34,6 +34,7 @@
     "defaultProfile": "{ff1017f4-7ce6-4b42-b5f2-526607065477}",
     "initialCols": 100,
     "initialRows": 50,
+    "multiLinePasteWarning": false,
     "profiles": 
     {
         "defaults": 
@@ -58,7 +59,7 @@
                 "font": 
                 {
                     "face": "Fira Code",
-                    "size": 12
+                    "size": 12.0
                 },
                 "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
                 "hidden": false,
@@ -78,7 +79,7 @@
                 "font": 
                 {
                     "face": "Hermit",
-                    "size": 11,
+                    "size": 11.0,
                     "weight": "normal"
                 },
                 "guid": "{ff1017f4-7ce6-4b42-b5f2-526607065477}",
@@ -103,13 +104,13 @@
                 "altGrAliasing": true,
                 "antialiasingMode": "grayscale",
                 "closeOnExit": "graceful",
-                "colorScheme": "Campbell",
+                "colorScheme": "Solarized Dark",
                 "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -ExecutionPolicy ByPass -NoExit -Command \"& 'C:\\Users\\nile\\anaconda3\\shell\\condabin\\conda-hook.ps1' ; conda activate 'C:\\Users\\nile\\anaconda3' \"",
                 "cursorShape": "bar",
                 "font": 
                 {
                     "face": "Cascadia Mono",
-                    "size": 12
+                    "size": 12.0
                 },
                 "guid": "{4106ed7b-c44b-4129-a7d3-bd80a260b0e8}",
                 "hidden": false,
@@ -128,7 +129,7 @@
                 "font": 
                 {
                     "face": "Fira Code",
-                    "size": 12
+                    "size": 12.0
                 },
                 "guid": "{3d3347ae-1ae3-4cd4-800c-a54483863941}",
                 "hidden": false,
@@ -354,5 +355,6 @@
             "yellow": "#808000"
         }
     ],
-    "theme": "dark"
+    "theme": "dark",
+    "themes": []
 }

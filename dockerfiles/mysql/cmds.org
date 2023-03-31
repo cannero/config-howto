@@ -1,0 +1,7 @@
+podman stop some-mysql
+podman rm some-mysql
+podman run --name some-mysql --network=mysql-network --volume ./:/usr/source -e MYSQL_ROOT_PASSWORD=my-secret-pw -p 3306:3306 -d docker.io/mysql:8.0.32
+
+podman run -it --network mysql-network --rm docker.io/mysql:8.0.32 mysql -hsome-mysql -uroot -p
+
+podman exec -it some-mysql bash

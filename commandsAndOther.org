@@ -841,7 +841,6 @@ searches from pos onwards
     C-x C-m f
 *** remove complete line
     flush-line (opposite of keep-line)
-
 *** replace in files
     M-x find-name-dired: you will be prompted for a root directory and a filename pattern.
     Press t to "toggle mark" for all files found.
@@ -897,6 +896,9 @@ eval-expression, M-:
 - C-x C-- or + to zoom
 *** background/foreground color
 describe-face
+*** newline at end of file
+set mode-require-final-newline to nil
+and maybe require-final-newline nil
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 

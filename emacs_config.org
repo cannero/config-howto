@@ -450,23 +450,24 @@ xml and ruby folding
 #+end_src
 *** csharp
 #+begin_src emacs-lisp :tangle yes :comments org
-  (defun my-csharp-mode-fn ()
-    "my function that runs when csharp-mode is initialized for a buffer."
-    (setq-default c-basic-offset 4
-                  tab-width 4
-                  indent-tabs-mode nil)
-    (c-set-offset 'substatement-open 0)
-    (company-mode)
-    (csharp-ts-mode)
-    ;; if not using lsp mode dumb-jump
-    ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-    ;; lsp-install-server omnisharp
-    ;(lsp-deferred)
-    )
+    (defun my-csharp-mode-fn ()
+      "my function that runs when csharp-mode is initialized for a buffer."
+      (setq-default c-basic-offset 4
+                    tab-width 4
+                    indent-tabs-mode nil
+                    csharp-ts-mode-indent-offset 4)
+      (c-set-offset 'substatement-open 0)
+      (company-mode)
+      (csharp-ts-mode)
+      ;; if not using lsp mode dumb-jump
+      ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+      ;; lsp-install-server omnisharp
+      ;(lsp-deferred)
+      )
 
-  (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
-  (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
-  (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
+    (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
+    (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
+    (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
 #+end_src
 *** fundamental-ansi
 show escape sequences in color
