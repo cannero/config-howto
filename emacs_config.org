@@ -311,7 +311,10 @@ from https://github.com/rksm/emacs-rust-config
     (set (make-local-variable 'compile-command)
          (concat "rustc "
          ;; (concat "rustc --test "
-                 (shell-quote-argument buffer-file-name))))
+                 (shell-quote-argument buffer-file-name)))
+    ;; TODO: when is rust-ts-mode loaded
+    ;; (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
+    (setq rustic-treesitter-derive t))
   (add-hook 'rustic-mode-hook #'my-rustic-mode-hook)
 #+end_src
 **** lsp rust
@@ -736,6 +739,7 @@ use magit-repository-directories for default directories
         (re-search-forward "[[:alpha:]]")
         (capitalize-word -1))))
 
+  ;; TODO use getenv HOME
   (defun find-file-user-dir ()
     (interactive)
     (let ((default-directory (cond ((eq system-type 'windows-nt)
@@ -750,6 +754,9 @@ use magit-repository-directories for default directories
                                     "C:/progra/"))))
       (call-interactively 'find-file)))
 
+  (defun insert-timestamp ()
+    (interactive)
+    (insert (format-time-string "%Y-%m-%d %H:%M:%S")))
 #+end_src
 
 ** gc settings end

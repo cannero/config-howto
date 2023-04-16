@@ -27,6 +27,20 @@
                 "splitMode": "duplicate"
             },
             "keys": "alt+shift+d"
+        },
+        {
+            "command":
+            {
+                "action": "setColorScheme", "colorScheme": "Tango Dark"
+            },
+            "keys": "ctrl+shift+d"
+        },
+        {
+            "command":
+            {
+                "action": "setColorScheme", "colorScheme": "Solarized Light"
+            },
+            "keys": "ctrl+shift+l"
         }
     ],
     "copyFormatting": "none",
@@ -44,6 +58,7 @@
         "list": 
         [
             {
+                "colorScheme": "Solarized Light",
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
                 "hidden": false,
                 "name": "Windows PowerShell"
@@ -74,7 +89,7 @@
                 "source": "Windows.Terminal.Azure"
             },
             {
-                "colorScheme": "One Half Dark",
+                "colorScheme": "Tango Dark",
                 "commandline": "C:\\tools\\Ruby27-x64\\msys64\\msys2_shell.cmd -defterm -no-start -mingw64 -shell fish",
                 "font": 
                 {
@@ -104,7 +119,7 @@
                 "altGrAliasing": true,
                 "antialiasingMode": "grayscale",
                 "closeOnExit": "graceful",
-                "colorScheme": "Solarized Dark",
+                "colorScheme": "Tango Dark",
                 "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -ExecutionPolicy ByPass -NoExit -Command \"& 'C:\\Users\\nile\\anaconda3\\shell\\condabin\\conda-hook.ps1' ; conda activate 'C:\\Users\\nile\\anaconda3' \"",
                 "cursorShape": "bar",
                 "font": 
