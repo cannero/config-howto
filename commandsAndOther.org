@@ -2016,7 +2016,7 @@ end
   seq 1 5
   in for loop for i in (seq 1 5); ...
 ** prompt
-see usr/share/fish/functions/fish_config.fish
+to choose see usr/share/fish/functions/fish_config.fish
 sample prompts usr/share/fish/tools/web_config/sample_prompts/
 fish_color_cwd:brblue
 ** todo

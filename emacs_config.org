@@ -739,7 +739,7 @@ use magit-repository-directories for default directories
         (re-search-forward "[[:alpha:]]")
         (capitalize-word -1))))
 
-  ;; TODO use getenv HOME
+  ;; TODO use getenv USERPROFILE
   (defun find-file-user-dir ()
     (interactive)
     (let ((default-directory (cond ((eq system-type 'windows-nt)
@@ -754,9 +754,31 @@ use magit-repository-directories for default directories
                                     "C:/progra/"))))
       (call-interactively 'find-file)))
 
+  (defun find-file-gdrive-dir ()
+    (interactive)
+    (let ((default-directory (cond ((eq system-type 'windows-nt)
+                                    (file-name-as-directory
+                                     (file-name-concat (getenv "USERPROFILE") "GoogleDrive" "dat")
+                                     )))))
+      (call-interactively 'find-file)))
+
   (defun insert-timestamp ()
     (interactive)
     (insert (format-time-string "%Y-%m-%d %H:%M:%S")))
+
+  (defun my-copy-filename ()
+    (interactive)
+    (let ((only-filename (if (or
+                              (equal major-mode 'dired-mode)
+                              (equal (buffer-file-name) nil))
+                             nil
+                           ;; buffer-name would always return a name
+                           (file-name-nondirectory (buffer-file-name)))))
+      (if only-filename
+          (progn
+            (kill-new only-filename)
+            (message "filename copied"))
+        (error "Buffer not visiting a file"))))
 #+end_src
 
 ** gc settings end
