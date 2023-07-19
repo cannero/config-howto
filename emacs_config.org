@@ -73,16 +73,26 @@ no need to set w32-pass-lwindow-to-system
 
 ** path and load path
 #+begin_src emacs-lisp :tangle yes :comments org
-  (setq exec-path (append exec-path '("C:/tools/Ruby27-x64/msys64/usr/bin" "C:/tools/Ruby27-x64/msys64/mingw64/bin")))
-  (setq exec-path (append '("C:/Users/nile/anaconda3" "C:/Users/nile/anaconda3/Scripts") exec-path))
-  ;;(setq exec-path (append '("C:/Users/nile/AppData/Local/Programs/Python/Python39" "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") exec-path))
+          (setq exec-path (append exec-path '("C:/tools/Ruby27-x64/msys64/usr/bin" "C:/tools/Ruby27-x64/msys64/mingw64/bin")))
+          ;;(setq exec-path (append '("C:/Users/nile/anaconda3" "C:/Users/nile/anaconda3/Scripts") exec-path))
+          ;;(setq exec-path (append '("C:/Users/nile/AppData/Local/Programs/Python/Python39" "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") exec-path))
 
-  ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin") path-separator (getenv "PATH")))
-  (setenv "PATH" (concat (expand-file-name "C:/Users/nile/anaconda3") path-separator (expand-file-name "C:/Users/nile/anaconda3/Scripts") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin") path-separator (getenv "PATH")))
+          ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin") path-separator (getenv "PATH")))
+          ;; python anaconda
+          ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/anaconda3") path-separator (expand-file-name "C:/Users/nile/anaconda3/Scripts") path-separator (getenv "PATH")))
+          (setenv "PATH" (concat
+                          (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin")
+                          path-separator
+                          (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin")
+                          path-separator (getenv "PATH")))
+          ;; for servo
+          (setenv "PATH" (concat
+                          (expand-file-name "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/Llvm/x64/bin")
+                          path-separator (getenv "PATH")))
 
-  ;;load path
-  ;;(add-to-list 'load-path "D:/tools/emacsInc")
-  ;;(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
+          ;;load path
+          ;;(add-to-list 'load-path "D:/tools/emacsInc")
+          ;;(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
 #+end_src
 
 ** packages
@@ -314,7 +324,9 @@ from https://github.com/rksm/emacs-rust-config
                  (shell-quote-argument buffer-file-name)))
     ;; TODO: when is rust-ts-mode loaded
     ;; (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
-    (setq rustic-treesitter-derive t))
+    (setq rustic-treesitter-derive t)
+    ;; TODO: for servo add to ia0?
+    ;;(setq lsp-rust-analyzer-cargo-override-command [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"]))
   (add-hook 'rustic-mode-hook #'my-rustic-mode-hook)
 #+end_src
 **** lsp rust
@@ -370,6 +382,8 @@ for how to define features per workspace (other ways not easily possible, dir-lo
 
   (defun ia0-lsp-after-initialize-hook ()
     (setq lsp-rust-no-default-features nil)
+    ;; for polars
+    ;; (setq lsp-rust-features ["lazy" "dtype-struct" "dtype-categorical" "json" "strings" "list_to_struct" "dynamic_groupby" "rolling_window" "serde-lazy" "object" "parquet" "lazy_regex" "extract_jsonpath"])
     (setq lsp-rust-features [])
     (setq lsp-rust-analyzer-cargo-target nil))
 #+end_src
