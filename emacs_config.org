@@ -333,6 +333,7 @@ settings per project
                                 '((nil . ((lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"])
                                           ;; disable popup window, slows down servo
                                           (lsp-rust-show-hover-context . nil)))))
+(add-to-list 'safe-local-variable-values '(lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"]))
 #+end_src
 rust-analyzer uses features defined in lsp-rust-features
 see https://users.rust-lang.org/t/rust-analyzer-emacs-multiple-projects-changing-features-target/73823/3
