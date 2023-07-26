@@ -320,16 +320,20 @@ from https://github.com/rksm/emacs-rust-config
     (setq-local buffer-save-without-query t)
     (set (make-local-variable 'compile-command)
          (concat "rustc "
-         ;; (concat "rustc --test "
                  (shell-quote-argument buffer-file-name)))
     ;; TODO: when is rust-ts-mode loaded
     ;; (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
-    (setq rustic-treesitter-derive t)
-    ;; TODO: for servo add to ia0?
-    ;;(setq lsp-rust-analyzer-cargo-override-command [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"]))
+  )
   (add-hook 'rustic-mode-hook #'my-rustic-mode-hook)
 #+end_src
 **** lsp rust
+settings per project
+#+begin_src emacs-lisp :tangle yes :comments org
+(dir-locals-set-class-variables 'servo-directory
+                                '((nil . ((lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"])
+                                          ;; disable popup window, slows down servo
+                                          (lsp-rust-show-hover-context . nil)))))
+#+end_src
 rust-analyzer uses features defined in lsp-rust-features
 see https://users.rust-lang.org/t/rust-analyzer-emacs-multiple-projects-changing-features-target/73823/3
 for how to define features per workspace (other ways not easily possible, dir-locals are not re-read when changed).
@@ -793,6 +797,11 @@ use magit-repository-directories for default directories
             (kill-new only-filename)
             (message "filename copied"))
         (error "Buffer not visiting a file"))))
+#+end_src
+** per directory local variables
+#+begin_src emacs-lisp :tangle yes :comments org
+(dir-locals-set-directory-class
+   "c:/progra/rust/servo" 'servo-directory)
 #+end_src
 
 ** gc settings end
