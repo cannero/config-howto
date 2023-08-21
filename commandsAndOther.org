@@ -1100,8 +1100,11 @@ r i for interactive (squash/pick)
 - getent
   show entries from name service switch libraries
   e.g. getent group
-- replace in file
-  sed -i 's/original/new/g' file.txt
+- replace
+  - in file
+    sed -i 's/original/new/g' file.txt
+  - in files
+    rg -l --path-separator // 'thevenv' | xargs sed -i 's/thevenv/venv/g'
 - sudo
   run with -i with the current user's login shell
   to preserve environment -E, -s for set shell
@@ -1227,6 +1230,8 @@ get 64bit from https://github.com/vim/vim-win32-installer/releases
    - = format/indent text, whole file gg=G
    - ls list buffers
    - copy to clipboard "*y
+   - airline:
+     - :b1 :b2 switch to buffer 1 or 2
 ** colorscheme
    save it in .vim/colors
    add it in .vimrc with colorscheme <name>

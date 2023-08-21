@@ -472,20 +472,24 @@ xml and ruby folding
 #+end_src
 *** csharp
 #+begin_src emacs-lisp :tangle yes :comments org
-    (defun my-csharp-mode-fn ()
-      "my function that runs when csharp-mode is initialized for a buffer."
-      (setq-default c-basic-offset 4
-                    tab-width 4
-                    indent-tabs-mode nil
-                    csharp-ts-mode-indent-offset 4)
-      (c-set-offset 'substatement-open 0)
-      (company-mode)
-      (csharp-ts-mode)
-      ;; if not using lsp mode dumb-jump
-      ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-      ;; lsp-install-server omnisharp
-      ;(lsp-deferred)
-      )
+  (defun my-csharp-mode-fn ()
+    "my function that runs when csharp-mode is initialized for a buffer."
+    (setq-default c-basic-offset 4
+                  tab-width 4
+                  indent-tabs-mode nil)
+    (c-set-offset 'substatement-open 0)
+    (company-mode)
+    (csharp-ts-mode)
+    ;; if not using lsp mode dumb-jump
+    ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+    ;; lsp-install-server omnisharp
+    ;(lsp-deferred)
+    (which-function-mode)
+    (setq header-line-format
+          '((which-func-mode ("   " which-func-format " "))))
+    (setq mode-line-misc-info
+          (assq-delete-all 'which-function-mode mode-line-misc-info))
+    )
 
     (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
     (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
@@ -750,21 +754,22 @@ use magit-repository-directories for default directories
 
   (defun format-pr-title ()
     (interactive)
-    (let ((beg (point)))
+    (let ((beg (point-min)))
       (save-excursion
+        (goto-char (point-min))
         (forward-line 1)
         (replace-string-in-region "_" " " beg (point)))
       (save-excursion
+        (goto-char (point-min))
         (re-search-forward "[[:alpha:]]")
         (capitalize-word -1))))
 
-  ;; TODO use getenv USERPROFILE
   (defun find-file-user-dir ()
     (interactive)
     (let ((default-directory (cond ((eq system-type 'windows-nt)
                                     (concat
-                                     (file-name-concat  "C:/Users" user-login-name)
-                                     "/")))))
+                                       (getenv "userprofile")
+                                       "/")))))
       (call-interactively 'find-file)))
 
   (defun find-file-progra-dir ()
