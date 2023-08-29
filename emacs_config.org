@@ -69,6 +69,7 @@ no need to set w32-pass-lwindow-to-system
   ;;(global-set-key  "\C-w" 'backward-kill-word)
   (global-set-key (kbd "C-x C-S-f") 'find-file-user-dir)
   (global-set-key (kbd "C-x <f3>") 'find-file-progra-dir)
+  (global-set-key (kbd "C-x <f4>") 'find-file-gdrive-dir)
 #+end_src
 
 ** path and load path
@@ -323,17 +324,17 @@ from https://github.com/rksm/emacs-rust-config
                  (shell-quote-argument buffer-file-name)))
     ;; TODO: when is rust-ts-mode loaded
     ;; (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
+    (add-to-list 'safe-local-variable-values '(lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"]))
   )
   (add-hook 'rustic-mode-hook #'my-rustic-mode-hook)
 #+end_src
 **** lsp rust
 settings per project
 #+begin_src emacs-lisp :tangle yes :comments org
-(dir-locals-set-class-variables 'servo-directory
-                                '((nil . ((lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"])
-                                          ;; disable popup window, slows down servo
-                                          (lsp-rust-show-hover-context . nil)))))
-(add-to-list 'safe-local-variable-values '(lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"]))
+  (dir-locals-set-class-variables 'servo-directory
+                                  '((nil . ((lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"])
+                                            ;; disable popup window, slows down servo
+                                            (lsp-rust-show-hover-context . nil)))))
 #+end_src
 rust-analyzer uses features defined in lsp-rust-features
 see https://users.rust-lang.org/t/rust-analyzer-emacs-multiple-projects-changing-features-target/73823/3
@@ -416,7 +417,6 @@ for how to define features per workspace (other ways not easily possible, dir-lo
           (assq-delete-all 'which-function-mode mode-line-misc-info)))
   (add-hook 'python-mode-hook 'my-python-mode-hook)
   (add-hook 'python-ts-mode-hook 'my-python-mode-hook)
-  ;(add-to-list 'auto-mode-alist '("\\.py[wi]?\\'" . python-ts-mode))
 #+end_src
 *** go
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -476,10 +476,10 @@ xml and ruby folding
     "my function that runs when csharp-mode is initialized for a buffer."
     (setq-default c-basic-offset 4
                   tab-width 4
-                  indent-tabs-mode nil)
+                  indent-tabs-mode nil
+                  csharp-ts-mode-indent-offset 4)
     (c-set-offset 'substatement-open 0)
     (company-mode)
-    (csharp-ts-mode)
     ;; if not using lsp mode dumb-jump
     ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
     ;; lsp-install-server omnisharp
@@ -491,9 +491,10 @@ xml and ruby folding
           (assq-delete-all 'which-function-mode mode-line-misc-info))
     )
 
-    (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
-    (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
-    (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
+  (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
+  (add-hook  'csharp-ts-mode-hook 'my-csharp-mode-fn t)
+  (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
+  (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
 #+end_src
 *** fundamental-ansi
 show escape sequences in color
@@ -593,10 +594,6 @@ use magit-repository-directories for default directories
 #+end_src
 *** typescript mode
 #+begin_src emacs-lisp :tangle yes :comments org
-  ; todo check if this is the correct way https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
-  ; or use https://robbmann.io/posts/emacs-treesit-auto/
-  (add-to-list 'major-mode-remap-alist
-               '(typescript-mode . typescript-ts-mode))
   (defun my-typescript-mode-hook ()
     (company-mode))
   (add-hook 'typescript-ts-mode-hook 'my-typescript-mode-hook)
@@ -606,6 +603,12 @@ use magit-repository-directories for default directories
   ;; compiled dlls: https://github.com/iquiw/emacs-tree-sitter-module-dll
   ;; copy to path
   (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
+  ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+  (setq major-mode-remap-alist
+        (append major-mode-remap-alist
+        '((json-mode . json-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (csharp-mode . csharp-ts-mode))))
 #+end_src
 *** deadgrep
 #+begin_src emacs-lisp :tangle yes :comments org
