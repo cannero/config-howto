@@ -2081,6 +2081,7 @@ font in ~/.minttyrc
 <path_to>\msys64\msys2_shell.cmd -defterm -no-start -mingw64 -shell fish
 * new installation
 ** fonts
+windows use ttf
 - source code pro
 - jetbrains mono
 ** utils

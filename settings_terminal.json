@@ -29,18 +29,20 @@
             "keys": "alt+shift+d"
         },
         {
-            "command":
+            "command": 
             {
-                "action": "setColorScheme", "colorScheme": "Tango Dark"
-            },
-            "keys": "ctrl+shift+d"
-        },
-        {
-            "command":
-            {
-                "action": "setColorScheme", "colorScheme": "Solarized Light"
+                "action": "setColorScheme",
+                "colorScheme": "Solarized Light"
             },
             "keys": "ctrl+shift+l"
+        },
+        {
+            "command": 
+            {
+                "action": "setColorScheme",
+                "colorScheme": "Tango Dark"
+            },
+            "keys": "ctrl+shift+d"
         }
     ],
     "copyFormatting": "none",
@@ -49,6 +51,12 @@
     "initialCols": 100,
     "initialRows": 50,
     "multiLinePasteWarning": false,
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
     "profiles": 
     {
         "defaults": 
@@ -157,6 +165,38 @@
                 "hidden": false,
                 "name": "podman-machine-default",
                 "source": "Windows.Terminal.Wsl"
+            },
+            {
+                "colorScheme": "Tango Dark",
+                "commandline": "C:\\tools\\Ruby27-x64\\msys64\\msys2_shell.cmd -defterm -no-start -ucrt64 -shell fish",
+                "font": 
+                {
+                    "face": "Hermit",
+                    "size": 11.0,
+                    "weight": "normal"
+                },
+                "guid": "{d5f19bfd-8fca-4f96-9282-8fc196cace6a}",
+                "hidden": false,
+                "icon": "C:\\tools\\Ruby27-x64\\msys64\\ucrt64.ico",
+                "name": "ucrt",
+                "startingDirectory": "c:\\progra",
+                "tabTitle": null
+            },
+            {
+                "colorScheme": "Tango Dark",
+                "commandline": "C:\\tools\\Ruby27-x64\\msys64\\msys2_shell.cmd -defterm -no-start -ucrt64 -shell bash",
+                "font": 
+                {
+                    "face": "Hermit",
+                    "size": 11.0,
+                    "weight": "normal"
+                },
+                "guid": "{195b7fa3-9e54-4952-8572-db89658a9016}",
+                "hidden": false,
+                "icon": "C:\\tools\\Ruby27-x64\\msys64\\ucrt64.ico",
+                "name": "ucrt bash",
+                "startingDirectory": "c:\\progra",
+                "tabTitle": null
             }
         ]
     },
@@ -371,5 +411,49 @@
         }
     ],
     "theme": "dark",
-    "themes": []
+    "themes": 
+    [
+        {
+            "name": "legacyDark",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "dark",
+                "useMica": false
+            }
+        },
+        {
+            "name": "legacyLight",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "light",
+                "useMica": false
+            }
+        },
+        {
+            "name": "legacySystem",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "system",
+                "useMica": false
+            }
+        }
+    ]
 }
