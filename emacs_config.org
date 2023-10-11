@@ -480,6 +480,7 @@ xml and ruby folding
                   csharp-ts-mode-indent-offset 4)
     (c-set-offset 'substatement-open 0)
     (company-mode)
+    (csharp-ts-mode)
     ;; if not using lsp mode dumb-jump
     ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
     ;; lsp-install-server omnisharp
@@ -491,10 +492,9 @@ xml and ruby folding
           (assq-delete-all 'which-function-mode mode-line-misc-info))
     )
 
-  (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
-  (add-hook  'csharp-ts-mode-hook 'my-csharp-mode-fn t)
-  (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
-  (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
+    (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
+    (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
+    (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
 #+end_src
 *** fundamental-ansi
 show escape sequences in color
@@ -606,9 +606,10 @@ use magit-repository-directories for default directories
   ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
   (setq major-mode-remap-alist
         (append major-mode-remap-alist
-        '((json-mode . json-ts-mode)
+        '((js-json-mode . json-ts-mode)
           (typescript-mode . typescript-ts-mode)
-          (csharp-mode . csharp-ts-mode))))
+          (csharp-mode . csharp-ts-mode)
+          (python-mode . python-ts-mode))))
 #+end_src
 *** deadgrep
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -644,6 +645,22 @@ use magit-repository-directories for default directories
 
 #+end_src
 
+*** ispell
+#+begin_src emacs-lisp :tangle yes :comments org
+  ;; ispell with hunspell
+  ;; As long as only hunspell is in the path, (setq ispell-program-name "hunspell") must not be used
+  ;; From https://www.reddit.com/r/emacs/comments/dgj0ae/tutorial_spellchecking_with_hunspell_170_for/?rdt=37030
+  (setq ispell-local-dictionary "en_US")
+  (setq ispell-hunspell-dict-paths-alist
+        '(("en_US" "C:/TODO_SET_PATH/en_US.aff")))
+  (setq ispell-local-dictionary-alist
+        ;; Please note the list `("-d" "en_US")` contains ACTUAL parameters passed to hunspell
+        ;; You could use `("-d" "en_US,en_US-med")` to check with multiple dictionaries
+        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
+  ;; env needs to be set additionally
+  (setenv "LANG" "en_US")
+
+#+end_src
 ** misc functions
 *** move file
 #+begin_src emacs-lisp :tangle yes :comments org

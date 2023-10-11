@@ -47,7 +47,7 @@
     ],
     "copyFormatting": "none",
     "copyOnSelect": false,
-    "defaultProfile": "{ff1017f4-7ce6-4b42-b5f2-526607065477}",
+    "defaultProfile": "{d5f19bfd-8fca-4f96-9282-8fc196cace6a}",
     "initialCols": 100,
     "initialRows": 50,
     "multiLinePasteWarning": false,
@@ -65,6 +65,22 @@
         },
         "list": 
         [
+            {
+                "colorScheme": "Tango Dark",
+                "commandline": "C:\\tools\\Ruby27-x64\\msys64\\msys2_shell.cmd -defterm -no-start -ucrt64 -shell fish",
+                "font": 
+                {
+                    "face": "Hermit",
+                    "size": 11.0,
+                    "weight": "normal"
+                },
+                "guid": "{d5f19bfd-8fca-4f96-9282-8fc196cace6a}",
+                "hidden": false,
+                "icon": "C:\\tools\\Ruby27-x64\\msys64\\ucrt64.ico",
+                "name": "ucrt",
+                "startingDirectory": "c:\\progra",
+                "tabTitle": null
+            },
             {
                 "colorScheme": "Solarized Light",
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
@@ -165,22 +181,6 @@
                 "hidden": false,
                 "name": "podman-machine-default",
                 "source": "Windows.Terminal.Wsl"
-            },
-            {
-                "colorScheme": "Tango Dark",
-                "commandline": "C:\\tools\\Ruby27-x64\\msys64\\msys2_shell.cmd -defterm -no-start -ucrt64 -shell fish",
-                "font": 
-                {
-                    "face": "Hermit",
-                    "size": 11.0,
-                    "weight": "normal"
-                },
-                "guid": "{d5f19bfd-8fca-4f96-9282-8fc196cace6a}",
-                "hidden": false,
-                "icon": "C:\\tools\\Ruby27-x64\\msys64\\ucrt64.ico",
-                "name": "ucrt",
-                "startingDirectory": "c:\\progra",
-                "tabTitle": null
             },
             {
                 "colorScheme": "Tango Dark",
