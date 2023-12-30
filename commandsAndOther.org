@@ -67,7 +67,7 @@ tx_isolation
   phantom writes of modified and new rows
 *** mysqldump
 - export schema:
-  mysqldump.exe -u diituser -p8932500 -h 142.120.60.114 -P 3306 -B diko --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r diko.sql
+  mysqldump.exe -u <user> -p<pwd> -h host -P 3306 -B <db> --add-drop-database --add-drop-table -c --create-options --hex-blob --triggers --compress --quick --routines --no-data -r output.sql
 *** mysqlbinlog
 mysqlbinlog.exe --base64-output=decode-rows -v <mysql-bin...> > binlogparsed
 -v: Reconstruct row events and display them as commented SQL statements.
@@ -377,6 +377,8 @@ https://my.visualstudio.com/Downloads/Featured
 - speed up connection with 15bit, background turned off
 - back to fullscreen: ctrl alt break
 - send ctrl alt del: ctrl alt end
+- position after winposstr:s:0,1, (https://social.technet.microsoft.com/wiki/contents/articles/665.rdp-how-to-set-the-monitor-for-a-remote-desktop-session-in-a-multi-monitor-setup.aspx)
+- logon: https://bradleyschacht.com/remote-desktop-to-azure-ad-joined-computer/
 ** Win
    - disable explorer
      HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
@@ -724,8 +726,8 @@ dvd drive required
 repl with scriptcs/fsi
 ** folders
 *** exe.config files
-- XP: C:\Dokumente und Einstellungen\<user>\Lokale Einstellungen\Anwendungsdaten\DiIT\
-- Win7: C:\Users\<user>\AppData\Local\DiIT
+- XP: C:\Dokumente und Einstellungen\<user>\Lokale Einstellungen\Anwendungsdaten\<company>\
+- Win7: C:\Users\<user>\AppData\Local\<company>
 ** NUnit
 *** basisc
     - console runner
@@ -837,7 +839,7 @@ can also be used during incremental search M-s o
 **** how-many
 searches from pos onwards
 *** search for control characters
-    C-q C-(control char), ^@ with C-Space, ^? with Backspace
+    C-q C-(control char), ^@ with C-Space, ^? with Backspace, i for tab
 *** environment variables
     (getenv "DS\_LOC") (setenv "DS\_LOC" "FTN")
 *** set encoding
@@ -1407,7 +1409,7 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      $host has Version property
      [Environment]::Is64BitProcess
    - Load a dll
-     Add-Type -Path .$\backslash$DiIT.Misc.dll
+     Add-Type -Path .$\backslash$the.dll
    - get methods + members: [int] | Get-Member
    - call static methods with [int]::MaxValue
    - pipe to fl (Format-List) to get all properties
@@ -1418,8 +1420,8 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
    - parameter switch
      set it with colon -parameter:$true
    - open registry key remotely
-     $Reg = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', "coplds1")
-     $RegKey= $Reg.OpenSubKey("SOFTWARE\DiIT\copl\Database")
+     $Reg = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey('LocalMachine', <server>)
+     $RegKey= $Reg.OpenSubKey("SOFTWARE\path\regkey")
    - get unique values from a csv file
      $leadsets = Import-Csv .\sft.csv -Delimiter ';'
      $dupLeadsets = $leadsets | Group {$_.Leadset} | where {$_.Count -gt 1}
@@ -1460,9 +1462,13 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      Enter-PSSession -ComputerName <pcname>
      Invoke-Command -ComputerName <pcname> -ScriptBlock {hostname}
      Enable-PSRemoting
+     - test
+       [bool](Test-WSMan -ComputerName 'ComputerName' -ErrorAction SilentlyContinue)
    - search for multiple file types
      -Recurse has to be set for -Include, -Filter allows only one type, dir is Get-ChildItem
      dir -Include *.cpp,*.h -Recurse
+   - search in command output
+     Get-Service | Out-String -stream | Select-String -pattern '.*Win.*'
    - replace text in file
      $text = (Get-Content -Path "File" -ReadCount 0) -join "`n"
      $text -replace "oldName", "newName" -replace "oldName2", "newName2" | Set-Content -Path "newFile"
@@ -1490,8 +1496,15 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      - property: "name: $($service.Name)"
    - install package
      Install-Package Azure.Messaging.ServiceBus -source https://www.nuget.org/api/v2 -Scope CurrentUser
+   - datatype of variable
+     $x.GetType()
+   - wc -l, line count
+     get-content <file> | Measure-Object -line
+   - get-credential
+     credentials for user name, prompts for password
+     password can be set also on commandline via ArgumentList
 *** format files output
-    get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "DiIT"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
+    get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "company"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine
   webrick has problems with reverse dns lookup, turn it off
 ** svn integration
