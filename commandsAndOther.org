@@ -823,8 +823,11 @@ ielm, eshell
     (setq inhibit-eol-conversion t), otherwise windows file has only ^J in text mode
     https://lists.gnu.org/archive/html/help-gnu-emacs/2005-12/msg00548.html
 ** fonts
-   - show all faces with M-x list-faces-display -> customize
-   font family is fndry and fmly from xfontsel
+- show all faces with M-x list-faces-display -> customize
+  font family is fndry and fmly from xfontsel
+- set font with menu-set-font
+- save with customize-face -> default
+- remove any foreground/background attributes from custom-set-faces, otherwise themes do not work
 ** misc commands
 *** file layout/matching lines
 **** occur

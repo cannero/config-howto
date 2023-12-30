@@ -1,6 +1,21 @@
 local opt = vim.opt
 
 opt.mouse = "a"
+
+-- clipboard for wsl and msys
+vim.g.clipboard = {
+                   name= 'WslClipboard',
+                   copy= {
+                      ['+']= 'clip.exe',
+                      ['*']= 'clip.exe',
+                    },
+                   paste= {
+                      ['+']= 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+                      ['*']= 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+                   },
+                   cache_enabled = 0,
+                 }
+
 -- todo check with unnamed,unnamedplus .. opt.clipboard
 -- https://stackoverflow.com/questions/30691466/what-is-difference-between-vims-clipboard-unnamed-and-unnamedplus-settings
 opt.clipboard = opt.clipboard + {"unnamedplus"}
