@@ -242,13 +242,27 @@ stay with point at beginning after search https://www.emacswiki.org/emacs/Isearc
   ;; minions if doom-modeline is not used
   ;;(minions-mode)
   (add-hook 'after-init-hook #'doom-modeline-mode)
+  ;; set height from https://github.com/seagle0128/doom-modeline/issues/187
+  ;; but inactive fontheight is overwritten by themes
+  ;; the height is now just set to 0.8 via customize and the font-height function is customized
+  (setq doom-modeline-height 1) ; optional
+  ;; (if (facep 'mode-line-active)
+  ;;     (set-face-attribute 'mode-line-active nil :family "JetBrains Mono" :height 80) ; For 29+
+  ;;   (set-face-attribute 'mode-line nil :family "JetBrains Mono" :height 80))
+  ;; (set-face-attribute 'mode-line-inactive nil :family "JetBrains Mono" :height 80)
+
+  (defun my-doom-modeline--font-height ()
+    "Calculate the actual char height of the mode-line."
+    (* (+ (frame-char-height) 2) 0.8))
+  (advice-add #'doom-modeline--font-height :override #'my-doom-modeline--font-height)
+
 #+end_src
 
 ** modes
 *** which-function
 #+begin_src emacs-lisp :tangle yes :comments org
-(eval-after-load "which-func"
-  '(setq which-func-modes '(python-mode python-ts-mode)))
+  (eval-after-load "which-func"
+    '(setq which-func-modes '(python-mode python-ts-mode csharp-ts-mode powershell-mode)))
 #+end_src
 *** lsp
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -484,7 +498,6 @@ xml and ruby folding
                   csharp-ts-mode-indent-offset 4)
     (c-set-offset 'substatement-open 0)
     (company-mode)
-    (csharp-ts-mode)
     ;; if not using lsp mode dumb-jump
     ;; (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
     ;; lsp-install-server omnisharp
@@ -497,6 +510,7 @@ xml and ruby folding
     )
 
     (add-hook  'csharp-mode-hook 'my-csharp-mode-fn t)
+    (add-hook  'csharp-ts-mode-hook 'my-csharp-mode-fn t)
     (add-to-list 'auto-mode-alist '("\\.csproj\\'" . nxml-mode))
     (add-to-list 'auto-mode-alist '("\\.xaml\\'" . nxml-mode))
 #+end_src
@@ -823,6 +837,7 @@ use magit-repository-directories for default directories
     (interactive)
     (insert (format-time-string "%Y-%m-%d %H:%M:%S")))
 
+  ;; to get path/filename use C-x C-j C-0 w
   (defun my-copy-filename ()
     (interactive)
     (let ((only-filename (if (or
@@ -941,5 +956,7 @@ use magit-repository-directories for default directories
    ;; If you edit it by hand, you could mess it up, so be careful.
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
-   '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 113 :width normal :foundry "outline" :family "JetBrains Mono")))))
+   '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 113 :width normal :foundry "outline" :family "JetBrains Mono"))))
+   '(doom-modeline ((t (:height 0.8))))
+   '(lsp-modeline-code-actions-face ((t (:inherit homoglyph :height 0.8)))))
 #+end_src
