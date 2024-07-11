@@ -74,26 +74,27 @@ no need to set w32-pass-lwindow-to-system
 
 ** path and load path
 #+begin_src emacs-lisp :tangle yes :comments org
-          (setq exec-path (append exec-path '("C:/tools/Ruby27-x64/msys64/usr/bin" "C:/tools/Ruby27-x64/msys64/mingw64/bin")))
-          ;;(setq exec-path (append '("C:/Users/nile/anaconda3" "C:/Users/nile/anaconda3/Scripts") exec-path))
-          ;;(setq exec-path (append '("C:/Users/nile/AppData/Local/Programs/Python/Python39" "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") exec-path))
+  (setq exec-path (append exec-path '("C:/tools/Ruby27-x64/msys64/usr/bin" "C:/tools/Ruby27-x64/msys64/mingw64/bin")))
+  ;;(setq exec-path (append '("C:/Users/nile/anaconda3" "C:/Users/nile/anaconda3/Scripts") exec-path))
+  ;;(setq exec-path (append '("C:/Users/nile/AppData/Local/Programs/Python/Python39" "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") exec-path))
 
-          ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin") path-separator (getenv "PATH")))
-          ;; python anaconda
-          ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/anaconda3") path-separator (expand-file-name "C:/Users/nile/anaconda3/Scripts") path-separator (getenv "PATH")))
-          (setenv "PATH" (concat
-                          (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin")
-                          path-separator
-                          (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin")
-                          path-separator (getenv "PATH")))
-          ;; for servo
-          (setenv "PATH" (concat
-                          (expand-file-name "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/Llvm/x64/bin")
-                          path-separator (getenv "PATH")))
+  ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39") path-separator (expand-file-name "C:/Users/nile/AppData/Local/Programs/Python/Python39/Scripts") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin") path-separator (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin") path-separator (getenv "PATH")))
+  ;; python anaconda
+  ;;(setenv "PATH" (concat (expand-file-name "C:/Users/nile/anaconda3") path-separator (expand-file-name "C:/Users/nile/anaconda3/Scripts") path-separator (getenv "PATH")))
+  (setenv "PATH" (concat
+                  (expand-file-name "C:/tools/Ruby27-x64/msys64/usr/bin")
+                  path-separator
+                  (expand-file-name "C:/tools/Ruby27-x64/msys64/mingw64/bin")
+                  path-separator (getenv "PATH")))
+  ;; for servo
+  (setenv "PATH" (concat
+                  (expand-file-name "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/Llvm/x64/bin")
+                  path-separator (getenv "PATH")))
 
-          ;;load path
-          ;;(add-to-list 'load-path "D:/tools/emacsInc")
-          ;;(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
+  ;;load path
+  ;;(add-to-list 'load-path "D:/tools/emacsInc")
+  ;;(add-to-list 'load-path "D:/tools/emacsInc/HTML5-YASnippet-bundle")
+  (add-to-list 'load-path "~/.emacs.d/extensions/")
 #+end_src
 
 ** packages
@@ -624,10 +625,34 @@ use magit-repository-directories for default directories
   (add-hook 'json-ts-mode-hook 'my-json-mode-hook)
 
 #+end_src
+*** zig mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  (defun my-zig-mode-hook ()
+    (company-mode)
+    (setq zig-zig-bin "C:/tools/zig/zig.exe")
+    (require 'lsp-mode)
+    (setq lsp-zig-zls-executable "C:/tools/zig/zls/zls.exe")
+    (setq lsp-zig-zig-exe-path "C:/tools/zig/zig.exe")
+    (lsp-deferred))
+  (add-hook 'zig-mode-hook 'my-zig-mode-hook)
+
+#+end_src
+
+*** powershell-ts mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  ; https://github.com/dmille56/powershell-ts-mode/blob/main/powershell-ts-mode.el
+  (require 'powershell-ts-mode)
+#+end_src
+
 *** tree-sitter
 #+begin_src emacs-lisp :tangle yes :comments org
-  ;; compiled dlls: https://github.com/iquiw/emacs-tree-sitter-module-dll
-  ;; copy to path
+  ;; compiled dlls:
+  ;;  https://github.com/emacs-tree-sitter/tree-sitter-langs
+  ;;  - csharp for included ts-mode
+  ;;  https://github.com/kiennq/treesit-langs
+  ;;  - powershell
+  ;;  https://github.com/iquiw/emacs-tree-sitter-module-dll
+  ;; copy to load path
   (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
   ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
   (setq major-mode-remap-alist
@@ -636,7 +661,9 @@ use magit-repository-directories for default directories
           (typescript-mode . typescript-ts-mode)
           (csharp-mode . csharp-ts-mode)
           (python-mode . python-ts-mode)
-          (css-mode . css-ts-mode))))
+          (css-mode . css-ts-mode)
+          (yaml-mode . yaml-ts-mode)
+          (powershell-mode . powershell-ts-mode))))
 #+end_src
 *** deadgrep
 #+begin_src emacs-lisp :tangle yes :comments org

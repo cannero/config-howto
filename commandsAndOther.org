@@ -1350,6 +1350,8 @@ neovim: ~/.config/nvim/pack/bundle/start
      git push -f origin master
    - push
      after rebase push with --force-with-lease to check if remote has been updated in between
+     - reset remote log
+       push --force <sha>:<remote branch>
    - apply / am: apply patch
      --stat to see changes in diff, --check
      --keep-cr, --ignore-whitespace, --transfer-encoding
