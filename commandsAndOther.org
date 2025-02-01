@@ -106,6 +106,14 @@ delete only data from t1:
 delete t1 from t1 join t2 on ....
 **** search for umlaut
 col like 'ß%ß' and col not like 'S%S
+**** select into
+SELECT * FROM t1 INTO @myvar
+**** kill all processes
+
+#+begin_src powershell-ts
+  $conns = $(mysql -u dbuser -ppwd -P 3307 -h server --disable-column-names -e "SELECT CONCAT('KILL ', p.ID, ';') FROM information_schema.processlist p WHERE p.`HOST` LIKE '10.150.0.156:%' AND p.`USER` = 'user' AND p.`DB` = 'db';")
+  mysql -u dbuser -ppwd -P 3307 -h server --disable-column-names -e "$conns"
+#+end_src
 * Debugging
 - disable just in time debugging with Visual Studio:
 go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT debugger.
@@ -118,8 +126,9 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
   - commands starting with ! are from some loaded extension
 *** Installation
   - included in Debugging Tools for Windows
-  - windbg preview microsoft store
+  - windbg microsoft store
 *** Setup
+**** .net 3.5 and 4.8
   - copy sos.dll from C:\Windows\Microsoft.NET\Framework\ (or Framework64) to windbg folder for .Net debugging
   - load it with .load sos
   - Create a folder where you want to cache all the symbol files. For example: "C:\Symbols"
@@ -134,6 +143,11 @@ go to Tools -> Options -> Debugging -> Just-In-Time and disable VS as the JIT de
     just copy the dll from the target pc to windbg folder and rename it to mscordacwks_AAA_AAA_2.0.50727.xxxx.dll,
     AAA is either x86 or AMD64, xxxx are the last digits of the version number
     lmv m mscorwks shows the include path for the dll
+**** .net 6 etc.
+with sdk
+- dotnet tool install -g dotnet-sos
+- dotnet-sos install
+- .load %USERPROFILE%\.dotnet\sos\sos.dll
 *** Commands
   | command                                                      | description                                                         |
   |--------------------------------------------------------------+---------------------------------------------------------------------|
@@ -487,7 +501,9 @@ it is read only during windows startup
      e.g. environment variables per pool in applicationPools
    - users
      https://stackoverflow.com/questions/14934006/iis-iusrs-and-iusr-permissions-in-iis8
+     https://learn.microsoft.com/en-us/iis/manage/configuring-security/application-pool-identities
      IIS AppPool\MyApplicationPoolName, IUSR, IIS_IUSRS
+     set location to PC when searching using 'check name'
 ** disable telemetry data gathering
    http://superuser.com/questions/972501/how-to-stop-microsoft-from-gathering-telemetry-data-from-windows-7-8-and-8-1
 
@@ -904,6 +920,14 @@ describe-face
 *** newline at end of file
 set mode-require-final-newline to nil
 and maybe require-final-newline nil
+*** binary/hex conversion
+- string to number
+  (string-to-number "100" 2)
+  if conversion could fail: cl-parse-integer
+- convert to string rep
+  (require 'calc-bin)
+  (let ((calc-number-radix 16))
+   (math-format-radix 150))
 ** Visual Studio in emacs
 *** format
     for visual studio set (Basic Offset = 4) in programming languages C and (indent tabs mode = off) in editing indent. 
@@ -1079,6 +1103,8 @@ r i for interactive (squash/pick)
     curl 'https://example.com/{ham,cheese}.jpg' -o out_#1.jpg
   - in browser: copy as curl in dev tools
   -O: output to file
+  - send base64 encoded string from image
+    curl -X POST -H "Content-Type: application/json" -d '{ "imageData64": "'$(base64 /c/TEMP/small.jpg | tr -d '[:space:]')'", "filename": "image.jpg" }' http://localhost:65100/UploadImage
 - wget
   non-interactive network retriever
 - show system information
@@ -1369,10 +1395,13 @@ neovim: ~/.config/nvim/pack/bundle/start
      with multiple remotes switch -c name_branch origin/remote_name
 ** find when line was deleted
 - git blame --reverse START.. file.ext
+  gives last commit where line was present
   --first-parent if multiple merges
+  then search for next commit
+  git log --reverse --ancestry-path COMMIT^..main
 - git log -S <string> path/to/file
   can also be run on directory
-  -c -cc for combined merge
+  -c --cc for combined merge
   also called pickaxe
 ** checkout only subdirectory
 *** sparse checkout
@@ -1394,8 +1423,28 @@ https://github.com/Microsoft/Git-Credential-Manager-for-Windows/issues/500
 -> use windows build
 *** store
 git config --global credential.helper store
-stores pwd after the next commit in ~/.git-credentials
+stores pwd/token after the next commit in ~/.git-credentials
 re-fresh password by running the failing cmd a second time
+* jj
+** basic workflow with git backend
+*** init
+- jj git init
+- jj git remote add origin https://github.com/cannero/rlox.git
+- jj bookmark create main
+- jj git push --allow-new
+*** work
+- jj bookmark set main
+  jj bookmark set main @-
+- jj git push
+** commands
+- jj new -m 'message'
+  create new commit with message
+- jj describe -m 'message'
+  set message for current commit
+- jj split -i
+- jj squash -i
+- jj log --limit 5
+- jj next --edit
 * powershell
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
@@ -1456,6 +1505,7 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      Start-Process "C:\Program Files\PostgreSQL\<version>\bin\psql.exe" '--username=... db_name' -RedirectStandardInput backup.sql -NoNewWindow -Wait
    - pipe stdout to file
      Out-File -FilePath C:\Services.txt
+     -Encoding utf8
      -Append
    - tail file
      show the last two lines:
@@ -1502,9 +1552,13 @@ $PSDefaultParameterValues = @{ '*:Encoding' = 'utf8' }
      $x.GetType()
    - wc -l, line count
      get-content <file> | Measure-Object -line
-   - get-credential
+   - get-credential <user>
      credentials for user name, prompts for password
      password can be set also on commandline via ArgumentList
+   - redirect Write-Host to file
+     6>file_name
+   - run exe on each file
+     Get-ChildItem ... | ForEach-Object { &exe $_.FullName}
 *** format files output
     get-item .\* -Include *.dll, *.exe | where-object {$_.VersionInfo.CompanyName -eq "company"} | sort {$_.VersionInfo.FileVersion} | ForEach-Object {$_.VersionInfo.FileVersion + " " + $_.Name}
 * Redmine
@@ -2216,3 +2270,9 @@ Use of a BOM is neither required nor recommended for UTF-8, but may be encounter
 ** confluence
 *** m2conf.py
 python ~/projects/md_to_conf/md2conf.py import.md <space> -a <create page under>
+* Krita
+** font size
+set resolution to a lower value, e.g. 100ppi
+Image > Scale Image
+* Notepad++
+- delete %AppData%\Notepad++\session.xml to remove session

@@ -70,6 +70,7 @@ no need to set w32-pass-lwindow-to-system
   (global-set-key (kbd "C-x C-S-f") 'find-file-user-dir)
   (global-set-key (kbd "C-x <f3>") 'find-file-progra-dir)
   (global-set-key (kbd "C-x <f4>") 'find-file-gdrive-dir)
+  (global-set-key (kbd "<f6>") 'my-load-theme)
 #+end_src
 
 ** path and load path
@@ -155,17 +156,20 @@ stay with point at beginning after search https://www.emacswiki.org/emacs/Isearc
 #+begin_src emacs-lisp :tangle yes :comments org
   ;;-------------------------------------------
   ;; set default height
-  (if (<= 1200 (display-pixel-height))
-      (setq default-frame-alist ' (
-                                   (user-size . t)
-                                   (height . 58)
-                                   (width . 95)
-                                   ))
-    (setq default-frame-alist ' (
-                                 (user-size . t)
-                                 (height . 52)
-                                 (width . 85)
-                                 )))
+  (cond ((<= 1200 (display-pixel-height))
+         (setq default-frame-alist '
+               ((user-size . t)
+                (height . 58)
+                (width . 95))))
+   ((<= 1080 (display-pixel-height))
+    (setq default-frame-alist '
+          ((user-size . t)
+           (height . 41)
+           (width . 95))))
+   (t (setq default-frame-alist '
+            ((user-size . t)
+             (height . 52)
+             (width . 85)))))
 
   (setq initial-frame-alist '(
                               (top . 5)
@@ -263,7 +267,15 @@ stay with point at beginning after search https://www.emacswiki.org/emacs/Isearc
 *** which-function
 #+begin_src emacs-lisp :tangle yes :comments org
   (eval-after-load "which-func"
-    '(setq which-func-modes '(python-mode python-ts-mode csharp-ts-mode powershell-mode)))
+    '(setq which-func-modes '(python-mode python-ts-mode csharp-ts-mode powershell-mode powershell-ts-mode)))
+#+end_src
+*** whitespace-mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  (defun my-whitespace-mode-hook ()
+    (setq whitespace-line-column 100)
+    (setq whitespace-style (cons 'lines-tail (delete 'lines whitespace-style))))
+
+  (add-hook 'whitespace-mode-hook 'my-whitespace-mode-hook)
 #+end_src
 *** lsp
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -336,7 +348,7 @@ from https://github.com/rksm/emacs-rust-config
     (setq rustic-rustfmt-bin "~/../../.cargo/bin/rustfmt")
     (setq-local buffer-save-without-query t)
     (set (make-local-variable 'compile-command)
-         (concat "rustc "
+         (concat "rustc --edition 2021 "
                  (shell-quote-argument buffer-file-name)))
     ;; TODO: when is rust-ts-mode loaded
     ;; (setq auto-mode-alist (delete '("\\.rs\\'" . rust-ts-mode) auto-mode-alist))
@@ -348,7 +360,7 @@ from https://github.com/rksm/emacs-rust-config
 settings per project
 #+begin_src emacs-lisp :tangle yes :comments org
   (dir-locals-set-class-variables 'servo-directory
-                                  '((nil . ((lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"])
+                                  '((rustic-mode . ((lsp-rust-analyzer-cargo-override-command . [".\\mach.bat" "check" "--message-format=json" "--target-dir=target/lsp"])
                                             ;; disable popup window, slows down servo
                                             (lsp-rust-show-hover-context . nil)))))
 #+end_src
@@ -574,6 +586,7 @@ use magit-repository-directories for default directories
 #+end_src
 *** org mode
 #+begin_src emacs-lisp :tangle yes :comments org
+  (setq org-startup-folded 'fold)
   (defun my-org-mode-hook ()
     (turn-on-font-lock) ; not needed when global-font-lock-mode is on
     (define-key org-mode-map (kbd "\M-q") 'toggle-truncate-lines)
@@ -581,11 +594,19 @@ use magit-repository-directories for default directories
 
     (setq org-log-done t) ;set timestamps
     (setq org-adapt-indentation nil)
-    (setq org-startup-folded t)
 
     (add-to-list 'org-structure-template-alist
                  '("S" . "src emacs-lisp :tangle yes :comments org\n")))
   (add-hook 'org-mode-hook 'my-org-mode-hook)
+#+end_src
+*** howm mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
+  (setq howm-prefix (kbd "\C-c ;"))
+  (setq howm-file-name-format "%Y/%m/%Y-%m-%d-%H%M%S.org")
+  (setq howm-view-title-header "*")
+  (require 'howm)
+  ;(setq howm-directory (file-name-concat (getenv "TODO set path here") "howm"))
 #+end_src
 *** c++ mode
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -638,39 +659,57 @@ use magit-repository-directories for default directories
 
 #+end_src
 
+*** swift mode
+#+begin_src emacs-lisp :tangle yes :comments org
+  (defun my-swift-mode-hook ()
+    (company-mode))
+
+  (add-hook 'swift-ts-mode-hook 'my-swift-mode-hook)
+#+end_src
+
 *** powershell-ts mode
 #+begin_src emacs-lisp :tangle yes :comments org
   ; https://github.com/dmille56/powershell-ts-mode/blob/main/powershell-ts-mode.el
   (require 'powershell-ts-mode)
+  (defun my-powershell-mode-hook ()
+    (company-mode)
+    (which-function-mode)
+    (setq header-line-format
+          '((which-func-mode ("   " which-func-format " "))))
+    (setq mode-line-misc-info
+          (assq-delete-all 'which-function-mode mode-line-misc-info)))
+  (add-hook 'powershell-ts-mode-hook 'my-powershell-mode-hook)
 #+end_src
 
 *** tree-sitter
 #+begin_src emacs-lisp :tangle yes :comments org
-  ;; compiled dlls:
-  ;;  https://github.com/emacs-tree-sitter/tree-sitter-langs
-  ;;  - csharp for included ts-mode
-  ;;  https://github.com/kiennq/treesit-langs
-  ;;  - powershell
-  ;;  https://github.com/iquiw/emacs-tree-sitter-module-dll
-  ;; copy to load path
-  (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
-  ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
-  (setq major-mode-remap-alist
-        (append major-mode-remap-alist
-        '((js-json-mode . json-ts-mode)
-          (typescript-mode . typescript-ts-mode)
-          (csharp-mode . csharp-ts-mode)
-          (python-mode . python-ts-mode)
-          (css-mode . css-ts-mode)
-          (yaml-mode . yaml-ts-mode)
-          (powershell-mode . powershell-ts-mode))))
+    ;; compiled dlls:
+    ;;  https://github.com/emacs-tree-sitter/tree-sitter-langs
+    ;;  - csharp for included ts-mode
+    ;;  https://github.com/kiennq/treesit-langs
+    ;;  - powershell
+    ;;  https://github.com/iquiw/emacs-tree-sitter-module-dll
+    ;; copy to load path
+    (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
+    ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+    (setq major-mode-remap-alist
+          (append major-mode-remap-alist
+          '((js-json-mode . json-ts-mode)
+            (typescript-mode . typescript-ts-mode)
+            (csharp-mode . csharp-ts-mode)
+            (python-mode . python-ts-mode)
+            (css-mode . css-ts-mode)
+            (yaml-mode . yaml-ts-mode)
+            (powershell-mode . powershell-ts-mode)
+            (swift-mode . swift-ts-mode))))
 #+end_src
 *** deadgrep
 #+begin_src emacs-lisp :tangle yes :comments org
-(defun deadgrep-here (search-term)
-  "Start deadgrep from the current working directory."
-  (interactive (list (deadgrep--read-search-term)))
-  (deadgrep search-term default-directory))
+  (require 'deadgrep)
+  (defun deadgrep-here (search-term)
+    "Start deadgrep from the current working directory."
+    (interactive (list (deadgrep--read-search-term)))
+    (deadgrep search-term default-directory))
 #+end_src
 *** auto-mode-alist
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -690,8 +729,8 @@ use magit-repository-directories for default directories
 #+end_src
 *** custom hooks
 #+begin_src emacs-lisp :tangle yes :comments org
-  (add-hook 'sgml-mode-hook 'skewer-html-mode)
-  (add-hook 'js2-mode-hook 'skewer-mode)
+  ;;(add-hook 'sgml-mode-hook 'skewer-html-mode)
+  ;;(add-hook 'js2-mode-hook 'skewer-mode)
   (add-hook 'elixir-mode-hook 'alchemist-mode)
   ;;skewer mode
   ;;(add-hook 'css-mode-hook 'skewer-css-mode)
