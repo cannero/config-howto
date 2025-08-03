@@ -19,7 +19,7 @@ https://orgmode.org/manual/Extracting-Source-Code.html
 - https://github.com/bbatsov/emacs-lisp-style-guide
 - project specifier in this file: *can*
 
-* debug help
+* debug help -*- lexical-binding: t; -*-
 #+begin_src emacs-lisp :tangle yes :comments org
 ;; in case of slow display update: -q -xrm Emacs.FontBackend:gdi
 ;;; UNCOMMENT THIS TO DEBUG TROUBLE GETTING EMACS UP AND RUNNING.
@@ -71,6 +71,7 @@ no need to set w32-pass-lwindow-to-system
   (global-set-key (kbd "C-x <f3>") 'find-file-progra-dir)
   (global-set-key (kbd "C-x <f4>") 'find-file-gdrive-dir)
   (global-set-key (kbd "<f6>") 'my-load-theme)
+  (global-set-key (kbd "C-x O") (lambda () (interactive) (other-window -1)))
 #+end_src
 
 ** path and load path
@@ -573,7 +574,7 @@ use magit-repository-directories for default directories
   (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.[cm]?js[mx]?\\'" . js-mode))
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
   (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
   ;; seems not to work (setq web-mode-engines-alist '(("razor" . "\\.cshtml\\'")))
@@ -602,7 +603,7 @@ use magit-repository-directories for default directories
 *** howm mode
 #+begin_src emacs-lisp :tangle yes :comments org
   ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
-  (setq howm-prefix (kbd "\C-c ;"))
+  (setq howm-prefix (kbd "\C-c o"))
   (setq howm-file-name-format "%Y/%m/%Y-%m-%d-%H%M%S.org")
   (setq howm-view-title-header "*")
   (require 'howm)
@@ -683,25 +684,26 @@ use magit-repository-directories for default directories
 
 *** tree-sitter
 #+begin_src emacs-lisp :tangle yes :comments org
-    ;; compiled dlls:
-    ;;  https://github.com/emacs-tree-sitter/tree-sitter-langs
-    ;;  - csharp for included ts-mode
-    ;;  https://github.com/kiennq/treesit-langs
-    ;;  - powershell
-    ;;  https://github.com/iquiw/emacs-tree-sitter-module-dll
-    ;; copy to load path
-    (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
-    ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
-    (setq major-mode-remap-alist
-          (append major-mode-remap-alist
-          '((js-json-mode . json-ts-mode)
-            (typescript-mode . typescript-ts-mode)
-            (csharp-mode . csharp-ts-mode)
-            (python-mode . python-ts-mode)
-            (css-mode . css-ts-mode)
-            (yaml-mode . yaml-ts-mode)
-            (powershell-mode . powershell-ts-mode)
-            (swift-mode . swift-ts-mode))))
+  ;; compiled dlls:
+  ;;  https://github.com/emacs-tree-sitter/tree-sitter-langs
+  ;;  - csharp for included ts-mode
+  ;;  https://github.com/kiennq/treesit-langs
+  ;;  - powershell
+  ;;  https://github.com/iquiw/emacs-tree-sitter-module-dll
+  ;; copy to load path
+  (setq treesit-extra-load-path (list (expand-file-name "tree-sit-parsers" user-emacs-directory)))
+  ;; remap tree sitter modes, see https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+  (setq major-mode-remap-alist
+        (append major-mode-remap-alist
+        '((js-json-mode . json-ts-mode)
+          (js-mode . js-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (csharp-mode . csharp-ts-mode)
+          (python-mode . python-ts-mode)
+          (css-mode . css-ts-mode)
+          (yaml-mode . yaml-ts-mode)
+          (powershell-mode . powershell-ts-mode)
+          (swift-mode . swift-ts-mode))))
 #+end_src
 *** deadgrep
 #+begin_src emacs-lisp :tangle yes :comments org
@@ -715,7 +717,6 @@ use magit-repository-directories for default directories
 #+begin_src emacs-lisp :tangle yes :comments org
   (setq auto-mode-alist
         (append '(("\\.pdf$" . whitespace-mode))
-                '(("\\.svg$" . nxml-mode))
                 auto-mode-alist))
   (add-to-list 'auto-mode-alist '("\\.kmk\\'" . makefile-mode))
   (add-to-list 'auto-mode-alist '("\\.es6\\'" . js-mode))
@@ -1022,7 +1023,9 @@ use magit-repository-directories for default directories
    ;; If you edit it by hand, you could mess it up, so be careful.
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
-   '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 113 :width normal :foundry "outline" :family "JetBrains Mono"))))
-   '(doom-modeline ((t (:height 0.8))))
-   '(lsp-modeline-code-actions-face ((t (:inherit homoglyph :height 0.8)))))
+   '(default ((t (:inherit nil :extend nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 128 :width normal :foundry "outline" :family "Fantasque Sans Mono"))))
+   '(header-line ((t (:inherit mode-line :height 0.9))))
+   '(mode-line ((t (:box nil))))
+   '(mode-line-active ((t (:inherit mode-line :height 0.8))))
+   '(mode-line-inactive ((t (:box nil :height 0.8)))))
 #+end_src

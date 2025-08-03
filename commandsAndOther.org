@@ -560,6 +560,7 @@ To ignore text differences, define a new Grammar element (what the text is), the
 use different name than existing ones, e.g. columns from 1 to xx
 Navigate to the Session | Session Settings | Importance tab to set importance, Update session defaults
 ** WSL
+vmmem
 - access wsl1
   path with \\wsl$, emacs shows it as //wsl$$/Ubuntu/home/<user>/
   from app also 'explorer.exe .' is possible as non-root user
@@ -574,6 +575,8 @@ Navigate to the Session | Session Settings | Importance tab to set importance, U
 - update system with do-release-upgrade
 - set default user or root
   ubuntu config --default-user <username>
+- config /etc/wsl.conf
+  don't append windows path
 *** docker
 install as listed on docker website for ubuntu
 start demon with 'sudo dockerd'
@@ -1434,17 +1437,37 @@ re-fresh password by running the failing cmd a second time
 - jj git push --allow-new
 *** work
 - jj bookmark set main
-  jj bookmark set main @-
+  jj bookmark move main --to @-
+  jj bookmark list --all
+  jj bookmark move --from main --to @- --allow-backwards
 - jj git push
 ** commands
+- jj show
+  show changes
 - jj new -m 'message'
   create new commit with message
 - jj describe -m 'message'
   set message for current commit
 - jj split -i
-- jj squash -i
+  select changes which stay
+- jj squash
+  everything, file  or -i
+  --into <rev>
 - jj log --limit 5
 - jj next --edit
+- jj edit <rev>
+  or use new <rev> and squash
+  https://jj-vcs.github.io/jj/latest/FAQ/#how-do-i-resume-working-on-an-existing-change
+*** general
+- use console output
+  --no-pager
+*** branches
+- create a branch of previous commit
+  jj bookmark create main -r @-
+- update bookmark to @
+  jj bookmark set main
+- push new bookmark
+  jj git push --allow-new
 * powershell
 use this in the powershell profile, 'test-path $profile'
 Import-Module PSReadLine
@@ -2153,9 +2176,8 @@ font in ~/.minttyrc
 <path_to>\msys64\msys2_shell.cmd -defterm -no-start -mingw64 -shell fish
 * new installation
 ** fonts
+https://www.codingfont.com/
 windows use ttf
-- source code pro
-- jetbrains mono
 ** utils
 - putty
 - emacs
